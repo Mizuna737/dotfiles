@@ -1,0 +1,8 @@
+import = [
+  "/usr/lib/node_modules/alacritty-themes/themes/Atelierheath.dark.toml"
+]
+
+[general]
+import = [
+  "/usr/lib/node_modules/alacritty-themes/themes/Catppuccin-Frappe.toml"
+]

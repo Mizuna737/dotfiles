@@ -1,0 +1,262 @@
+[2025-03-18 21:01:16.224] [info]  ======= NEW SESSION =======
+[2025-03-18 21:01:16.227] [info]  App version: 9.12.1
+[2025-03-18 21:01:16.235] [info]  Time: Tue Mar 18 2025 21:01:16 GMT-0600 (Mountain Daylight Time)
+[2025-03-18 21:01:16.278] [info]  Timezone: America/Denver
+[2025-03-18 21:01:16.278] [info]  ===========================
+[2025-03-18 21:01:17.003] [info]  Checking for update
+[2025-03-18 21:01:17.105] [info]  No stored API token
+[2025-03-18 21:01:17.125] [info]  Opening new window
+[2025-03-18 21:01:17.170] [info]  Successfully registered custom protocols
+[2025-03-18 21:01:17.245] [info]  Generated new staging user ID: 2cbfb4d6-43c4-56ec-b734-368a67566859
+[2025-03-18 21:01:17.802] [info]  Update for version 9.12.1 is not available (latest version: 9.12.1, downgrade is allowed).
+[2025-03-18 21:01:21.860] [info]  Opening login URL in the browser
+[2025-03-18 21:01:31.722] [info]  ======= NEW SESSION =======
+[2025-03-18 21:01:31.726] [info]  App version: 9.12.1
+[2025-03-18 21:01:31.731] [info]  Time: Tue Mar 18 2025 21:01:31 GMT-0600 (Mountain Daylight Time)
+[2025-03-18 21:01:31.771] [info]  Timezone: America/Denver
+[2025-03-18 21:01:31.771] [info]  ===========================
+[2025-03-18 21:01:32.230] [info]  Received deeplink: com.todoist://oauth2redirect/todoist?code=*****&state=*****&prompt=login
+[2025-03-18 21:01:32.231] [info]  Handling auth deeplink: com.todoist://oauth2redirect/todoist?code=*****&state=*****&prompt=login
+[2025-03-18 21:01:32.333] [info]  Successfully exchanged code for token, opening web app now
+[2025-03-18 21:01:32.526] [info]  Successfully registered custom protocols
+[2025-03-18 21:01:38.224] [info]  Setting web app initialized
+[2025-03-18 21:01:38.702] [info]  Received login IPC message
+[2025-03-18 21:01:38.703] [info]  Safe Storage Encryption is not available
+[2025-03-18 21:01:38.733] [info]  setting experimentalist value to false
+[2025-03-18 22:55:02.414] [info]  App is quitting
+[2025-03-20 19:36:55.521] [info]  ======= NEW SESSION =======
+[2025-03-20 19:36:55.527] [info]  App version: 9.12.1
+[2025-03-20 19:36:55.536] [info]  Time: Thu Mar 20 2025 19:36:55 GMT-0600 (Mountain Daylight Time)
+[2025-03-20 19:36:55.577] [info]  Timezone: America/Denver
+[2025-03-20 19:36:55.577] [info]  ===========================
+[2025-03-20 19:36:56.326] [info]  Checking for update
+[2025-03-20 19:36:56.447] [info]  Opening new window
+[2025-03-20 19:36:56.496] [info]  Successfully registered custom protocols
+[2025-03-20 19:36:57.233] [info]  Update for version 9.12.1 is not available (latest version: 9.12.1, downgrade is allowed).
+[2025-03-20 19:37:04.253] [info]  Setting web app initialized
+[2025-03-20 19:37:04.301] [info]  Received login IPC message
+[2025-03-20 19:37:04.302] [info]  Safe Storage Encryption is not available
+[2025-03-20 19:37:04.333] [info]  setting experimentalist value to false
+[2025-03-20 19:40:38.853] [info]  Closing a window
+[2025-03-20 19:40:38.938] [info]  App is quitting
+[2025-03-31 16:20:37.396] [info]  ======= NEW SESSION =======
+[2025-03-31 16:20:37.402] [info]  App version: 9.12.1
+[2025-03-31 16:20:37.410] [info]  Time: Mon Mar 31 2025 16:20:37 GMT-0600 (Mountain Daylight Time)
+[2025-03-31 16:20:37.453] [info]  Timezone: America/Denver
+[2025-03-31 16:20:37.453] [info]  ===========================
+[2025-03-31 16:20:38.221] [info]  Checking for update
+[2025-03-31 16:20:38.344] [info]  Opening new window
+[2025-03-31 16:20:38.394] [info]  Successfully registered custom protocols
+[2025-03-31 16:20:39.075] [info]  Found version 9.13.0 (url: Todoist-linux-9.13.0-x86_64-latest.AppImage)
+[2025-03-31 16:20:39.075] [info]  Downloading update from Todoist-linux-9.13.0-x86_64-latest.AppImage
+[2025-03-31 16:20:39.076] [debug] updater cache dir: /home/max/.cache/todoist-updater
+[2025-03-31 16:20:39.528] [info]  File has 4298 changed blocks
+[2025-03-31 16:20:39.529] [debug] [
+  {
+    "kind": 0,
+    "start": 0,
+    "end": 159006
+  },
+  {
+    "kind": 1,
+    "start": 159006,
+    "end": 191774
+  },
+  {
+    "kind": 0,
+    "start": 191774,
+    "end": 2230842
+  },
+  {
+    "kind": 1,
+    "start": 2230842,
+    "end": 2816195
+  },
+  {
+    "kind": 0,
+    "start": 2816165,
+    "end": 7411613
+  },
+  {
+    "kind": 1,
+    "start": 7411643,
+    "end": 7458772
+  },
+  {
+    "kind": 0,
+    "start": 7458745,
+    "end": 7500762
+  },
+  {
+    "kind": 1,
+    "start": 7500789,
+    "end": 13409570
+  },
+  {
+    "kind": 0,
+    "start": 13409942,
+    "end": 24371063
+  },
+  {
+    "kind": 1,
+    "start": 24370691,
+    "end": 30601912
+  },
+  {
+    "kind": 0,
+    "start": 30595322,
+    "end": 36595205
+  },
+  {
+    "kind": 1,
+    "start": 36601795,
+    "end": 113443238
+  },
+  {
+    "kind": 0,
+    "start": 113422317,
+    "end": 113886629
+  },
+  {
+    "kind": 1,
+    "start": 113907550,
+    "end": 113926120
+  }
+]
+[2025-03-31 16:20:39.531] [info]  Full: 111,372.82 KB, To download: 87,563.74 KB (79%)
+[2025-03-31 16:20:39.627] [error] Cannot download differentially, fallback to full download: Error: Content-Type "multipart/byteranges" is expected, but got "binary/octet-stream"
+    at ClientRequest.<anonymous> (/tmp/.mount_todoisI37vKG/resources/app.asar/node_modules/electron-updater/out/differentialDownloader/multipleRangeDownloader.js:80:20)
+    at ClientRequest.emit (node:events:530:35)
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:2:118516)
+    at SimpleURLLoaderWrapper.emit (node:events:518:28)
+[2025-03-31 16:20:41.044] [info]  Setting web app initialized
+[2025-03-31 16:20:41.103] [info]  Received login IPC message
+[2025-03-31 16:20:41.104] [info]  Safe Storage Encryption is not available
+[2025-03-31 16:20:41.138] [info]  setting experimentalist value to false
+[2025-03-31 16:20:43.566] [info]  New version 9.13.0 has been downloaded to /home/max/.cache/todoist-updater/pending/Todoist-linux-9.13.0-x86_64-latest.AppImage
+[2025-03-31 17:27:36.569] [info]  Closing a window
+[2025-03-31 17:27:36.594] [info]  App is quitting
+[2025-03-31 17:27:36.689] [info]  Auto install update on quit
+[2025-03-31 17:27:36.690] [info]  Install: isSilent: true, isForceRunAfter: false
+[2025-03-31 17:27:36.690] [error] Error: Error: EACCES: permission denied, unlink '/opt/todoist-appimage/todoist-appimage.AppImage'
+    at unlinkSync (node:fs:1886:11)
+    at AppImageUpdater.doInstall (/tmp/.mount_todoisI37vKG/resources/app.asar/node_modules/electron-updater/out/AppImageUpdater.js:76:29)
+    at AppImageUpdater.install (/tmp/.mount_todoisI37vKG/resources/app.asar/node_modules/electron-updater/out/BaseUpdater.js:61:25)
+    at /tmp/.mount_todoisI37vKG/resources/app.asar/node_modules/electron-updater/out/BaseUpdater.js:92:18
+    at App.<anonymous> (/tmp/.mount_todoisI37vKG/resources/app.asar/node_modules/electron-updater/out/ElectronAppAdapter.js:38:48)
+    at Object.onceWrapper (node:events:633:26)
+    at App.emit (node:events:530:35)
+    at emitter.emit (/tmp/.mount_todoisI37vKG/resources/app.asar/node_modules/@sentry/electron/main/integrations/electron-breadcrumbs.js:73:20)
+    at App.exitHandler (/tmp/.mount_todoisI37vKG/resources/app.asar/node_modules/@sentry/electron/main/sessions.js:219:18)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2025-03-31 17:27:36.693] [error] Error: EACCES: permission denied, unlink '/opt/todoist-appimage/todoist-appimage.AppImage'
+    at unlinkSync (node:fs:1886:11)
+    at AppImageUpdater.doInstall (/tmp/.mount_todoisI37vKG/resources/app.asar/node_modules/electron-updater/out/AppImageUpdater.js:76:29)
+    at AppImageUpdater.install (/tmp/.mount_todoisI37vKG/resources/app.asar/node_modules/electron-updater/out/BaseUpdater.js:61:25)
+    at /tmp/.mount_todoisI37vKG/resources/app.asar/node_modules/electron-updater/out/BaseUpdater.js:92:18
+    at App.<anonymous> (/tmp/.mount_todoisI37vKG/resources/app.asar/node_modules/electron-updater/out/ElectronAppAdapter.js:38:48)
+    at Object.onceWrapper (node:events:633:26)
+    at App.emit (node:events:530:35)
+    at emitter.emit (/tmp/.mount_todoisI37vKG/resources/app.asar/node_modules/@sentry/electron/main/integrations/electron-breadcrumbs.js:73:20)
+    at App.exitHandler (/tmp/.mount_todoisI37vKG/resources/app.asar/node_modules/@sentry/electron/main/sessions.js:219:18)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2025-04-03 18:22:34.069] [info]  ======= NEW SESSION =======
+[2025-04-03 18:22:34.075] [info]  App version: 9.12.1
+[2025-04-03 18:22:34.083] [info]  Time: Thu Apr 03 2025 18:22:34 GMT-0600 (Mountain Daylight Time)
+[2025-04-03 18:22:34.126] [info]  Timezone: America/Denver
+[2025-04-03 18:22:34.126] [info]  ===========================
+[2025-04-03 18:22:34.901] [info]  Checking for update
+[2025-04-03 18:22:35.024] [info]  Opening new window
+[2025-04-03 18:22:35.076] [info]  Successfully registered custom protocols
+[2025-04-03 18:22:35.726] [info]  Found version 9.13.0 (url: Todoist-linux-9.13.0-x86_64-latest.AppImage)
+[2025-04-03 18:22:35.727] [info]  Downloading update from Todoist-linux-9.13.0-x86_64-latest.AppImage
+[2025-04-03 18:22:35.727] [debug] updater cache dir: /home/max/.cache/todoist-updater
+[2025-04-03 18:22:36.057] [info]  Update has already been downloaded to /home/max/.cache/todoist-updater/pending/Todoist-linux-9.13.0-x86_64-latest.AppImage).
+[2025-04-03 18:22:37.406] [info]  Setting web app initialized
+[2025-04-03 18:22:37.455] [info]  Received login IPC message
+[2025-04-03 18:22:37.456] [info]  Safe Storage Encryption is not available
+[2025-04-03 18:22:37.487] [info]  setting experimentalist value to false
+[2025-04-03 23:09:50.346] [info]  App is quitting
+[2025-05-07 16:28:57.935] [info]  ======= NEW SESSION =======
+[2025-05-07 16:28:57.940] [info]  App version: 9.13.1
+[2025-05-07 16:28:57.946] [info]  Time: Wed May 07 2025 16:28:57 GMT-0600 (Mountain Daylight Time)
+[2025-05-07 16:28:57.989] [info]  Timezone: America/Denver
+[2025-05-07 16:28:57.989] [info]  ===========================
+[2025-05-07 16:28:58.757] [info]  Checking for update
+[2025-05-07 16:28:58.899] [info]  Opening new window
+[2025-05-07 16:28:58.954] [info]  Successfully registered custom protocols
+[2025-05-07 16:28:59.622] [info]  Found version 9.14.0 (url: Todoist-linux-9.14.0-x86_64-latest.AppImage)
+[2025-05-07 16:28:59.623] [info]  Downloading update from Todoist-linux-9.14.0-x86_64-latest.AppImage
+[2025-05-07 16:28:59.624] [debug] updater cache dir: /home/max/.cache/todoist-updater
+[2025-05-07 16:28:59.627] [info]  Cached update sha512 checksum doesn't match the latest available update. New update must be downloaded. Cached: TH5VeOhzgHT3OrnSwj3XwD9Smvw4UfkHgj4XZ5xP+XhtGGwhBDRmmKiLxerIQ2Z3m+EsOh/1yh90zevbgCLpjA==, expected: FOoIRrQfPO6l4xnWrvPLCEa58vr3cEpH6EEcmyTW+pK6+aocR24x/f8W7/86k+f+hBCeHnCDcjpr458L6VvORQ==. Directory for cached update will be cleaned
+[2025-05-07 16:28:59.814] [info]  File has 307 changed blocks
+[2025-05-07 16:28:59.814] [debug] [
+  {
+    "kind": 0,
+    "start": 0,
+    "end": 159006
+  },
+  {
+    "kind": 1,
+    "start": 159006,
+    "end": 191774
+  },
+  {
+    "kind": 0,
+    "start": 191774,
+    "end": 24371121
+  },
+  {
+    "kind": 1,
+    "start": 24371121,
+    "end": 30586099
+  },
+  {
+    "kind": 0,
+    "start": 30589029,
+    "end": 113388099
+  },
+  {
+    "kind": 1,
+    "start": 113385169,
+    "end": 113417937
+  },
+  {
+    "kind": 0,
+    "start": 113420867,
+    "end": 113893065
+  },
+  {
+    "kind": 1,
+    "start": 113890135,
+    "end": 113905640
+  }
+]
+[2025-05-07 16:28:59.817] [info]  Full: 111,353.35 KB, To download: 6,148.46 KB (6%)
+[2025-05-07 16:28:59.872] [error] Cannot download differentially, fallback to full download: Error: Content-Type "multipart/byteranges" is expected, but got "binary/octet-stream"
+    at ClientRequest.<anonymous> (/tmp/.mount_todoisRKEk6g/resources/app.asar/node_modules/electron-updater/out/differentialDownloader/multipleRangeDownloader.js:80:20)
+    at ClientRequest.emit (node:events:536:35)
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:2:118516)
+    at SimpleURLLoaderWrapper.emit (node:events:524:28)
+[2025-05-07 16:28:59.886] [error] Error: Error: net::ERR_NETWORK_CHANGED
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:2:118774)
+    at SimpleURLLoaderWrapper.emit (node:events:524:28)
+[2025-05-07 16:28:59.890] [error] Error: net::ERR_NETWORK_CHANGED
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:2:118774)
+    at SimpleURLLoaderWrapper.emit (node:events:524:28)
+[2025-05-07 16:28:59.890] [error] Error: net::ERR_NETWORK_CHANGED
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:2:118774)
+    at SimpleURLLoaderWrapper.emit (node:events:524:28)
+[2025-05-07 16:28:59.891] [error] Error: net::ERR_NETWORK_CHANGED
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:2:118774)
+    at SimpleURLLoaderWrapper.emit (node:events:524:28)
+[2025-05-07 16:29:01.896] [info]  Setting web app initialized
+[2025-05-07 16:29:01.931] [info]  Received login IPC message
+[2025-05-07 16:29:01.931] [info]  Safe Storage Encryption is not available
+[2025-05-07 16:29:01.966] [info]  setting experimentalist value to false
+[2025-05-07 16:29:07.143] [info]  Setting web app initialized
+[2025-05-07 16:29:07.462] [info]  Received login IPC message
+[2025-05-07 16:29:07.463] [info]  Safe Storage Encryption is not available
+[2025-05-07 16:29:07.497] [info]  setting experimentalist value to false
+[2025-05-07 16:54:29.349] [info]  Closing a window
+[2025-05-07 16:54:29.375] [info]  App is quitting

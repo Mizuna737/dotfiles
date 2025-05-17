@@ -1,0 +1,268 @@
+10:47:27.090: Using EGL/X11
+10:47:27.090: CPU Name: AMD Ryzen 7 5800X3D 8-Core Processor
+10:47:27.090: CPU Speed: 4324.628MHz
+10:47:27.091: Physical Cores: 8, Logical Cores: 16
+10:47:27.091: Physical Memory: 64219MB Total, 43242MB Free
+10:47:27.091: Kernel Version: Linux 6.13.8-arch1-1
+10:47:27.091: Distribution: "Arch Linux" Unknown
+10:47:27.091: Session Type: tty
+10:47:27.091: Window System: X11.0, Vendor: The X.Org Foundation, Version: 1.21.1
+10:47:27.091: Qt Version: 6.8.3 (runtime), 6.8.3 (compiled)
+10:47:27.091: Portable mode: false
+10:47:27.128: OBS 31.0.3 (linux)
+10:47:27.128: ---------------------------------
+10:47:27.129: ---------------------------------
+10:47:27.129: audio settings reset:
+10:47:27.129: 	samples per sec: 48000
+10:47:27.129: 	speakers:        2
+10:47:27.129: 	max buffering:   960 milliseconds
+10:47:27.129: 	buffering type:  dynamically increasing
+10:47:27.131: ---------------------------------
+10:47:27.131: Initializing OpenGL...
+10:47:27.223: Loading up OpenGL on adapter NVIDIA Corporation NVIDIA GeForce RTX 3080/PCIe/SSE2
+10:47:27.223: OpenGL loaded successfully, version 3.3.0 NVIDIA 570.133.07, shading language 3.30 NVIDIA via Cg compiler
+10:47:27.247: ---------------------------------
+10:47:27.247: video settings reset:
+10:47:27.247: 	base resolution:   3840x2160
+10:47:27.247: 	output resolution: 3840x2160
+10:47:27.247: 	downscale filter:  Bicubic
+10:47:27.247: 	fps:               60/1
+10:47:27.247: 	format:            NV12
+10:47:27.247: 	YUV mode:          Rec. 709/Partial
+10:47:27.247: NV12 texture support enabled
+10:47:27.247: P010 texture support not available
+10:47:27.286: Audio monitoring device:
+10:47:27.286: 	name: Default
+10:47:27.286: 	id: default
+10:47:27.287: ---------------------------------
+10:47:27.294: Failed to load 'en-US' text for module: 'decklink-captions.so'
+10:47:27.300: Failed to load 'en-US' text for module: 'decklink-output-ui.so'
+10:47:27.306: A DeckLink iterator could not be created.  The DeckLink drivers may not be installed
+10:47:27.306: Failed to initialize module 'decklink.so'
+10:47:27.420: [pipewire] No capture sources available
+10:47:27.494: [obs-backgroundremoval] Plugin loaded successfully (version 1.2.0)
+10:47:27.494: [obs-backgroundremoval] Failed to open config file /home/max/.config/obs-studio/plugin_config/obs-backgroundremoval/config.ini
+10:47:27.494: [obs-backgroundremoval] Failed to open config file /home/max/.config/obs-studio/plugin_config/obs-backgroundremoval/config.ini
+10:47:27.718: [obs-backgroundremoval] Latest release is 
+10:47:27.781: VAAPI: Failed to initialize display in vaapi_device_h264_supported
+10:47:27.781: FFmpeg VAAPI H264 encoding not supported
+10:47:27.781: VAAPI: Failed to initialize display in vaapi_device_av1_supported
+10:47:27.781: FFmpeg VAAPI AV1 encoding not supported
+10:47:27.781: VAAPI: Failed to initialize display in vaapi_device_hevc_supported
+10:47:27.781: FFmpeg VAAPI HEVC encoding not supported
+10:47:28.250: [obs-nvenc] NVENC version: 13.0 (compiled) / 13.0 (driver), CUDA driver version: 12.80, AV1 supported: false
+10:47:28.314: os_dlopen(/usr/lib/obs-plugins/obs-websocket.so->/usr/lib/obs-plugins/obs-websocket.so): libqrcodegencpp.so.1: cannot open shared object file: No such file or directory
+10:47:28.314: 
+10:47:28.317: os_dlopen(/usr/lib/obs-plugins/obs-websocket.so->/usr/lib/obs-plugins/obs-websocket.so): libqrcodegencpp.so.1: cannot open shared object file: No such file or directory
+10:47:28.317: 
+10:47:28.317: Module '/usr/lib/obs-plugins/obs-websocket.so' not loaded
+10:47:28.341: ---------------------------------
+10:47:28.341:   Loaded Modules:
+10:47:28.341:     text-freetype2.so
+10:47:28.341:     rtmp-services.so
+10:47:28.341:     obs-x264.so
+10:47:28.341:     obs-webrtc.so
+10:47:28.341:     obs-vst.so
+10:47:28.341:     obs-transitions.so
+10:47:28.341:     obs-qsv11.so
+10:47:28.341:     obs-outputs.so
+10:47:28.341:     obs-nvenc.so
+10:47:28.341:     obs-libfdk.so
+10:47:28.341:     obs-filters.so
+10:47:28.341:     obs-ffmpeg.so
+10:47:28.341:     obs-backgroundremoval.so
+10:47:28.341:     linux-v4l2.so
+10:47:28.341:     linux-pulseaudio.so
+10:47:28.341:     linux-pipewire.so
+10:47:28.341:     linux-jack.so
+10:47:28.341:     linux-capture.so
+10:47:28.341:     linux-alsa.so
+10:47:28.341:     image-source.so
+10:47:28.341:     frontend-tools.so
+10:47:28.341:     decklink-output-ui.so
+10:47:28.341:     decklink-captions.so
+10:47:28.341: ---------------------------------
+10:47:28.341: ---------------------------------
+10:47:28.341: Available Encoders:
+10:47:28.341:   Video Encoders:
+10:47:28.341: 	- ffmpeg_svt_av1 (SVT-AV1)
+10:47:28.341: 	- ffmpeg_aom_av1 (AOM AV1)
+10:47:28.341: 	- obs_nvenc_h264_tex (NVIDIA NVENC H.264)
+10:47:28.341: 	- obs_nvenc_hevc_tex (NVIDIA NVENC HEVC)
+10:47:28.341: 	- obs_x264 (x264)
+10:47:28.341:   Audio Encoders:
+10:47:28.341: 	- ffmpeg_aac (FFmpeg AAC)
+10:47:28.341: 	- ffmpeg_opus (FFmpeg Opus)
+10:47:28.341: 	- ffmpeg_pcm_s16le (FFmpeg PCM (16-bit))
+10:47:28.341: 	- ffmpeg_pcm_s24le (FFmpeg PCM (24-bit))
+10:47:28.341: 	- ffmpeg_pcm_f32le (FFmpeg PCM (32-bit float))
+10:47:28.341: 	- ffmpeg_alac (FFmpeg ALAC (24-bit))
+10:47:28.341: 	- ffmpeg_flac (FFmpeg FLAC (16-bit))
+10:47:28.341: 	- libfdk_aac (libfdk AAC)
+10:47:28.341: ==== Startup complete ===============================================
+10:47:28.366: All scene data cleared
+10:47:28.366: ------------------------------------------------
+10:47:28.370: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.1) 15.0.0'
+10:47:28.370: pulse-input: Audio format: s16le, 48000 Hz, 2 channels
+10:47:28.370: pulse-input: Started recording from 'alsa_output.usb-Burr-Brown_from_TI_USB_Audio_CODEC-00.analog-stereo-output.monitor' (default)
+10:47:28.370: [Loaded global audio device]: 'Desktop Audio'
+10:47:28.370: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.1) 15.0.0'
+10:47:28.370: pulse-input: An error occurred while getting the source info!
+10:47:28.370: [Loaded global audio device]: 'Mic/Aux'
+10:47:28.370: v4l2-input: Start capture from /dev/video0
+10:47:28.371: v4l2-input: Input: 0
+10:47:28.372: v4l2-input: Resolution: 3840x2160
+10:47:28.372: v4l2-input: Pixelformat: YU12
+10:47:28.372: v4l2-input: Linesize: 3840 Bytes
+10:47:28.372: v4l2-input: Framerate: 30.00 fps
+10:47:28.377: v4l2-input: /dev/video0: select timeout set to 166666 (5x frame periods)
+10:47:28.378: [obs-backgroundremoval] Background filter created
+10:47:28.403: [obs-backgroundremoval] Background filter updated
+10:47:29.093: [obs-backgroundremoval] Model models/rvm_mobilenetv3_fp32.onnx input 0: name src shape (4 dim) 1 x 3 x 192 x 320
+10:47:29.093: [obs-backgroundremoval] Model models/rvm_mobilenetv3_fp32.onnx input 1: name r1i shape (4 dim) 1 x 16 x 96 x 160
+10:47:29.093: [obs-backgroundremoval] Model models/rvm_mobilenetv3_fp32.onnx input 2: name r2i shape (4 dim) 1 x 20 x 48 x 80
+10:47:29.093: [obs-backgroundremoval] Model models/rvm_mobilenetv3_fp32.onnx input 3: name r3i shape (4 dim) 1 x 40 x 24 x 40
+10:47:29.093: [obs-backgroundremoval] Model models/rvm_mobilenetv3_fp32.onnx input 4: name r4i shape (4 dim) 1 x 64 x 12 x 20
+10:47:29.093: [obs-backgroundremoval] Model models/rvm_mobilenetv3_fp32.onnx input 5: name downsample_ratio shape (1 dim) 1 x 0 x 0 x 0
+10:47:29.093: [obs-backgroundremoval] Model models/rvm_mobilenetv3_fp32.onnx output 0: name pha shape (4 dim) 1 x 1 x 192 x 320
+10:47:29.093: [obs-backgroundremoval] Model models/rvm_mobilenetv3_fp32.onnx output 1: name r1o shape (4 dim) 1 x 16 x 96 x 160
+10:47:29.093: [obs-backgroundremoval] Model models/rvm_mobilenetv3_fp32.onnx output 2: name r2o shape (4 dim) 1 x 20 x 48 x 80
+10:47:29.093: [obs-backgroundremoval] Model models/rvm_mobilenetv3_fp32.onnx output 3: name r3o shape (4 dim) 1 x 40 x 24 x 40
+10:47:29.093: [obs-backgroundremoval] Model models/rvm_mobilenetv3_fp32.onnx output 4: name r4o shape (4 dim) 1 x 64 x 12 x 20
+10:47:29.093: [obs-backgroundremoval] Allocated 184320 sized float-array for input 0
+10:47:29.094: [obs-backgroundremoval] Allocated 245760 sized float-array for input 1
+10:47:29.094: [obs-backgroundremoval] Allocated 76800 sized float-array for input 2
+10:47:29.094: [obs-backgroundremoval] Allocated 38400 sized float-array for input 3
+10:47:29.094: [obs-backgroundremoval] Allocated 15360 sized float-array for input 4
+10:47:29.094: [obs-backgroundremoval] Allocated 1 sized float-array for input 5
+10:47:29.094: [obs-backgroundremoval] Allocated 61440 sized float-array for output 0
+10:47:29.094: [obs-backgroundremoval] Allocated 245760 sized float-array for output 1
+10:47:29.094: [obs-backgroundremoval] Allocated 76800 sized float-array for output 2
+10:47:29.094: [obs-backgroundremoval] Allocated 38400 sized float-array for output 3
+10:47:29.094: [obs-backgroundremoval] Allocated 15360 sized float-array for output 4
+10:47:29.095: [obs-backgroundremoval] Background Removal Filter Options:
+10:47:29.095: [obs-backgroundremoval]   Source: BackgroundRemoval
+10:47:29.095: [obs-backgroundremoval]   Model: models/rvm_mobilenetv3_fp32.onnx
+10:47:29.095: [obs-backgroundremoval]   Inference Device: cuda
+10:47:29.095: [obs-backgroundremoval]   Num Threads: 1
+10:47:29.095: [obs-backgroundremoval]   Enable Threshold: true
+10:47:29.095: [obs-backgroundremoval]   Threshold: 0.630000
+10:47:29.095: [obs-backgroundremoval]   Contour Filter: 0.000000
+10:47:29.095: [obs-backgroundremoval]   Smooth Contour: 1.000000
+10:47:29.095: [obs-backgroundremoval]   Feather: 0.000000
+10:47:29.095: [obs-backgroundremoval]   Mask Every X Frames: 1
+10:47:29.095: [obs-backgroundremoval]   Enable Image Similarity: false
+10:47:29.095: [obs-backgroundremoval]   Image Similarity Threshold: 100.000000
+10:47:29.095: [obs-backgroundremoval]   Blur Background: 6
+10:47:29.095: [obs-backgroundremoval]   Enable Focal Blur: true
+10:47:29.095: [obs-backgroundremoval]   Blur Focus Point: 0.000000
+10:47:29.095: [obs-backgroundremoval]   Blur Focus Depth: 0.000000
+10:47:29.095: [obs-backgroundremoval]   Disabled: true
+10:47:29.095: [obs-backgroundremoval]   Model file path: /usr/share/obs/obs-plugins/obs-backgroundremoval/models/rvm_mobilenetv3_fp32.onnx
+10:47:29.098: xshm-input: Geometry 3440x1440 @ 0,0
+10:47:29.403: [obs-backgroundremoval] Background filter activated
+10:47:29.403: Switched to scene 'Camera'
+10:47:29.403: ------------------------------------------------
+10:47:29.403: Loaded scenes:
+10:47:29.403: - scene 'Camera':
+10:47:29.403:     - source: 'Color Source' (color_source_v3)
+10:47:29.403:     - source: 'Virtual Background' (image_source)
+10:47:29.403:     - source: 'Video Capture Device (V4L2)' (v4l2_input)
+10:47:29.403:         - filter: 'Chroma Key' (chroma_key_filter_v2)
+10:47:29.403:         - filter: 'BackgroundRemoval' (background_removal)
+10:47:29.403:         - filter: 'Color Correction (Daylight)' (color_filter_v2)
+10:47:29.403:         - filter: 'Color Correction (Night Time)' (color_filter_v2)
+10:47:29.403:         - filter: 'Apply LUT' (clut_filter)
+10:47:29.403:         - filter: 'Crop/Pad' (crop_filter)
+10:47:29.403:         - filter: 'Scroll' (scroll_filter)
+10:47:29.403: - scene 'Gameplay Fullscreen':
+10:47:29.403:     - source: 'Primary Display' (xshm_input)
+10:47:29.403: ------------------------------------------------
+10:47:29.796: adding 21 milliseconds of audio buffering, total audio buffering is now 21 milliseconds (source: Desktop Audio)
+10:47:29.796: 
+10:47:37.260: Virtual camera started
+10:47:37.278: ==== Virtual Camera Start ==========================================
+10:47:37.278: Starting Virtual Camera output to Program
+11:48:29.086: Output 'virtualcam_output': stopping
+11:48:29.087: Output 'virtualcam_output': Total frames output: 219106
+11:48:29.087: Output 'virtualcam_output': Total drawn frames: 124292 (219108 attempted)
+11:48:29.087: Output 'virtualcam_output': Number of lagged frames due to rendering lag/stalls: 94816 (43.3%)
+11:48:29.087: ==== Virtual Camera Stop ===========================================
+11:48:29.088: Virtual camera stopped
+11:48:29.698: ==== Shutting down ==================================================
+11:48:29.710: [obs-backgroundremoval] Background filter deactivated
+11:48:29.753: pulse-input: Stopped recording from 'alsa_output.usb-Burr-Brown_from_TI_USB_Audio_CODEC-00.analog-stereo-output.monitor'
+11:48:29.753: pulse-input: Got 146421 packets with 175705200 frames
+11:48:29.754: [obs-backgroundremoval] Background filter destroyed
+11:48:29.786: v4l2-input: /dev/video0: Stopped capture after 97450 frames
+11:48:29.874: All scene data cleared
+11:48:29.874: ------------------------------------------------
+11:48:29.936: [obs-backgroundremoval] plugin unloaded
+11:48:29.942: [Scripting] Total detached callbacks: 0
+11:48:29.942: Freeing OBS context data
+11:48:29.973: == Profiler Results =============================
+11:48:29.973: run_program_init: 2443.13 ms
+11:48:29.973:  ┣OBSApp::AppInit: 17.62 ms
+11:48:29.973:  ┃ ┗OBSApp::InitLocale: 2.301 ms
+11:48:29.973:  ┗OBSApp::OBSInit: 2368.77 ms
+11:48:29.973:    ┣obs_startup: 1.075 ms
+11:48:29.973:    ┗OBSBasic::OBSInit: 2331.03 ms
+11:48:29.973:      ┣OBSBasic::InitBasicConfig: 0.938 ms
+11:48:29.973:      ┣OBSBasic::ResetAudio: 0.193 ms
+11:48:29.973:      ┣OBSBasic::ResetVideo: 157.275 ms
+11:48:29.973:      ┃ ┗obs_init_graphics: 117.77 ms
+11:48:29.973:      ┃   ┗shader compilation: 23.165 ms
+11:48:29.973:      ┣OBSBasic::InitOBSCallbacks: 0.002 ms
+11:48:29.973:      ┣OBSBasic::InitHotkeys: 0.015 ms
+11:48:29.973:      ┣obs_load_all_modules2: 1053.36 ms
+11:48:29.973:      ┃ ┣obs_init_module(decklink-captions.so): 0 ms
+11:48:29.973:      ┃ ┣obs_init_module(decklink-output-ui.so): 0 ms
+11:48:29.973:      ┃ ┣obs_init_module(decklink.so): 0.087 ms
+11:48:29.973:      ┃ ┣obs_init_module(frontend-tools.so): 59.95 ms
+11:48:29.973:      ┃ ┣obs_init_module(image-source.so): 0.006 ms
+11:48:29.973:      ┃ ┣obs_init_module(linux-alsa.so): 0.001 ms
+11:48:29.973:      ┃ ┣obs_init_module(linux-capture.so): 0.354 ms
+11:48:29.973:      ┃ ┣obs_init_module(linux-jack.so): 0.001 ms
+11:48:29.973:      ┃ ┣obs_init_module(linux-pipewire.so): 2.705 ms
+11:48:29.973:      ┃ ┣obs_init_module(linux-pulseaudio.so): 0.005 ms
+11:48:29.973:      ┃ ┣obs_init_module(linux-v4l2.so): 4.527 ms
+11:48:29.973:      ┃ ┣obs_init_module(obs-backgroundremoval.so): 224.166 ms
+11:48:29.973:      ┃ ┣obs_init_module(obs-ffmpeg.so): 0.675 ms
+11:48:29.973:      ┃ ┣obs_init_module(obs-filters.so): 0.024 ms
+11:48:29.973:      ┃ ┣obs_init_module(obs-libfdk.so): 0.001 ms
+11:48:29.973:      ┃ ┣obs_init_module(obs-nvenc.so): 446.334 ms
+11:48:29.973:      ┃ ┃ ┗nvenc_check: 446.319 ms
+11:48:29.973:      ┃ ┣obs_init_module(obs-outputs.so): 0.004 ms
+11:48:29.973:      ┃ ┣obs_init_module(obs-qsv11.so): 0.815 ms
+11:48:29.973:      ┃ ┣obs_init_module(obs-transitions.so): 0.008 ms
+11:48:29.973:      ┃ ┣obs_init_module(obs-vst.so): 0.003 ms
+11:48:29.973:      ┃ ┣obs_init_module(obs-webrtc.so): 0.001 ms
+11:48:29.973:      ┃ ┣obs_init_module(obs-x264.so): 0.001 ms
+11:48:29.973:      ┃ ┣obs_init_module(rtmp-services.so): 2.085 ms
+11:48:29.973:      ┃ ┗obs_init_module(text-freetype2.so): 0.011 ms
+11:48:29.973:      ┣OBSBasic::InitService: 1.495 ms
+11:48:29.973:      ┣OBSBasic::ResetOutputs: 0.902 ms
+11:48:29.973:      ┣OBSBasic::CreateHotkeys: 0.098 ms
+11:48:29.973:      ┣OBSBasic::InitPrimitives: 0.148 ms
+11:48:29.973:      ┗OBSBasic::Load: 1063.06 ms
+11:48:29.973: obs_hotkey_thread(25 ms): min=0.059 ms, median=0.118 ms, max=17.201 ms, 99th percentile=2.377 ms, 100% below 25 ms
+11:48:29.973: audio_thread(Audio): min=0.003 ms, median=0.105 ms, max=31.567 ms, 99th percentile=13.043 ms
+11:48:29.973: obs_graphics_thread(16.6667 ms): min=0.112 ms, median=29.25 ms, max=1074.74 ms, 99th percentile=39.387 ms, 0.430137% below 16.667 ms
+11:48:29.973:  ┣tick_sources: min=0 ms, median=17.066 ms, max=1051.86 ms, 99th percentile=24.642 ms
+11:48:29.973:  ┣output_frame: min=0.047 ms, median=11.875 ms, max=42.13 ms, 99th percentile=16.099 ms
+11:48:29.973:  ┃ ┣gs_context(video->graphics): min=0.047 ms, median=8.824 ms, max=42.129 ms, 99th percentile=12.704 ms
+11:48:29.973:  ┃ ┃ ┣render_video: min=0.02 ms, median=8.716 ms, max=30.361 ms, 99th percentile=12.508 ms
+11:48:29.973:  ┃ ┃ ┃ ┣render_main_texture: min=0.016 ms, median=8.615 ms, max=28.508 ms, 99th percentile=12.362 ms
+11:48:29.973:  ┃ ┃ ┃ ┣render_convert_texture: min=0.028 ms, median=0.053 ms, max=2.676 ms, 99th percentile=0.158 ms
+11:48:29.973:  ┃ ┃ ┃ ┗stage_output_texture: min=0.015 ms, median=0.023 ms, max=12.463 ms, 99th percentile=0.073 ms
+11:48:29.973:  ┃ ┃ ┣gs_flush: min=0.003 ms, median=0.005 ms, max=3.856 ms, 99th percentile=0.017 ms
+11:48:29.973:  ┃ ┃ ┗download_frame: min=0 ms, median=0.003 ms, max=0.086 ms, 99th percentile=0.009 ms
+11:48:29.973:  ┃ ┗output_video_data: min=1.166 ms, median=2.861 ms, max=8.636 ms, 99th percentile=5.347 ms
+11:48:29.973:  ┗render_displays: min=0.016 ms, median=0.325 ms, max=38.285 ms, 99th percentile=1.511 ms
+11:48:29.973: video_thread(video): min=0.374 ms, median=25.173 ms, max=86.966 ms, 99th percentile=41.199 ms
+11:48:29.973: =================================================
+11:48:29.973: == Profiler Time Between Calls ==================
+11:48:29.973: obs_hotkey_thread(25 ms): min=25.084 ms, median=25.198 ms, max=43.199 ms, 83.7518% within ±2% of 25 ms (0% lower, 16.2482% higher)
+11:48:29.973: obs_graphics_thread(16.6667 ms): min=10.946 ms, median=29.256 ms, max=1074.75 ms, 0.441354% within ±2% of 16.667 ms (0.0168211% lower, 99.5418% higher)
+11:48:29.973: =================================================
+11:48:30.091: Number of memory leaks: 0

@@ -1,0 +1,3 @@
+general.import = [
+  "/usr/lib/node_modules/alacritty-themes/themes/Catppuccin-Frappe.toml"
+]

@@ -1,0 +1,5 @@
+2025/04/03-18:22:34.847 a7caa Reusing MANIFEST /home/max/.config/Todoist/Local Storage/leveldb/MANIFEST-000001
+2025/04/03-18:22:34.849 a7caa Recovering log #3
+2025/04/03-18:22:34.850 a7caa Level-0 table #3: started
+2025/04/03-18:22:34.855 a7caa Level-0 table #3: 22662 bytes OK
+2025/04/03-18:22:34.860 a7caa Delete type=0 #3
