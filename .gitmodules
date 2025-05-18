@@ -1,0 +1,3 @@
+[submodule ".config/tmux/plugins/tmux-ayu-theme"]
+	path = .config/tmux/plugins/tmux-ayu-theme
+	url = https://github.com/TechnicalDC/tmux-ayu-theme/
