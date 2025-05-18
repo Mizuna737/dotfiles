@@ -1,8 +1,0 @@
-import = [
-  "/usr/lib/node_modules/alacritty-themes/themes/Afterglow.toml"
-]
-
-[general]
-import = [
-  "/usr/lib/node_modules/alacritty-themes/themes/Catppuccin-Frappe.toml"
-]
