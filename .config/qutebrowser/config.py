@@ -34,6 +34,12 @@ config.bind(
     ",b", cmd
 )  # opens all your “(Bills)” URLs in tabs :contentReference[oaicite:1]{index=1}
 
+# Bind “gy” to open YouTube in the current tab
+config.bind("gy", "open https://www.youtube.com/")
+
+# Bind “gY” to open YouTube in a new tab
+config.bind("gY", "open -t https://www.youtube.com/")
+
 palette = {
     "bg": "#1f2430",
     "fg": "#cad3f5",
@@ -140,3 +146,18 @@ c.tabs.title.format = (
 
 # Optionally center icons/text vertically
 c.tabs.padding = {"top": 5, "bottom": 5, "left": 5, "right": 5}
+
+# map search keywords → URLs
+c.url.searchengines = {
+    "DEFAULT": "https://www.google.com/search?q={}",  # what you get if you type :open something
+    "g": "https://www.google.com/search?q={}",  # explicit “g”
+    "ddg": "https://duckduckgo.com/?q={}",  # keep DuckDuckGo if you like
+    # add more as you like...
+}
+
+
+# Open ChatGPT on startup
+c.url.start_pages = ["https://chat.openai.com/"]
+
+# Use ChatGPT as the default page (for :open or new-tab)
+c.url.default_page = "https://chat.openai.com/"
