@@ -26,7 +26,7 @@ eval "$(starship init zsh)"
   # 3) Tweak the compact “past” prompt
 export TRANSIENT_PROMPT_PROMPT='$(starship prompt)'
 export TRANSIENT_PROMPT_RPROMPT='%(?..%B%F{1}%?%f%b)'
-export TRANSIENT_PROMPT_TRANSIENT_PROMPT='%F{cyan}❯%f'
+export TRANSIENT_PROMPT_TRANSIENT_PROMPT='%F{cyan}❯ %f'
 export TRANSIENT_PROMPT_TRANSIENT_RPROMPT=
 
 
