@@ -15,12 +15,21 @@ zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
 zinit light Aloxaf/fzf-tab
+zinit light olets/zsh-transient-prompt
 
 # Load completions
 autoload -Uz compinit && compinit
 
-# Starship prompt
+# 1) Starship’s full prompt hooks
 eval "$(starship init zsh)"
+
+  # 3) Tweak the compact “past” prompt
+export TRANSIENT_PROMPT_PROMPT='$(starship prompt)'
+export TRANSIENT_PROMPT_RPROMPT='%(?..%B%F{1}%?%f%b)'
+export TRANSIENT_PROMPT_TRANSIENT_PROMPT='%F{cyan}❯%f'
+export TRANSIENT_PROMPT_TRANSIENT_RPROMPT=
+
+
 
 # Shell integrations
 eval "$(fzf --zsh)"
@@ -51,8 +60,8 @@ setopt autocd
 
 # Keybindings
 bindkey -v # VI mode
-bindkey 'up' history_search_backwards
-bindkey 'down' history_search_forwards
+bindkey "\e[A" history-search-backward   # Up-arrow
+bindkey "\e[B" history-search-forward    # Down-arrow
 
 
 # Completion styling
@@ -63,5 +72,10 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
 
 # Aliases
-alias ls="ls --color"
+alias ls="ls --color -a"
 alias pac="sudo pacman"
+# git
+alias ga="git add"
+alias gc="git commit -m "
+alias gp="git push"
+alias gs="git status"
