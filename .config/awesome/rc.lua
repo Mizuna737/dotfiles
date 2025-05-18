@@ -7,13 +7,9 @@ pcall(require, "luarocks.loader") -- If LuaRocks is installed, ensure packages a
 local gears = require("gears")
 local awful = require("awful")
 require("awful.autofocus")
-local wibox = require("wibox")
 local beautiful = require("beautiful")
 local naughty = require("naughty")
 local lain = require("lain")
-local hotkeys_popup = require("awful.hotkeys_popup")
-require("awful.hotkeys_popup.keys")
-local mytable = awful.util.table or gears.table -- 4.{0,1} compatibility
 
 -- Error handling
 if awesome.startup_errors then
@@ -124,7 +120,7 @@ primary_tags[1].master_width_factor = 0.694
 -- Load Our Custom Logic & Modules
 --------------------------------
 
-local myFuncs = require("functions") -- customer functions
+local myFuncs = require("functions") -- custom functions
 local stack = require("stack") -- your separate stacking module
 local normalKeys = require("devices.normalKeys") -- normal (keyboard) hotkeys
 
