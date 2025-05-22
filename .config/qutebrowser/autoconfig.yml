@@ -6,6 +6,18 @@
 
 config_version: 2
 settings:
+  bindings.commands:
+    global:
+      normal:
+        ',b': open --tab https://gatlawfirm.payweb360.com/login;;open --tab https://myaccessone.com/;;open
+          --tab https://citiretailservices.citibankonline.com/RSnextgen/svc/launch/index.action?siteId=PLCN_BESTBUY#signon;;open
+          --tab https://customer.intgas.com/login;;open --tab https://www.sparklight.com/;;open
+          --tab https://aversepest.pestportals.com/landing/index;;open --tab https://auth.idahopower.com/Account/Login?ReturnUrl=%2Fconnect%2Fauthorize%2Fcallback%3Fclient_id%3Dipc.titan.apps%26redirect_uri%3Dhttps%253A%252F%252Ftools.idahopower.com%252FBillingAndPayments%252Fsignin-oidc%26response_type%3Dcode%2520id_token%26scope%3Dopenid%2520profile%2520offline_access%2520roles%2520titan_scopes%2520atlas_scopes%26response_mode%3Dform_post%26nonce%3D638658348568772345.MTlkYzZmZjYtMTIyNS00ZWIyLTg0OTUtOTFhNjI5ZmMwMTMxM2Q3YTM4Y2ItNTI0ZS00NGY0LTg5MmItODJjOTdmYzQyNjc2%26state%3DCfDJ8KRF_XDjoyFJmE66QoZj6rBDsEkNHhDb7jHCOSzPPRQ1RN7u4r3L4R0eynmH7WYAM1xtrK6RUkUuNdHvm548ScqD79OFDzGeUXv--iRlSOyaUVKLrizw6VjrcH3V5wfzTyVTmXlJ03CVoC97kbd2tdENnrGzjzHnx-feR0xyuzGyQSWQZzJEDCfLw7jMaS1MdagGVi2W-jc_Tj-Q5LIpd5LgJEx3IbzHuWPiPEflbSpaUxceSfIRjF_zCYJsXG8g96AGFeJkO6dI-7M1udvuQunAYlbIDaSJmbcZ4cclzuq2-HrXvzfrxjwBtrSQJsQziLB7RiKaRUqLHqalinIQ1VsPPzGYgCXF-n4pkvqYye7g8ib5QcWu8-_byPbxangE9w%26x-client-SKU%3DID_NET8_0%26x-client-ver%3D7.1.2.0;;open
+          --tab https://bill.paystation.com/boise/Account/LogOn?returnUrl=%2Fboise%2FPolicy%2FSummary%3FDisplayName%3DAccount%2520Summary
+        ',t': set tabs.show multiple
+        <T: set tabs.show switching
+        gY: open -t https://www.youtube.com/
+        gy: open https://www.youtube.com/
   content.geolocation:
     https://www.redlobster.com: true
     https://www.speedtest.net: true
@@ -27,3 +39,5 @@ settings:
   content.register_protocol_handler:
     https://mail.google.com?extsrc=mailto&url=%25s: true
     https://outlook.office365.com?mailtouri=%25s: true
+  tabs.show:
+    global: multiple

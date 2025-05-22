@@ -40,6 +40,9 @@ config.bind("gy", "open https://www.youtube.com/")
 # Bind “gY” to open YouTube in a new tab
 config.bind("gY", "open -t https://www.youtube.com/")
 
+# toggle between multiple  ↔  switching
+config.bind("tt", "spawn --userscript toggleTabs.py")
+
 palette = {
     "bg": "#1f2430",
     "fg": "#cad3f5",

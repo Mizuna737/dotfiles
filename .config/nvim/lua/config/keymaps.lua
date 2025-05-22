@@ -22,3 +22,7 @@ map("n", "<leader>e", function()
 		dir = find_project_root(),
 	})
 end, { desc = "Explorer: Neo-Tree (project root)" })
+
+vim.keymap.set("n", "<leader>h", function()
+	require("snacks").dashboard()
+end, { desc = "Home (Dashboard)" })
