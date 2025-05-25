@@ -74,11 +74,21 @@ zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
 # Aliases
 alias ls="ls --color -a"
 alias pac="sudo pacman"
+alias teams="/opt/teams-for-linux/teams-for-linux"
+alias outlook="/opt/outlook-for-linux/outlook-for-linux"
+alias cl="clear"
 # git
 alias ga="git add"
 alias gc="git commit -m "
 alias gp="git push"
 alias gs="git status"
 
-# Autostart
-eval "$(startx)"
+
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+export OLLAMA_MODELS="/data/Ollama Models"
+export OLLAMA_KEEP_ALIVE=30
+

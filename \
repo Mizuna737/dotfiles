@@ -1,4 +1,4 @@
--- ~/.config/nvim/lua/config/keymapend, s.lua
+-- ~/.config/nvim/lua/config/keymaps.lua
 
 local map = vim.keymap.set
 local uv = vim.loop
@@ -16,7 +16,12 @@ local function find_project_root()
 	return uv.cwd()
 end
 
-map("n", "<leader>e", ":RnvimrToggle<CR>", { noremap = true, silent = true })
+map("n", "<leader>e", function()
+	require("neo-tree.command").execute({
+		toggle = true,
+		dir = find_project_root(),
+	})
+end, { desc = "Explorer: Neo-Tree (project root)" })
 
 map("n", "<leader>dd", function()
 	vim.cmd("Neotree close")
@@ -29,10 +34,6 @@ map("n", "<leader>h", function()
 end, { desc = "Home (Dashboard)" })
 
 map("n", "<leader>ya", ":%y+<CR>", { desc = "Yank entire buffer to clipboard" })
-
-map("n", "<leader>rp", function()
-	vim.cmd("normal! G$vgg0p")
-end, { desc = "Replace buffer from clipboard" })
 
 vim.api.nvim_create_user_command("ReloadKeymaps", function()
 	package.loaded["config.keymaps"] = nil

@@ -32,7 +32,7 @@ do
 			title = "Oops, an error happened!",
 			text = tostring(err),
 		})
-		in_error = false
+		in_error = falsc
 	end)
 end
 
@@ -52,6 +52,8 @@ runOnce({
 	"~/.screenlayout/DefaultLayout.sh",
 	"~/.config/awesome/autorun.sh",
 	"lxqt=policykit-agent",
+	"copyq",
+	"windscribe-cli connect",
 })
 
 awful.spawn.with_shell(

@@ -22,7 +22,9 @@ settings:
     https://www.redlobster.com: true
     https://www.speedtest.net: true
   content.javascript.clipboard:
+    https://app.dataannotation.tech: access-paste
     https://chatgpt.com: access-paste
+    https://github.com: access-paste
     https://indeocustomercare.my.connect.aws: access-paste
     https://starship.rs: access-paste
   content.media.audio_capture:

@@ -1,19 +1,19 @@
 return {
   ["workspace"] = "Code",
-  ["layoutName"] = "centerwork",
   ["master_width_factor"] = 0.5,
   ["windowOrder"] = {
     ["1"] = {
-      ["name"] = "nvim",
-      ["class"] = "kitty",
+      ["class"] = "NeoVim",
+      ["name"] = "Alacritty",
     },
     ["2"] = {
-      ["name"] = "max@Alduin:~",
       ["class"] = "Alacritty",
+      ["name"] = "Alacritty",
     },
     ["3"] = {
-      ["name"] = "Sorenson/Captioncall stuff - Corrective Action Plan Script - qutebrowser",
       ["class"] = "qutebrowser",
+      ["name"] = "Max's Arch Implementation - Tmux config locations - qutebrowser",
     },
   },
+  ["layoutName"] = "centerwork",
 }

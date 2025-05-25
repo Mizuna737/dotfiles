@@ -7,4 +7,10 @@ font:
     family: "FiraCode Nerd Font"
   bold_italic:
     family: "FiraCode Nerd Font"
-
+window:
+  opacity: 0.85
+  blur: true
+  dynamic_title: true
+  decorations_theme_variant: None
+  resize_increments: false
+  option_as_alt: None

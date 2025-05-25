@@ -597,7 +597,7 @@ function M.toggleDropdownTerminal()
 	end
 
 	if not dropdown then
-		awful.spawn("alacritty --class 'Dropdown'", {
+		awful.spawn("alacritty --class 'Dropdown' -e tmux new-session -A -s dropdown", {
 			floating = true,
 			tag = awful.screen.focused().selected_tag,
 		})
