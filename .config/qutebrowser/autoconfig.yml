@@ -42,4 +42,4 @@ settings:
     https://mail.google.com?extsrc=mailto&url=%25s: true
     https://outlook.office365.com?mailtouri=%25s: true
   tabs.show:
-    global: multiple
+    global: switching

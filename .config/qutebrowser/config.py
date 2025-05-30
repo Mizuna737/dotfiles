@@ -41,7 +41,7 @@ config.bind("gy", "open https://www.youtube.com/")
 config.bind("gY", "open -t https://www.youtube.com/")
 
 # toggle between multiple  ↔  switching
-config.bind("tt", "spawn --userscript toggleTabs.py")
+config.bind(",t", ":config-cycle tabs.show multiple switching")
 
 config.source("userscripts/wal.py")
 
