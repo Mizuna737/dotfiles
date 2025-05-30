@@ -32,7 +32,7 @@ do
 			title = "Oops, an error happened!",
 			text = tostring(err),
 		})
-		in_error = falsc
+		in_error = false
 	end)
 end
 
@@ -50,7 +50,6 @@ runOnce({
 	"urxvtd",
 	"unclutter -root",
 	"~/.screenlayout/DefaultLayout.sh",
-	"~/.config/awesome/autorun.sh",
 	"lxqt=policykit-agent",
 	"copyq",
 	"windscribe-cli connect",
@@ -68,7 +67,6 @@ awful.spawn.with_shell(
 --------------------------------
 
 beautiful.init("/home/max/.config/awesome/themes/powerarrow/theme.lua")
-
 --------------------------------
 -- Wibar
 --------------------------------
@@ -195,12 +193,48 @@ awful.rules.rules = {
 				"Wpa_gui",
 				"veromix",
 				"xtightvncviewer",
+				"Windscribe2",
 			},
 			name = { "Event Tester" },
 			role = { "AlarmWindow", "ConfigManager", "pop-up" },
 		},
 		properties = { floating = true },
 	},
+	-- Make nsxiv floating, centered, and large
+	{
+		rule = { class = "Windscribe2" },
+		properties = {
+			floating = true,
+			ontop = true,
+			skip_taskbar = true,
+		},
+		callback = function(c)
+			awful.placement.centered(c, { honor_workarea = true, honor_padding = true })
+		end,
+	},
+	{
+		rule = { class = "Nsxiv" },
+		properties = {
+			floating = true,
+			ontop = true,
+			skip_taskbar = true,
+		},
+		callback = function(c)
+			awful.placement.centered(c, { honor_workarea = true, honor_padding = true })
+
+			-- Resize to 90% of screen
+			local g = c.screen.workarea
+			local width = math.floor(g.width * 0.9)
+			local height = math.floor(g.height * 0.9)
+			c:geometry({
+				x = g.x + (g.width - width) / 2,
+				y = g.y + (g.height - height) / 2,
+				width = width,
+				height = height,
+			})
+		end,
+	},
+
 	{
 		rule_any = { type = { "normal", "dialog" } },
 		properties = { titlebars_enabled = false },
@@ -244,10 +278,45 @@ client.connect_signal("unfocus", function(c)
 	end
 end)
 
+awesome.connect_signal("save::focused_tag", function()
+	local scr = awful.screen.focused()
+	local tag = scr.selected_tag
+	if tag then
+		local path = os.getenv("HOME") .. "/.cache/awesomewm-last-tag"
+		local f = io.open(path, "w")
+		if f then
+			f:write(string.format("%d %d", tag.index, scr.index))
+			f:close()
+		else
+			naughty.notify({
+				preset = naughty.config.presets.critical,
+				title = "Tag Save Failed",
+				text = "Couldn't write to ~/.cache/awesomewm-last-tag",
+			})
+		end
+	end
+end)
+
+local path = os.getenv("HOME") .. "/.cache/awesomewm-last-tag"
+local f = io.open(path, "r")
+
+if f then
+	local tag_index, screen_index = f:read("*n", "*n")
+	f:close()
+	local scr = screen[screen_index]
+	if scr and scr.tags and scr.tags[tag_index] then
+		gears.timer.start_new(0.01, function()
+			scr.tags[tag_index]:view_only()
+			return false
+		end)
+	end
+end
+
 beautiful.useless_gap = 6
 
 --------------------------------
 -- Finish up
 ----------------------------------
 bar.updateVolumeWidget()
+
 -- Done.

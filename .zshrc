@@ -92,3 +92,4 @@ export NVM_DIR="$HOME/.nvm"
 export OLLAMA_MODELS="/data/Ollama Models"
 export OLLAMA_KEEP_ALIVE=30
 
+

@@ -1,9 +1,10 @@
 #!/bin/sh
 
 run() {
-  if ! pgrep -f "$1" ;
-  then
-    "$@"&
+  if ! pgrep -f "$*"; then
+    "$@" &
   fi
 }
-run nitrogen --restore &
+
+# Use bash explicitly for pywal + wallpaper script
+run bash "$HOME/Scripts/chooseWallpaper.sh" true

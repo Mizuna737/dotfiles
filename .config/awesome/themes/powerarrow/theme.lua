@@ -16,6 +16,27 @@ theme.dir = os.getenv("HOME") .. "/.config/awesome/themes/powerarrow"
 theme.wallpaper = theme.dir .. "/wall.png"
 theme.font = "Terminus 9"
 
+-- Load pywal colors from ~/.cache/wal/colors.env manually
+local function load_wal_colors()
+	local colors = {}
+	local path = os.getenv("HOME") .. "/.cache/wal/colors.env"
+	local file = io.open(path, "r")
+	if not file then
+		return colors
+	end
+
+	for line in file:lines() do
+		local key, val = line:match("^export%s+(WAL_%w+)=[\"']?(#[A-Fa-f0-9]+)[\"']?")
+		if key and val then
+			colors[key] = val
+		end
+	end
+	file:close()
+	return colors
+end
+
+local wal = load_wal_colors()
+
 -- Ayu Mirage color definitions
 -- Using values from the provided Ayu Mirage palette:
 -- Background: '#1F2430'
@@ -25,25 +46,21 @@ theme.font = "Terminus 9"
 --   Urgent: '#F28779'
 --   Secondary / less prominent: '#5C6773'
 --   A warm accent: '#FFA759'
-theme.bg_normal = "#1F2430"
-theme.fg_normal = "#CBCCC6"
-theme.bg_focus = "#1F2430" -- Using same background; focus color will be applied on text
-theme.fg_focus = "#5CCFE6"
-theme.bg_urgent = "#1F2430"
-theme.fg_urgent = "#FFA759"
+theme.bg_normal = wal.WAL_COLOR0 .. "33" or "#1F2430"
+theme.fg_normal = wal.WAL_FOREGROUND or "#CBCCC6"
+theme.bg_focus = wal.WAL_COLOR0 .. "33" or "#1F2430"
+theme.fg_focus = wal.WAL_COLOR4 or "#5CCFE6"
+theme.bg_urgent = wal.WAL_COLOR0 .. "33" or "#1F2430"
+theme.fg_urgent = wal.WAL_COLOR1 or "#F28779"
+theme.bg_systray = wal.WAL_COLOR0 .. "33" or "#1F2430"
+theme.taglist_fg_focus = wal.WAL_COLOR4 or "#5CCFE6"
+theme.tasklist_bg_focus = wal.WAL_COLOR0 .. "33" or "#1F2430"
+theme.tasklist_fg_focus = wal.WAL_COLOR4 or "#5CCFE6"
 
-theme.taglist_fg_focus = "#5CCFE6"
-theme.tasklist_bg_focus = "#1F2430"
-theme.tasklist_fg_focus = "#5CCFE6"
-
-theme.border_width = dpi(2)
-theme.border_normal = "#5C6773"
-theme.border_focus = "#5CCFE6"
-theme.border_marked = "#FFA759"
-
-theme.titlebar_bg_focus = "#1F2430"
-theme.titlebar_bg_normal = "#1F2430"
-theme.titlebar_fg_focus = "#5CCFE6"
+theme.border_normal = wal.WAL_COLOR8 or "#5C6773"
+theme.border_focus = wal.WAL_COLOR4 or "#5CCFE6"
+theme.border_marked = wal.WAL_COLOR3 or "#FFA759"
+theme.border_width = 2
 
 theme.menu_height = dpi(16)
 theme.menu_width = dpi(140)

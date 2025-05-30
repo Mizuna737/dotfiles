@@ -43,76 +43,7 @@ config.bind("gY", "open -t https://www.youtube.com/")
 # toggle between multiple  ↔  switching
 config.bind("tt", "spawn --userscript toggleTabs.py")
 
-palette = {
-    "bg": "#1f2430",
-    "fg": "#cad3f5",
-    "selection": "#333b5a",
-    "comment": "#5c6773",
-    "cyan": "#70c0ba",
-    "green": "#60c766",
-    "orange": "#ff966c",
-    "pink": "#f280a1",
-    "purple": "#b4befe",
-    "red": "#ec5f67",
-    "yellow": "#d5a067",
-}
-
-# --- tabs: selected & unselected (even/odd) ---
-c.colors.tabs.bar.bg = palette["bg"]
-
-# selected tabs
-c.colors.tabs.selected.even.bg = palette["selection"]
-c.colors.tabs.selected.even.fg = palette["fg"]
-c.colors.tabs.selected.odd.bg = palette["selection"]
-c.colors.tabs.selected.odd.fg = palette["fg"]
-
-# unselected tabs
-c.colors.tabs.even.bg = palette["bg"]
-c.colors.tabs.even.fg = palette["comment"]
-c.colors.tabs.odd.bg = palette["bg"]
-c.colors.tabs.odd.fg = palette["comment"]
-
-# (optional) pinned tabs if you use them
-# c.colors.tabs.pinned.even.bg             = palette['orange']
-# c.colors.tabs.pinned.even.fg             = palette['bg']
-# c.colors.tabs.pinned.odd.bg              = palette['orange']
-# c.colors.tabs.pinned.odd.fg              = palette['bg']
-# c.colors.tabs.pinned.selected.even.bg    = palette['selection']
-# c.colors.tabs.pinned.selected.even.fg    = palette['fg']
-# c.colors.tabs.pinned.selected.odd.bg     = palette['selection']
-# c.colors.tabs.pinned.selected.odd.fg     = palette['fg']
-
-# --- statusbar URL success colors (HTTP vs HTTPS) ---
-c.colors.statusbar.url.success.http.fg = palette["green"]
-c.colors.statusbar.url.success.https.fg = palette["cyan"]
-
-# (rest of your theme…)
-c.colors.statusbar.normal.bg = palette["bg"]
-c.colors.statusbar.normal.fg = palette["fg"]
-c.colors.statusbar.insert.bg = palette["cyan"]
-c.colors.statusbar.insert.fg = palette["bg"]
-c.colors.statusbar.command.bg = palette["selection"]
-c.colors.statusbar.command.fg = palette["fg"]
-c.colors.statusbar.passthrough.bg = palette["orange"]
-c.colors.statusbar.passthrough.fg = palette["bg"]
-
-c.colors.completion.category.bg = palette["bg"]
-c.colors.completion.category.fg = palette["purple"]
-c.colors.completion.even.bg = palette["bg"]
-c.colors.completion.odd.bg = palette["bg"]
-c.colors.completion.fg = palette["fg"]
-c.colors.completion.match.fg = palette["yellow"]
-
-c.colors.messages.info.bg = palette["bg"]
-c.colors.messages.info.fg = palette["cyan"]
-c.colors.messages.warning.bg = palette["bg"]
-c.colors.messages.warning.fg = palette["yellow"]
-c.colors.messages.error.bg = palette["bg"]
-c.colors.messages.error.fg = palette["red"]
-
-c.colors.prompts.bg = palette["bg"]
-c.colors.prompts.fg = palette["fg"]
-c.colors.prompts.selected.bg = palette["selection"]
+config.source("userscripts/wal.py")
 
 # ---- Zenful qutebrowser tweaks ----
 # Hide UI until you need it

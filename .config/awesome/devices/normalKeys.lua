@@ -13,16 +13,21 @@ local altkey = "Mod1"
 local normalKeys = {}
 
 normalKeys.globalkeys = gears.table.join(
+
 	-- Volume
+
 	awful.key({}, "XF86AudioRaiseVolume", function()
 		myFuncs.volumeControl("up", 1)
 	end, { description = "increase volume", group = "volume" }),
+
 	awful.key({}, "XF86AudioLowerVolume", function()
 		myFuncs.volumeControl("down", 1)
 	end, { description = "decrease volume", group = "volume" }),
+
 	awful.key({ "Shift" }, "XF86AudioRaiseVolume", function()
 		myFuncs.volumeControl("up", 5)
 	end, { description = "increase volume", group = "volume" }),
+
 	awful.key({ "Shift" }, "XF86AudioLowerVolume", function()
 		myFuncs.volumeControl("down", 5)
 	end, { description = "decrease volume", group = "volume" }),
@@ -32,22 +37,38 @@ normalKeys.globalkeys = gears.table.join(
 	end, { description = "toggle mute", group = "volume" }),
 
 	-- Change Master Width
+
 	awful.key({ modkey }, "XF86AudioRaiseVolume", function()
 		myFuncs.modifyMasterWidth(0.005)
 	end, { description = "increase mwf", group = "layout" }),
+
 	awful.key({ modkey }, "XF86AudioLowerVolume", function()
 		myFuncs.modifyMasterWidth(-0.005)
 	end, { description = "decrease mwf", group = "layout" }),
+
 	awful.key({ modkey, "Shift" }, "XF86AudioRaiseVolume", function()
 		myFuncs.modifyMasterWidth(0.02)
 	end, { description = "increase mwf", group = "layout" }),
+
 	awful.key({ modkey, "Shift" }, "XF86AudioLowerVolume", function()
 		myFuncs.modifyMasterWidth(-0.02)
 	end, { description = "decrease mwf", group = "layout" }),
+
+	-- Clipboard
+
+	awful.key({ modkey }, "v", function()
+		myFuncs.pasteFromHistory()
+	end),
+
 	-- Launch apps
+
 	awful.key({ modkey }, "Return", function()
 		myFuncs.findExisting(defaultApps.terminal, defaultApps.terminalCommand)
 	end, { description = "open terminal", group = "launcher" }),
+
+	awful.key({ modkey, altkey }, "Return", function()
+		myFuncs.findExisting(defaultApps.editor, defaultApps.editorCommand)
+	end, { description = "open editor", group = "launcher" }),
 
 	awful.key({ modkey }, "q", function()
 		myFuncs.openBrowser()
@@ -55,42 +76,57 @@ normalKeys.globalkeys = gears.table.join(
 	end, { description = "open browser", group = "launcher" }),
 
 	-- Rofi
+
 	awful.key({ modkey }, "space", function()
 		myFuncs.openRofi()
 	end, { description = "open browser", group = "launcher" }),
 
 	-- Dropdown terminal
+
 	awful.key({ modkey }, "t", function()
 		myFuncs.toggleDropdownTerminal()
 	end, { description = "dropdown terminal", group = "launcher" }),
 
 	-- bitwardenCLI interface
+
 	awful.key({ modkey }, "p", function()
 		myFuncs.bitwardenPasswordCLI()
 	end, { description = "bitwardenPasswordCLI", group = "launcher" }),
-	-- Lock
-	awful.key({ altkey, "Control" }, "w", function()
-		myFuncs.loadWorkspaceConfiguration()
-	end, { description = "save current workspace", group = "hotkeys" }),
+
+	-- Choose Wallpaper
+
+	awful.key({ modkey }, "w", function()
+		myFuncs.chooseWallpaper()
+	end, { description = "choose wallpaper and theme" }),
+
+	awful.key({ modkey, altkey }, "w", function()
+		myFuncs.chooseWallpaper(true)
+	end, { description = "choose random wallpaper and theme" }),
 
 	-- Layout switching
+
 	awful.key({ altkey }, "space", function()
 		myFuncs.nextLayoutForTag()
 	end, { description = "cycle layouts for current tag", group = "layout" }),
 
 	-- Tag navigation
+
 	awful.key({ modkey }, "Left", awful.tag.viewprev, { description = "view previous tag", group = "tag" }),
+
 	awful.key({ modkey }, "Right", awful.tag.viewnext, { description = "view next tag", group = "tag" }),
 
 	-- Next/previous populated tag
+
 	awful.key({ modkey }, "Page_Up", function()
 		myFuncs.viewPopulatedTag("previous")
 	end, { description = "view prev populated tag", group = "tag" }),
+
 	awful.key({ modkey }, "Page_Down", function()
 		myFuncs.viewPopulatedTag("next")
 	end, { description = "view next populated tag", group = "tag" }),
 
 	-- Focus windows
+
 	awful.key({ modkey }, "j", function()
 		myFuncs.moveFocus("down")
 	end, { description = "focus down", group = "client" }),
@@ -108,6 +144,7 @@ normalKeys.globalkeys = gears.table.join(
 	end, { description = "focus right", group = "client" }),
 
 	-- Stack extension
+
 	awful.key({ modkey, "Shift" }, "n", function()
 		local c = client.focus
 		if c then
@@ -128,12 +165,17 @@ normalKeys.globalkeys = gears.table.join(
 	end, { description = "cycle stack", group = "Stacking" }),
 
 	-- Reload / Quit Awesome
-	awful.key({ modkey, "Control" }, "r", awesome.restart, { description = "reload awesome", group = "awesome" }),
+
+	awful.key({ modkey, "Control" }, "r", function()
+		myFuncs.saveAndRestart()
+	end, { description = "reload awesome", group = "awesome" }),
+
 	awful.key({ modkey, "Shift" }, "q", awesome.quit, { description = "quit awesome", group = "awesome" })
 )
 
 -- Client-specific keys
 normalKeys.clientkeys = gears.table.join(
+
 	awful.key({ modkey }, "f", function(c)
 		c.fullscreen = not c.fullscreen
 		c:raise()

@@ -642,7 +642,7 @@ function M.screenshot(full)
 end
 
 -- Change to the path of your Obsidian planner file
-local obsidianInboxFile = "/home/max/CaptionCall CS/Notes/Personal/e-matrix.md"
+local obsidianInboxFile = "/home/max/Documents/The Vault/Notes/Personal/e-matrix.md"
 
 -- Inserts a new item into the Inbox section
 function M.insertItemIntoInbox(item)
@@ -760,4 +760,40 @@ end -- Done.
 function M.bitwardenPasswordCLI()
 	awful.spawn.with_shell("bash ~/.config/bitwarden/bitwardenRofi.sh")
 end
+
+function M.saveAndRestart()
+	local path = os.getenv("HOME") .. "/.cache/awesomewm-last-tag"
+	local scr = awful.screen.focused()
+	local tag = scr.selected_tag
+
+	if tag and scr then
+		local f = io.open(path, "w")
+		if f then
+			f:write(string.format("%d %d\n", tag.index, scr.index))
+			f:close()
+		else
+			naughty.notify({
+				preset = naughty.config.presets.critical,
+				title = "AwesomeWM",
+				text = "❌ Could not write tag restore file.",
+			})
+			return
+		end
+	end
+
+	awesome.restart()
+end
+
+function M.chooseWallpaper(random)
+	if random then
+		awful.spawn.with_shell("bash ~/Scripts/chooseWallpaper.sh true")
+	else
+		awful.spawn.with_shell("bash ~/Scripts/chooseWallpaper.sh")
+	end
+end
+
+function M.pasteFromHistory()
+	awful.spawn.with_shell("bash ~/Scripts/pasteFromHistory.sh")
+end
+
 return M

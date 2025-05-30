@@ -19,10 +19,19 @@ end
 map("n", "<leader>e", ":RnvimrToggle<CR>", { noremap = true, silent = true })
 
 map("n", "<leader>dd", function()
-	vim.cmd("Neotree close")
-	vim.cmd("bufdo update | %bd")
+	-- Save all listed buffers
+	vim.cmd("wall")
+
+	-- Get all listed buffers
+	for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+		local buftype = vim.api.nvim_buf_get_option(bufnr, "buftype")
+		if buftype ~= "terminal" and vim.api.nvim_buf_is_loaded(bufnr) then
+			vim.api.nvim_buf_delete(bufnr, { force = true })
+		end
+	end
+
 	require("snacks").dashboard()
-end, { desc = "Saves and closes all buffers" })
+end, { desc = "Save and close all non-terminal buffers" })
 
 map("n", "<leader>h", function()
 	require("snacks").dashboard()
@@ -38,3 +47,9 @@ vim.api.nvim_create_user_command("ReloadKeymaps", function()
 	package.loaded["config.keymaps"] = nil
 	require("config.keymaps")
 end, {})
+
+vim.api.nvim_create_autocmd("FocusGained", {
+	callback = function()
+		vim.cmd("colorscheme pywal")
+	end,
+})

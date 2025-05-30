@@ -1,4 +1,7 @@
 # ~/.zprofile
 
-# Autostart at login 
-startx &>/dev/null &
+# Autostart at login
+if [[ -z $DISPLAY ]] && [[ $(tty) == /dev/tty1 ]]; then
+    exec startx
+fi
+

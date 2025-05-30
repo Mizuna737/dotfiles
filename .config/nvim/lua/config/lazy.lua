@@ -47,3 +47,6 @@ require("lazy").setup({
 		},
 	},
 })
+
+local pywal = require("pywal")
+pywal.setup()
