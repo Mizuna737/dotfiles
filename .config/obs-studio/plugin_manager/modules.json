@@ -1,0 +1,13 @@
+[
+    {
+        "display_name": "",
+        "enabled": true,
+        "encoders": [],
+        "id": "",
+        "module_name": "obs-multi-rtmp",
+        "outputs": [],
+        "services": [],
+        "sources": [],
+        "version": ""
+    }
+]

@@ -53,6 +53,7 @@ runOnce({
 	"lxqt=policykit-agent",
 	"copyq",
 	"windscribe-cli connect",
+	"wal -R",
 })
 
 awful.spawn.with_shell(
@@ -201,17 +202,6 @@ awful.rules.rules = {
 		properties = { floating = true },
 	},
 	-- Make nsxiv floating, centered, and large
-	{
-		rule = { class = "Windscribe2" },
-		properties = {
-			floating = true,
-			ontop = true,
-			skip_taskbar = true,
-		},
-		callback = function(c)
-			awful.placement.centered(c, { honor_workarea = true, honor_padding = true })
-		end,
-	},
 	{
 		rule = { class = "Nsxiv" },
 		properties = {

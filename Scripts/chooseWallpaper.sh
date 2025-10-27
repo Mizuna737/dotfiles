@@ -1,5 +1,16 @@
 #!/bin/bash
 
+LOCKFILE="/tmp/chooseWallpaper.lock"
+
+if [ -f "$LOCKFILE" ] && kill -0 "$(cat "$LOCKFILE")" 2>/dev/null; then
+  echo "chooseWallpaper is already running."
+  exit 1
+fi
+
+echo $$ >"$LOCKFILE"
+
+trap "rm -f '$LOCKFILE'" EXIT
+
 WALLPAPER_DIR=~/wallpapers
 
 # Find unique images (ignores duplicate basenames)
@@ -25,7 +36,8 @@ if [[ -z "$SELECTED_IMAGE" ]]; then
 fi
 
 # Set wallpaper and color scheme with pywal
-wal -i "$SELECTED_IMAGE" --backend haishoku --saturate 0.75
+wal -i "$SELECTED_IMAGE" --backend colorz --saturate 0.3
+echo "$SELECTED_IMAGE" >"$HOME/.cache/last-wallpaper"
 echo "Wallpaper set to: $SELECTED_IMAGE"
 
 # Apply theme updates across the system
@@ -33,6 +45,7 @@ bash "$HOME/Scripts/exportWalVars.sh"
 bash "$HOME/Scripts/updateRofiColors.sh"
 bash "$HOME/Scripts/updateTMUXColors.sh"
 bash "$HOME/Scripts/updateObsidianColors.sh"
+bash "$HOME/Scripts/updateZenTheme.sh"
 tmux source-file "$HOME/.config/tmux/tmux.conf"
 awesome-client "awesome.emit_signal('save::focused_tag')"
 awesome-client "awesome.restart()"

@@ -19,12 +19,15 @@ settings:
         gY: open -t https://www.youtube.com/
         gy: open https://www.youtube.com/
   content.geolocation:
+    https://www.buffalowildwings.com: true
     https://www.redlobster.com: true
     https://www.speedtest.net: true
   content.javascript.clipboard:
     https://app.dataannotation.tech: access-paste
     https://chatgpt.com: access-paste
     https://github.com: access-paste
+    https://indeocorp-my.sharepoint.com: access-paste
+    https://indeocorp.sharepoint.com: access-paste
     https://indeocustomercare.my.connect.aws: access-paste
     https://starship.rs: access-paste
   content.media.audio_capture:
@@ -42,4 +45,4 @@ settings:
     https://mail.google.com?extsrc=mailto&url=%25s: true
     https://outlook.office365.com?mailtouri=%25s: true
   tabs.show:
-    global: switching
+    global: multiple
