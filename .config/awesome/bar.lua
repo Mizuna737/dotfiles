@@ -307,19 +307,23 @@ local function updateFocusedClass()
 	local c = client.focus
 	local classname = c and c.class or "Unknown"
 	local script = "~/Scripts/getPWAAppName.sh " .. classname
-
-	awful.spawn.easy_async_with_shell(script, function(stdout, stderr, reason, exit_code)
-		if exit_code == 0 then
-			focused_window_class:set_text(stdout)
-		else
-			focused_window_class:set_text("Error: " .. (stderr or "???"))
-		end
-	end)
+	focused_window_class:set_text(classname)
 end
 
 client.connect_signal("focus", updateFocusedClass)
 client.connect_signal("unfocus", updateFocusedClass)
 updateFocusedClass()
+
+--------------------------------
+-- 7) Systray
+--------------------------------
+
+local systray = wibox.widget({
+	widget = wibox.widget.systray,
+	base_size = beautiful.systray_icon_spacing or 20,
+	horizontal = true,
+	background_color = beautiful.bg_normal,
+})
 
 --------------------------------
 -- bar.setupWibar
@@ -394,7 +398,6 @@ function bar.setupWibar()
 			{
 				-- Right widgets
 				layout = wibox.layout.fixed.horizontal,
-
 				-- CPU
 				wibox.container.background(
 					wibox.container.margin(
@@ -439,6 +442,22 @@ function bar.setupWibar()
 						wibox.widget({ nil, volume_widget, layout = wibox.layout.align.horizontal }),
 						3,
 						3
+					),
+					beautiful.bg_normal
+				),
+
+				wibox.container.background(
+					wibox.container.constraint(
+						wibox.container.place(wibox.container.margin(
+							wibox.widget({
+								systray,
+								layout = wibox.layout.align.horizontal,
+							}),
+							3,
+							3
+						)),
+						"exact", -- width strategy
+						100 -- set your desired fixed width
 					),
 					beautiful.bg_normal
 				),

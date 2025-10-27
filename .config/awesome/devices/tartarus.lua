@@ -81,7 +81,7 @@ tartarus.globalkeys = gears.table.join(
 		myFuncs.findExisting(defaultApps.terminal, defaultApps.terminalCommand)
 	end, "T1 tap => find existing terminal"),
 	tk({ modkey, ctrl, altkey }, "1", function()
-		myFuncs.openNew(defaultApps.terminalCommand)
+		myFuncs.findExisting(defaultApps.terminal, defaultApps.terminalCommand, "all")
 	end, "T1 hold => open new terminal"),
 	tk({ modkey, ctrl, shft }, "1", function()
 		myFuncs.viewWorkspace(1)
@@ -95,7 +95,7 @@ tartarus.globalkeys = gears.table.join(
 		myFuncs.findExisting(defaultApps.browser, defaultApps.browserCommand)
 	end, "T2 tap => find existing browser"),
 	tk({ modkey, ctrl, altkey }, "2", function()
-		myFuncs.openNew(defaultApps.browserCommand)
+		myFuncs.findExisting(defaultApps.browser, defaultApps.browserCommand, "all")
 	end, "T2 hold => open new browser"),
 	tk({ modkey, ctrl, shft }, "2", function()
 		myFuncs.viewWorkspace(2)
@@ -109,7 +109,7 @@ tartarus.globalkeys = gears.table.join(
 		myFuncs.findExisting(defaultApps.editor, defaultApps.editorCommand)
 	end, "T3 tap => find existing editor"),
 	tk({ modkey, ctrl, altkey }, "3", function()
-		myFuncs.openNew(defaultApps.editorCommand)
+		myFuncs.findExisting(defaultApps.editor, defaultApps.editorCommand, "all")
 	end, "T3 hold => open new editor"),
 	tk({ modkey, ctrl, shft }, "3", function()
 		myFuncs.viewWorkspace(3)
@@ -123,7 +123,7 @@ tartarus.globalkeys = gears.table.join(
 		myFuncs.findExisting(defaultApps.fileManager, defaultApps.fileManagerCommand)
 	end, "T4 tap => find existing file manager"),
 	tk({ modkey, ctrl, altkey }, "4", function()
-		myFuncs.openNew(defaultApps.fileManagerCommand)
+		myFuncs.findExisting(defaultApps.fileManager, defaultApps.fileManagerCommand, "all")
 	end, "T4 hold => open new file manager"),
 	tk({ modkey, ctrl, shft }, "4", function()
 		myFuncs.viewWorkspace(4)
@@ -134,8 +134,8 @@ tartarus.globalkeys = gears.table.join(
 
 	-- Key 5
 	tk({ modkey, ctrl }, "5", function()
-		myFuncs.openRofi()
-	end, "T5 tap => launch rofi"),
+		myFuncs.startDroidCam()
+	end, "T5 tap => launch DroidCam"),
 	tk({ modkey, ctrl, altkey }, "5", function()
 		myFuncs.lockScreen()
 	end, "T5 hold => lock screen"),

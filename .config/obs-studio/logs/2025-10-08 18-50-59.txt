@@ -1,0 +1,572 @@
+18:50:59.643: Using EGL/X11
+18:50:59.643: CPU Name: AMD Ryzen 7 5800X3D 8-Core Processor
+18:50:59.643: CPU Speed: 4240.796MHz
+18:50:59.644: Physical Cores: 8, Logical Cores: 16
+18:50:59.644: Physical Memory: 64219MB Total, 43471MB Free
+18:50:59.644: Kernel Version: Linux 6.17.1-arch1-1
+18:50:59.644: Distribution: "Arch Linux" Unknown
+18:50:59.644: Session Type: x11
+18:50:59.644: Window System: X11.0, Vendor: The X.Org Foundation, Version: 1.21.1
+18:50:59.645: Current Date/Time: 2025-10-08, 06:50:59 PM
+18:50:59.645: Browser Hardware Acceleration: true
+18:50:59.645: Qt Version: 6.9.2 (runtime), 6.9.2 (compiled)
+18:50:59.645: Portable mode: false
+18:50:59.669: OBS 32.0.1 (linux)
+18:50:59.669: ---------------------------------
+18:50:59.670: ---------------------------------
+18:50:59.670: audio settings reset:
+18:50:59.670: 	samples per sec: 48000
+18:50:59.670: 	speakers:        2
+18:50:59.670: 	max buffering:   960 milliseconds
+18:50:59.670: 	buffering type:  dynamically increasing
+18:50:59.671: ---------------------------------
+18:50:59.671: Initializing OpenGL...
+18:50:59.810: Loading up OpenGL on adapter NVIDIA Corporation NVIDIA GeForce RTX 3080/PCIe/SSE2
+18:50:59.810: OpenGL loaded successfully, version 3.3.0 NVIDIA 580.95.05, shading language 3.30 NVIDIA via Cg compiler
+18:50:59.835: ---------------------------------
+18:50:59.835: video settings reset:
+18:50:59.835: 	base resolution:   2560x1440
+18:50:59.835: 	output resolution: 2560x1440
+18:50:59.835: 	downscale filter:  Bicubic
+18:50:59.835: 	fps:               60/1
+18:50:59.835: 	format:            NV12
+18:50:59.835: 	YUV mode:          Rec. 709/Partial
+18:50:59.836: NV12 texture support enabled
+18:50:59.836: P010 texture support not available
+18:50:59.836: Audio monitoring device:
+18:50:59.836: 	name: Default
+18:50:59.836: 	id: default
+18:50:59.882: ---------------------------------
+18:50:59.883: Failed to load 'en-US' text for module: 'decklink-captions.so'
+18:50:59.884: Failed to load 'en-US' text for module: 'decklink-output-ui.so'
+18:50:59.885: A DeckLink iterator could not be created.  The DeckLink drivers may not be installed
+18:50:59.885: Failed to initialize module 'decklink.so'
+18:50:59.960: [pipewire] No capture sources available
+18:50:59.976: VAAPI: Failed to initialize display in vaapi_device_h264_supported
+18:50:59.976: FFmpeg VAAPI H264 encoding not supported
+18:50:59.976: VAAPI: Failed to initialize display in vaapi_device_av1_supported
+18:50:59.977: FFmpeg VAAPI AV1 encoding not supported
+18:50:59.977: VAAPI: Failed to initialize display in vaapi_device_hevc_supported
+18:50:59.977: FFmpeg VAAPI HEVC encoding not supported
+18:51:00.444: [obs-nvenc] NVENC version: 13.0 (compiled) / 13.0 (driver), CUDA driver version: 13.0, AV1 supported: false
+18:51:00.460: [obs-websocket] [obs_module_load] you can haz websockets (Version: 5.6.3 | RPC Version: 1)
+18:51:00.460: [obs-websocket] [obs_module_load] Qt version (compile-time): 6.9.2 | Qt version (run-time): 6.9.2
+18:51:00.460: [obs-websocket] [obs_module_load] Linked ASIO Version: 103600
+18:51:00.463: [obs-websocket] [obs_module_load] Module loaded.
+18:51:00.466: ---------------------------------
+18:51:00.466:   Loaded Modules:
+18:51:00.466:     text-freetype2.so
+18:51:00.466:     rtmp-services.so
+18:51:00.466:     obs-x264.so
+18:51:00.466:     obs-websocket.so
+18:51:00.466:     obs-webrtc.so
+18:51:00.466:     obs-vst.so
+18:51:00.466:     obs-transitions.so
+18:51:00.466:     obs-qsv11.so
+18:51:00.466:     obs-outputs.so
+18:51:00.466:     obs-nvenc.so
+18:51:00.466:     obs-libfdk.so
+18:51:00.466:     obs-filters.so
+18:51:00.466:     obs-ffmpeg.so
+18:51:00.466:     linux-v4l2.so
+18:51:00.466:     linux-pulseaudio.so
+18:51:00.466:     linux-pipewire.so
+18:51:00.466:     linux-jack.so
+18:51:00.466:     linux-capture.so
+18:51:00.466:     linux-alsa.so
+18:51:00.466:     image-source.so
+18:51:00.466:     frontend-tools.so
+18:51:00.466:     decklink-output-ui.so
+18:51:00.466:     decklink-captions.so
+18:51:00.466: ---------------------------------
+18:51:00.466: ---------------------------------
+18:51:00.466: Available Encoders:
+18:51:00.466:   Video Encoders:
+18:51:00.466: 	- ffmpeg_svt_av1 (SVT-AV1)
+18:51:00.466: 	- ffmpeg_aom_av1 (AOM AV1)
+18:51:00.466: 	- obs_nvenc_h264_tex (NVIDIA NVENC H.264)
+18:51:00.466: 	- obs_nvenc_hevc_tex (NVIDIA NVENC HEVC)
+18:51:00.466: 	- obs_x264 (x264)
+18:51:00.466:   Audio Encoders:
+18:51:00.466: 	- ffmpeg_aac (FFmpeg AAC)
+18:51:00.466: 	- ffmpeg_opus (FFmpeg Opus)
+18:51:00.466: 	- ffmpeg_pcm_s16le (FFmpeg PCM (16-bit))
+18:51:00.466: 	- ffmpeg_pcm_s24le (FFmpeg PCM (24-bit))
+18:51:00.466: 	- ffmpeg_pcm_f32le (FFmpeg PCM (32-bit float))
+18:51:00.466: 	- ffmpeg_alac (FFmpeg ALAC (24-bit))
+18:51:00.466: 	- ffmpeg_flac (FFmpeg FLAC (16-bit))
+18:51:00.466: 	- libfdk_aac (libfdk AAC)
+18:51:00.466: ==== Startup complete ===============================================
+18:51:00.502: All scene data cleared
+18:51:00.502: ------------------------------------------------
+18:51:00.504: xshm-input: Geometry 3440x1440 @ 0,0
+18:51:00.508: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:51:00.520: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.8) 15.0.0'
+18:51:00.521: pulse-input: Audio format: s16le, 48000 Hz, 2 channels
+18:51:00.521: pulse-input: Started recording from 'alsa_output.usb-Burr-Brown_from_TI_USB_Audio_CODEC-00.analog-stereo-output.monitor'
+18:51:00.522: Switched to scene 'Gameplay'
+18:51:00.522: ------------------------------------------------
+18:51:00.522: Loaded scenes:
+18:51:00.522: - scene 'Gameplay':
+18:51:00.522:     - source: 'Display Capture (XSHM)' (xshm_input_v2)
+18:51:00.522:     - source: 'Audio Capture Device (ALSA)' (alsa_input_capture)
+18:51:00.522:     - source: 'Audio Output Capture (PulseAudio)' (pulse_output_capture)
+18:51:00.522: ------------------------------------------------
+18:51:01.078: adding 21 milliseconds of audio buffering, total audio buffering is now 21 milliseconds (source: Audio Output Capture (PulseAudio))
+18:51:01.078: 
+18:51:01.508: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:51:03.509: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:51:06.509: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:51:10.510: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:51:10.546: alsa-input: PCM 'default' rate set to 44100
+18:51:10.546: alsa-input: PCM 'default' channels set to 2
+18:51:13.960: alsa-input: PCM 'front:CARD=Loopback,DEV=0' rate set to 44100
+18:51:13.960: alsa-input: PCM 'front:CARD=Loopback,DEV=0' channels set to 2
+18:51:22.728: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:51:23.729: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:51:25.730: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:51:28.730: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:51:32.731: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:51:37.731: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:51:42.732: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:51:47.733: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:51:52.733: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:51:57.734: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:52:02.735: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:52:07.736: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:52:12.736: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:52:17.737: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:52:22.738: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:52:27.739: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:52:32.739: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:52:37.740: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:52:42.741: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:52:47.741: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:52:52.742: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:52:57.742: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:53:02.743: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:53:07.744: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:53:12.744: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:53:17.745: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:53:22.745: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:53:27.746: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:53:32.747: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:53:37.747: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:53:42.748: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+18:59:01.651: Last log entry repeated for 63 more lines
+18:59:01.651: alsa-input: PCM 'front:CARD=Loopback,DEV=0' rate set to 44100
+18:59:01.651: alsa-input: PCM 'front:CARD=Loopback,DEV=0' channels set to 2
+20:19:17.312: Go live URL: https://ingest.twitch.tv/api/v3/GetClientConfiguration
+20:19:17.312: Preparing enhanced broadcasting stream for:
+20:19:17.312:     custom config:  No
+20:19:17.312:     config url:     https://ingest.twitch.tv/api/v3/GetClientConfiguration
+20:19:17.312:   settings:
+20:19:17.312:     service:               Twitch
+20:19:17.312:     max aggregate bitrate: Auto (0)
+20:19:17.312:     max video tracks:      Auto (0)
+20:19:17.312:     custom rtmp url:       No ('')
+20:19:17.312:     vod track:             No
+20:19:17.312:     canvases:              Main
+20:19:17.367: Go live POST data: {"authentication":"CENSORED","capabilities":{"cpu":{"logical_cores":16,"name":"AMD Ryzen 7 5800X3D 8-Core Processor","physical_cores":8,"speed":4552},"gaming_features":null,"gpu":[{"dedicated_video_memory":10737418240,"device_id":8710,"driver_version":"3.3.0 NVIDIA 580.95.05","model":"GeForce RTX 3080","shared_system_memory":0,"vendor_id":4318}],"memory":{"free":40368754688,"total":67338838016},"system":{"arm":false,"armEmulation":false,"bits":64,"build":0,"name":"Arch Linux","release":"","revision":"","version":"Linux 6.17.1-arch1-1 #1 SMP PREEMPT_DYNAMIC Mon, 06 Oct 2025 18:48:29 +0000"}},"client":{"name":"obs-studio","supported_codecs":["h264","h265","av1"],"version":"32.0.1"},"preferences":{"audio_channels":2,"audio_fixed_buffering":false,"audio_max_buffering_ms":960,"audio_samples_per_sec":48000,"canvases":[{"canvas_height":1440,"canvas_width":2560,"framerate":{"denominator":1,"numerator":60},"height":1440,"width":2560}],"composition_gpu_index":0,"maximum_aggregate_bitrate":null,"maximum_video_tracks":null,"vod_track_audio":false},"schema_version":"2025-01-25","service":"IVS"}
+20:19:17.486: Go live response data: {
+20:19:17.486:     "audio_configurations": {
+20:19:17.486:         "live": [
+20:19:17.486:             {
+20:19:17.486:                 "channels": 2,
+20:19:17.486:                 "codec": "aac",
+20:19:17.486:                 "settings": {
+20:19:17.486:                     "bitrate": 160
+20:19:17.486:                 },
+20:19:17.486:                 "track_id": 0
+20:19:17.486:             }
+20:19:17.486:         ],
+20:19:17.486:         "vod": []
+20:19:17.486:     },
+20:19:17.486:     "encoder_configurations": [
+20:19:17.486:         {
+20:19:17.486:             "bitrate_interpolation_points": [
+20:19:17.486:                 0,
+20:19:17.486:                 4950,
+20:19:17.486:                 6000,
+20:19:17.486:                 7500
+20:19:17.486:             ],
+20:19:17.486:             "canvas_index": 0,
+20:19:17.486:             "framerate": {
+20:19:17.486:                 "denominator": 1,
+20:19:17.486:                 "numerator": 60
+20:19:17.486:             },
+20:19:17.486:             "gpu_scale_type": "OBS_SCALE_BICUBIC",
+20:19:17.486:             "height": 1080,
+20:19:17.486:             "settings": {
+20:19:17.486:                 "adaptive_quantization": true,
+20:19:17.486:                 "bf": 2,
+20:19:17.486:                 "bitrate": 7500,
+20:19:17.486:                 "keyint_sec": 2,
+20:19:17.486:                 "lookahead": true,
+20:19:17.486:                 "multipass": "qres",
+20:19:17.486:                 "opts": "lookaheadDepth=4",
+20:19:17.486:                 "preset": "p6",
+20:19:17.486:                 "profile": "high",
+20:19:17.486:                 "rate_control": "CBR",
+20:19:17.486:                 "tune": "hq"
+20:19:17.486:             },
+20:19:17.486:             "type": "obs_nvenc_h264_tex",
+20:19:17.486:             "width": 1920
+20:19:17.486:         },
+20:19:17.486:         {
+20:19:17.486:             "bitrate_interpolation_points": [
+20:19:17.486:                 0,
+20:19:17.486:                 2800,
+20:19:17.486:                 3500,
+20:19:17.486:                 3500
+20:19:17.486:             ],
+20:19:17.486:             "canvas_index": 0,
+20:19:17.486:             "framerate": {
+20:19:17.486:                 "denominator": 1,
+20:19:17.486:                 "numerator": 60
+20:19:17.486:             },
+20:19:17.486:             "gpu_scale_type": "OBS_SCALE_BILINEAR",
+20:19:17.486:             "height": 720,
+20:19:17.486:             "settings": {
+20:19:17.486:                 "adaptive_quantization": false,
+20:19:17.486:                 "bf": 2,
+20:19:17.486:                 "bitrate": 3500,
+20:19:17.486:                 "keyint_sec": 2,
+20:19:17.486:                 "lookahead": false,
+20:19:17.486:                 "multipass": "qres",
+20:19:17.486:                 "preset": "p5",
+20:19:17.486:                 "profile": "high",
+20:19:17.486:                 "rate_control": "CBR",
+20:19:17.486:                 "tune": "hq"
+20:19:17.486:             },
+20:19:17.486:             "type": "obs_nvenc_h264_tex",
+20:19:17.486:             "width": 1280
+20:19:17.486:         },
+20:19:17.486:         {
+20:19:17.486:             "bitrate_interpolation_points": [
+20:19:17.486:                 0,
+20:19:17.486:                 1000,
+20:19:17.486:                 1000,
+20:19:17.486:                 1000
+20:19:17.486:             ],
+20:19:17.486:             "canvas_index": 0,
+20:19:17.486:             "framerate": {
+20:19:17.486:                 "denominator": 1,
+20:19:17.486:                 "numerator": 30
+20:19:17.486:             },
+20:19:17.486:             "gpu_scale_type": "OBS_SCALE_BILINEAR",
+20:19:17.486:             "height": 480,
+20:19:17.486:             "settings": {
+20:19:17.486:                 "adaptive_quantization": false,
+20:19:17.486:                 "bf": 2,
+20:19:17.486:                 "bitrate": 1000,
+20:19:17.486:                 "keyint_sec": 2,
+20:19:17.486:                 "lookahead": false,
+20:19:17.486:                 "multipass": "qres",
+20:19:17.486:                 "preset": "p5",
+20:19:17.486:                 "profile": "high",
+20:19:17.486:                 "rate_control": "CBR",
+20:19:17.486:                 "tune": "hq"
+20:19:17.486:             },
+20:19:17.486:             "type": "obs_nvenc_h264_tex",
+20:19:17.486:             "width": 852
+20:19:17.486:         },
+20:19:17.486:         {
+20:19:17.486:             "bitrate_interpolation_points": [
+20:19:17.486:                 0,
+20:19:17.486:                 500,
+20:19:17.486:                 500,
+20:19:17.486:                 500
+20:19:17.486:             ],
+20:19:17.486:             "canvas_index": 0,
+20:19:17.486:             "framerate": {
+20:19:17.486:                 "denominator": 1,
+20:19:17.486:                 "numerator": 30
+20:19:17.486:             },
+20:19:17.486:             "gpu_scale_type": "OBS_SCALE_BILINEAR",
+20:19:17.486:             "height": 360,
+20:19:17.486:             "settings": {
+20:19:17.486:                 "adaptive_quantization": false,
+20:19:17.486:                 "bf": 2,
+20:19:17.486:                 "bitrate": 500,
+20:19:17.486:                 "keyint_sec": 2,
+20:19:17.486:                 "lookahead": false,
+20:19:17.486:                 "multipass": "qres",
+20:19:17.486:                 "preset": "p5",
+20:19:17.486:                 "profile": "main",
+20:19:17.486:                 "rate_control": "CBR",
+20:19:17.486:                 "tune": "hq"
+20:19:17.486:             },
+20:19:17.486:             "type": "obs_nvenc_h264_tex",
+20:19:17.486:             "width": 640
+20:19:17.486:         },
+20:19:17.486:         {
+20:19:17.486:             "bitrate_interpolation_points": [
+20:19:17.486:                 0,
+20:19:17.486:                 200,
+20:19:17.486:                 200,
+20:19:17.486:                 200
+20:19:17.486:             ],
+20:19:17.486:             "canvas_index": 0,
+20:19:17.486:             "framerate": {
+20:19:17.486:                 "denominator": 1,
+20:19:17.486:                 "numerator": 30
+20:19:17.486:             },
+20:19:17.486:             "gpu_scale_type": "OBS_SCALE_BILINEAR",
+20:19:17.486:             "height": 160,
+20:19:17.486:             "settings": {
+20:19:17.486:                 "adaptive_quantization": false,
+20:19:17.486:                 "bf": 2,
+20:19:17.486:                 "bitrate": 200,
+20:19:17.486:                 "keyint_sec": 2,
+20:19:17.486:                 "lookahead": false,
+20:19:17.486:                 "multipass": "qres",
+20:19:17.486:                 "preset": "p5",
+20:19:17.486:                 "profile": "main",
+20:19:17.486:                 "rate_control": "CBR",
+20:19:17.486:                 "tune": "hq"
+20:19:17.486:             },
+20:19:17.486:             "type": "obs_nvenc_h264_tex",
+20:19:17.486:             "width": 284
+20:19:17.486:         }
+20:19:17.486:     ],
+20:19:17.486:     "ingest_endpoints": [
+20:19:17.486:         {
+20:19:17.486:             "authentication": "CENSORED",
+20:19:17.486:             "protocol": "RTMP",
+20:19:17.486:             "url_template": "rtmp://usw20.contribute.live-video.net/app/{stream_key}"
+20:19:17.486:         },
+20:19:17.486:         {
+20:19:17.486:             "authentication": "CENSORED",
+20:19:17.486:             "protocol": "RTMPS",
+20:19:17.486:             "url_template": "rtmps://usw20.contribute.live-video.net/app/{stream_key}"
+20:19:17.486:         }
+20:19:17.486:     ],
+20:19:17.486:     "meta": {
+20:19:17.486:         "config_id": "69184444-a3d0-49af-875b-41026f6e6c43",
+20:19:17.486:         "required_encode_resource_estimate_percent": 40,
+20:19:17.486:         "schema_version": "2025-01-25",
+20:19:17.486:         "service": "IVS"
+20:19:17.486:     }
+20:19:17.486: }
+20:19:17.487: Enhanced broadcasting config_id: '69184444-a3d0-49af-875b-41026f6e6c43'
+20:19:17.487: Setting frame rate divisor to 2 for encoder 2
+20:19:17.487: Setting frame rate divisor to 2 for encoder 3
+20:19:17.487: Setting frame rate divisor to 2 for encoder 4
+20:19:17.487: Using stream key supplied by autoconfig
+20:19:17.487: Using URL template: 'rtmp://usw20.contribute.live-video.net/app/{stream_key}'
+20:19:17.487: NV12 texture support enabled
+20:19:17.487: P010 texture support not available
+20:19:17.488: [obs-nvenc] GPU scaling enabled
+20:19:17.709: [obs-nvenc: 'multitrack video video encoder 0'] settings:
+20:19:17.709: 	codec:        H264
+20:19:17.709: 	rate_control: CBR
+20:19:17.709: 	bitrate:      7500
+20:19:17.709: 	keyint:       120
+20:19:17.709: 	preset:       p6
+20:19:17.709: 	tuning:       hq
+20:19:17.709: 	multipass:    qres
+20:19:17.709: 	profile:      high
+20:19:17.709: 	width:        1920
+20:19:17.709: 	height:       1080
+20:19:17.709: 	b-frames:     2
+20:19:17.709: 	b-ref-mode:   0
+20:19:17.709: 	lookahead:    true (4 frames)
+20:19:17.709: 	aq:           true
+20:19:17.709: 	user opts:    lookaheadDepth=4
+20:19:17.709: 
+20:19:17.747: NV12 texture support enabled
+20:19:17.747: P010 texture support not available
+20:19:17.747: [obs-nvenc] GPU scaling enabled
+20:19:17.866: [obs-nvenc: 'multitrack video video encoder 1'] settings:
+20:19:17.866: 	codec:        H264
+20:19:17.866: 	rate_control: CBR
+20:19:17.866: 	bitrate:      3500
+20:19:17.866: 	keyint:       120
+20:19:17.866: 	preset:       p5
+20:19:17.866: 	tuning:       hq
+20:19:17.866: 	multipass:    qres
+20:19:17.866: 	profile:      high
+20:19:17.866: 	width:        1280
+20:19:17.866: 	height:       720
+20:19:17.866: 	b-frames:     2
+20:19:17.866: 	b-ref-mode:   0
+20:19:17.866: 	lookahead:    false (0 frames)
+20:19:17.866: 	aq:           false
+20:19:17.866: 
+20:19:17.892: NV12 texture support enabled
+20:19:17.892: P010 texture support not available
+20:19:17.892: [obs-nvenc] GPU scaling enabled
+20:19:18.005: [obs-nvenc: 'multitrack video video encoder 2'] settings:
+20:19:18.005: 	codec:        H264
+20:19:18.005: 	rate_control: CBR
+20:19:18.005: 	bitrate:      1000
+20:19:18.005: 	keyint:       60
+20:19:18.005: 	preset:       p5
+20:19:18.005: 	tuning:       hq
+20:19:18.005: 	multipass:    qres
+20:19:18.005: 	profile:      high
+20:19:18.005: 	width:        852
+20:19:18.005: 	height:       480
+20:19:18.005: 	b-frames:     2
+20:19:18.005: 	b-ref-mode:   0
+20:19:18.005: 	lookahead:    false (0 frames)
+20:19:18.005: 	aq:           false
+20:19:18.005: 
+20:19:18.026: NV12 texture support enabled
+20:19:18.026: P010 texture support not available
+20:19:18.026: [obs-nvenc] GPU scaling enabled
+20:19:18.150: [obs-nvenc: 'multitrack video video encoder 3'] settings:
+20:19:18.150: 	codec:        H264
+20:19:18.150: 	rate_control: CBR
+20:19:18.150: 	bitrate:      500
+20:19:18.150: 	keyint:       60
+20:19:18.150: 	preset:       p5
+20:19:18.150: 	tuning:       hq
+20:19:18.150: 	multipass:    qres
+20:19:18.150: 	profile:      main
+20:19:18.150: 	width:        640
+20:19:18.150: 	height:       360
+20:19:18.150: 	b-frames:     2
+20:19:18.150: 	b-ref-mode:   0
+20:19:18.150: 	lookahead:    false (0 frames)
+20:19:18.150: 	aq:           false
+20:19:18.150: 
+20:19:18.169: NV12 texture support enabled
+20:19:18.169: P010 texture support not available
+20:19:18.169: [obs-nvenc] GPU scaling enabled
+20:19:18.294: [obs-nvenc: 'multitrack video video encoder 4'] settings:
+20:19:18.294: 	codec:        H264
+20:19:18.294: 	rate_control: CBR
+20:19:18.294: 	bitrate:      200
+20:19:18.294: 	keyint:       60
+20:19:18.294: 	preset:       p5
+20:19:18.294: 	tuning:       hq
+20:19:18.294: 	multipass:    qres
+20:19:18.294: 	profile:      main
+20:19:18.294: 	width:        284
+20:19:18.294: 	height:       160
+20:19:18.294: 	b-frames:     2
+20:19:18.294: 	b-ref-mode:   0
+20:19:18.294: 	lookahead:    false (0 frames)
+20:19:18.294: 	aq:           false
+20:19:18.294: 
+20:19:18.311: libfdk_aac encoder created
+20:19:18.311: libfdk_aac bitrate: 160, channels: 2
+20:19:18.311: [rtmp stream: 'rtmp multitrack video'] Connecting to RTMP URL rtmp://usw20.contribute.live-video.net/app...
+20:19:18.975: [rtmp stream: 'rtmp multitrack video'] Connection to rtmp://usw20.contribute.live-video.net/app (35.55.37.42) successful
+20:19:19.031: ==== Streaming Start ===============================================
+20:52:33.687: [rtmp stream: 'rtmp multitrack video'] User stopped the stream
+20:52:33.687: Output 'rtmp multitrack video': stopping
+20:52:33.687: Output 'rtmp multitrack video': Total frames output: 418781
+20:52:33.687: Output 'rtmp multitrack video': Total drawn frames: 119701 (119723 attempted)
+20:52:33.687: Output 'rtmp multitrack video': Number of lagged frames due to rendering lag/stalls: 22 (0.0%)
+20:52:33.687: Video stopped, number of skipped frames due to encoding lag: 18/119676 (0.0%)
+20:52:33.688: ==== Streaming Stop ================================================
+20:52:33.913: Video stopped, number of skipped frames due to encoding lag: 20/119690 (0.0%)
+20:52:34.032: Video stopped, number of skipped frames due to encoding lag: 20/119697 (0.0%)
+20:52:34.151: Video stopped, number of skipped frames due to encoding lag: 20/119704 (0.0%)
+20:52:34.276: Video stopped, number of skipped frames due to encoding lag: 20/119712 (0.0%)
+20:52:34.397: libfdk_aac encoder destroyed
+20:52:34.423: ==== Streaming Stop ================================================
+21:06:08.897: adding 21 milliseconds of audio buffering, total audio buffering is now 42 milliseconds (source: Audio Output Capture (PulseAudio))
+21:06:08.897: 
+09:02:14.154: ==== Shutting down ==================================================
+09:02:14.230: pulse-input: Stopped recording from 'alsa_output.usb-Burr-Brown_from_TI_USB_Audio_CODEC-00.analog-stereo-output.monitor'
+09:02:14.230: pulse-input: Got 2042960 packets with 2451552000 frames
+09:02:14.233: All scene data cleared
+09:02:14.233: ------------------------------------------------
+09:02:14.318: [obs-websocket] [obs_module_unload] Shutting down...
+09:02:14.318: Tried to call obs_frontend_remove_event_callback with no callbacks!
+09:02:14.318: [obs-websocket] [obs_module_unload] Finished shutting down.
+09:02:14.322: [Scripting] Total detached callbacks: 0
+09:02:14.322: Freeing OBS context data
+09:02:14.349: == Profiler Results =============================
+09:02:14.349: run_program_init: 998.755 ms
+09:02:14.349:  ┣OBSApp::AppInit: 16.456 ms
+09:02:14.349:  ┃ ┗OBSApp::InitLocale: 1.324 ms
+09:02:14.349:  ┗OBSApp::OBSInit: 962.643 ms
+09:02:14.349:    ┣obs_startup: 1.654 ms
+09:02:14.349:    ┗OBSBasic::OBSInit: 935.386 ms
+09:02:14.349:      ┣OBSBasic::InitBasicConfig: 0.519 ms
+09:02:14.349:      ┣OBSBasic::ResetAudio: 0.256 ms
+09:02:14.349:      ┣OBSBasic::ResetVideo: 165.766 ms
+09:02:14.349:      ┃ ┗obs_init_graphics: 165.038 ms
+09:02:14.350:      ┃   ┗shader compilation: 24.528 ms
+09:02:14.350:      ┣OBSBasic::InitOBSCallbacks: 0.004 ms
+09:02:14.350:      ┣OBSBasic::InitHotkeys: 0.017 ms
+09:02:14.350:      ┣obs_load_all_modules2: 583.634 ms
+09:02:14.350:      ┃ ┣obs_init_module(decklink-captions.so): 0 ms
+09:02:14.350:      ┃ ┣obs_init_module(decklink-output-ui.so): 0 ms
+09:02:14.350:      ┃ ┣obs_init_module(decklink.so): 0.097 ms
+09:02:14.350:      ┃ ┣obs_init_module(frontend-tools.so): 58.134 ms
+09:02:14.350:      ┃ ┣obs_init_module(image-source.so): 0.005 ms
+09:02:14.350:      ┃ ┣obs_init_module(linux-alsa.so): 0 ms
+09:02:14.350:      ┃ ┣obs_init_module(linux-capture.so): 0.417 ms
+09:02:14.350:      ┃ ┣obs_init_module(linux-jack.so): 0.001 ms
+09:02:14.350:      ┃ ┣obs_init_module(linux-pipewire.so): 4.898 ms
+09:02:14.350:      ┃ ┣obs_init_module(linux-pulseaudio.so): 0.002 ms
+09:02:14.350:      ┃ ┣obs_init_module(linux-v4l2.so): 3.82 ms
+09:02:14.350:      ┃ ┣obs_init_module(obs-ffmpeg.so): 0.434 ms
+09:02:14.350:      ┃ ┣obs_init_module(obs-filters.so): 0.012 ms
+09:02:14.350:      ┃ ┣obs_init_module(obs-libfdk.so): 0 ms
+09:02:14.350:      ┃ ┣obs_init_module(obs-nvenc.so): 465.287 ms
+09:02:14.350:      ┃ ┃ ┗nvenc_check: 465.275 ms
+09:02:14.350:      ┃ ┣obs_init_module(obs-outputs.so): 0.003 ms
+09:02:14.350:      ┃ ┣obs_init_module(obs-qsv11.so): 0.938 ms
+09:02:14.350:      ┃ ┣obs_init_module(obs-transitions.so): 0.004 ms
+09:02:14.350:      ┃ ┣obs_init_module(obs-vst.so): 0.002 ms
+09:02:14.350:      ┃ ┣obs_init_module(obs-webrtc.so): 0.002 ms
+09:02:14.350:      ┃ ┣obs_init_module(obs-websocket.so): 3.452 ms
+09:02:14.350:      ┃ ┣obs_init_module(obs-x264.so): 0.001 ms
+09:02:14.350:      ┃ ┣obs_init_module(rtmp-services.so): 0.344 ms
+09:02:14.350:      ┃ ┗obs_init_module(text-freetype2.so): 0.006 ms
+09:02:14.350:      ┣OBSBasic::InitService: 1.099 ms
+09:02:14.350:      ┣OBSBasic::ResetOutputs: 0.125 ms
+09:02:14.350:      ┣OBSBasic::CreateHotkeys: 0.023 ms
+09:02:14.350:      ┣OBSBasic::InitPrimitives: 0.09 ms
+09:02:14.350:      ┗OBSBasic::Load: 59.956 ms
+09:02:14.350: obs_hotkey_thread(25 ms): min=0.051 ms, median=0.081 ms, max=546.502 ms, 99th percentile=2.58 ms, 99.9998% below 25 ms
+09:02:14.350: audio_thread(Audio): min=0.005 ms, median=0.026 ms, max=38.156 ms, 99th percentile=0.379 ms
+09:02:14.350:  ┗receive_audio: min=0.002 ms, median=0.285 ms, max=0.896 ms, 99th percentile=0.429 ms, 0.039069 calls per parent call
+09:02:14.350:    ┣buffer_audio: min=0 ms, median=0 ms, max=0.071 ms, 99th percentile=0.002 ms
+09:02:14.350:    ┗do_encode: min=0.09 ms, median=0.284 ms, max=0.894 ms, 99th percentile=0.427 ms
+09:02:14.350:      ┣encode(multitrack video live audio 0): min=0.084 ms, median=0.275 ms, max=0.886 ms, 99th percentile=0.411 ms
+09:02:14.350:      ┗send_packet: min=0 ms, median=0.008 ms, max=0.524 ms, 99th percentile=0.04 ms
+09:02:14.350: obs_graphics_thread(16.6667 ms): min=0.145 ms, median=3.575 ms, max=567.073 ms, 99th percentile=6.919 ms, 99.997% below 16.667 ms
+09:02:14.350:  ┣tick_sources: min=0 ms, median=3.151 ms, max=62.768 ms, 99th percentile=6.389 ms
+09:02:14.350:  ┣output_frame: min=0.054 ms, median=0.102 ms, max=40.662 ms, 99th percentile=0.964 ms
+09:02:14.350:  ┃ ┗gs_context(video->graphics): min=0.051 ms, median=0.105 ms, max=33.322 ms, 99th percentile=0.227 ms, 1.19539 calls per parent call
+09:02:14.350:  ┃   ┣render_video: min=0.021 ms, median=0.063 ms, max=33.239 ms, 99th percentile=0.179 ms
+09:02:14.350:  ┃   ┃ ┣render_main_texture: min=0.016 ms, median=0.053 ms, max=4.994 ms, 99th percentile=0.11 ms
+09:02:14.350:  ┃   ┃ ┣render_output_texture: min=0.012 ms, median=0.019 ms, max=24.962 ms, 99th percentile=0.046 ms, 0.163352 calls per parent call
+09:02:14.350:  ┃   ┃ ┣render_convert_texture: min=0.028 ms, median=0.041 ms, max=8.182 ms, 99th percentile=0.087 ms, 0.163352 calls per parent call
+09:02:14.350:  ┃   ┃ ┗output_gpu_encoders: min=0 ms, median=0.003 ms, max=0.128 ms, 99th percentile=0.005 ms, 0.163352 calls per parent call
+09:02:14.350:  ┃   ┗gs_flush: min=0.002 ms, median=0.008 ms, max=14.867 ms, 99th percentile=0.016 ms
+09:02:14.350:  ┗render_displays: min=0.024 ms, median=0.245 ms, max=41.251 ms, 99th percentile=0.369 ms
+09:02:14.350: obs_gpu_encode_thread(16.6667 ms): min=0.821 ms, median=1.2 ms, max=52.664 ms, 99th percentile=3.936 ms, 99.9958% below 16.667 ms
+09:02:14.350:  ┣gpu_encode_frame: min=0.809 ms, median=1.188 ms, max=52.66 ms, 99th percentile=3.926 ms
+09:02:14.350:  ┗send_packet: min=0.001 ms, median=0.008 ms, max=0.508 ms, 99th percentile=0.045 ms
+09:02:14.350: obs_gpu_encode_thread(16.6667 ms): min=0.492 ms, median=3.607 ms, max=95.076 ms, 99th percentile=5.195 ms, 99.9975% below 16.667 ms
+09:02:14.350:  ┣gpu_encode_frame: min=0.49 ms, median=3.597 ms, max=95.073 ms, 99th percentile=5.186 ms
+09:02:14.350:  ┗send_packet: min=0.001 ms, median=0.007 ms, max=0.344 ms, 99th percentile=0.03 ms
+09:02:14.350: obs_gpu_encode_thread(16.6667 ms): min=0 ms, median=0.858 ms, max=137.273 ms, 99th percentile=6.224 ms, 99.9983% below 16.667 ms
+09:02:14.350:  ┣gpu_encode_frame: min=0.851 ms, median=4.177 ms, max=137.27 ms, 99th percentile=6.67 ms, 0.500004 calls per parent call
+09:02:14.350:  ┗send_packet: min=0.001 ms, median=0.005 ms, max=0.121 ms, 99th percentile=0.019 ms, 0.499921 calls per parent call
+09:02:14.350: obs_gpu_encode_thread(16.6667 ms): min=0 ms, median=0.639 ms, max=222.504 ms, 99th percentile=8.268 ms, 99.9975% below 16.667 ms
+09:02:14.350:  ┣gpu_encode_frame: min=0.635 ms, median=4.497 ms, max=222.501 ms, 99th percentile=8.92 ms, 0.5 calls per parent call
+09:02:14.350:  ┗send_packet: min=0.001 ms, median=0.008 ms, max=0.183 ms, 99th percentile=0.02 ms, 0.499916 calls per parent call
+09:02:14.351: obs_gpu_encode_thread(16.6667 ms): min=0 ms, median=0.364 ms, max=179.5 ms, 99th percentile=9.736 ms, 99.9975% below 16.667 ms
+09:02:14.351:  ┣gpu_encode_frame: min=0.353 ms, median=4.823 ms, max=179.496 ms, 99th percentile=10.255 ms, 0.5 calls per parent call
+09:02:14.351:  ┗send_packet: min=0.001 ms, median=0.007 ms, max=0.579 ms, 99th percentile=0.018 ms, 0.499916 calls per parent call
+09:02:14.351: =================================================
+09:02:14.351: == Profiler Time Between Calls ==================
+09:02:14.351: obs_hotkey_thread(25 ms): min=25.068 ms, median=25.14 ms, max=571.574 ms, 96.7383% within ±2% of 25 ms (0% lower, 3.26172% higher)
+09:02:14.351: obs_graphics_thread(16.6667 ms): min=0.742 ms, median=16.667 ms, max=567.078 ms, 99.9832% within ±2% of 16.667 ms (0.00851717% lower, 0.00832137% higher)
+09:02:14.351: obs_gpu_encode_thread(16.6667 ms): min=0.946 ms, median=16.661 ms, max=229.978 ms, 64.5874% within ±2% of 16.667 ms (17.8767% lower, 17.5358% higher)
+09:02:14.351: obs_gpu_encode_thread(16.6667 ms): min=1.026 ms, median=16.661 ms, max=230.156 ms, 62.9381% within ±2% of 16.667 ms (18.7494% lower, 18.3125% higher)
+09:02:14.351: obs_gpu_encode_thread(16.6667 ms): min=0 ms, median=16.661 ms, max=230.234 ms, 61.236% within ±2% of 16.667 ms (19.5988% lower, 19.1652% higher)
+09:02:14.351: obs_gpu_encode_thread(16.6667 ms): min=0 ms, median=16.661 ms, max=230.365 ms, 59.4204% within ±2% of 16.667 ms (20.4623% lower, 20.1173% higher)
+09:02:14.351: obs_gpu_encode_thread(16.6667 ms): min=0 ms, median=16.661 ms, max=230.494 ms, 57.7992% within ±2% of 16.667 ms (21.3088% lower, 20.892% higher)
+09:02:14.351: =================================================
+09:02:14.461: Number of memory leaks: 0

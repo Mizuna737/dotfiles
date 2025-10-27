@@ -6,5 +6,7 @@ run() {
   fi
 }
 
-# Use bash explicitly for pywal + wallpaper script
-run bash "$HOME/Scripts/chooseWallpaper.sh" true
+# If last wallpaper exists, reapply it with wal
+if [ -f "$HOME/.cache/last-wallpaper" ]; then
+  wal -R
+fi

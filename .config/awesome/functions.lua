@@ -145,7 +145,7 @@ function M.volumeControl(action, percentage)
 	elseif action == "down" then
 		awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ -" .. percentage .. "%", false)
 	elseif action == "mute" then
-		awful.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle", false)
+		awful.spawn("playerctl play-pause", false)
 	end
 	bar.updateVolumeWidget()
 end
@@ -379,7 +379,6 @@ function M.loadWorkspaceConfiguration(optionalFilename)
 				volatile = true,
 			})
 		end
-		local overflowTag = awful.tag.find_by_name(s, "Overflow")
 		-- If a tag with the target workspace name exists, move its windows to Overflow.
 		local targetTag = awful.tag.find_by_name(s, workspaceName)
 		if targetTag then
@@ -542,47 +541,79 @@ function M.openNew(appCmd, targetTag)
 	end
 end
 
-function M.findExisting(app, appCmd)
+-- Tap:  scope = "current"
+-- Hold: scope = "all"
+function M.findExisting(app, appCmd, scope)
 	local appCmd = appCmd or app
+	local scope = scope or "current"
 	local lowerCmd = (app or ""):lower()
-	local matchedClient = nil
+	local matchedClient
 
-	-- If the focused client is a match, promote and return.
+	local function matches(c)
+		return ((c.class or ""):lower()):match(lowerCmd)
+	end
+
+	-- Fast path: if the focused client matches, promote and bail
 	local fc = client.focus
-	if fc and (fc.class or ""):lower():match(lowerCmd) then
+	if fc and matches(fc) then
 		M.promoteFocusedWindow(fc)
 		return
 	end
 
-	-- Search through all current clients
-	for _, c in ipairs(client.get()) do
-		-- Compare the window class (or instance) with appCmd
-		local class = (c.class or ""):lower()
-		if class:match(lowerCmd) then
-			matchedClient = c
+	-- Phase 1: search clients on the current selected tag(s)
+	local currentTags = awful.screen.focused().selected_tags or {}
+	for _, tag in ipairs(currentTags) do
+		for _, c in ipairs(tag:clients()) do
+			if matches(c) then
+				matchedClient = c
+				break
+			end
+		end
+		if matchedClient then
 			break
 		end
 	end
 
+	-- If found on current tags, just focus/raise
 	if matchedClient then
-		-- If the matched client is already focused, promote it
 		if client.focus == matchedClient then
 			M.promoteFocusedWindow(matchedClient)
 		else
-			-- Switch to the workspace (tag) containing matchedClient, if not already on it
-			local t = matchedClient.first_tag
-			if t then
-				t:view_only() -- Switch to the tag
-			end
-
-			-- Now focus, raise, and center mouse
 			client.focus = matchedClient
 			matchedClient:raise()
 			gears.timer.delayed_call(M.centerMouseOnFocusedClient)
 		end
-	else
-		M.openNew(appCmd)
+		return
 	end
+
+	-- Phase 2 (optional): search all tags if scope == "all"
+	if scope == "all" then
+		for _, c in ipairs(client.get()) do
+			if matches(c) then
+				matchedClient = c
+				break
+			end
+		end
+
+		if matchedClient then
+			local t = matchedClient.first_tag
+			if t then
+				t:view_only()
+			end
+			client.focus = matchedClient
+			matchedClient:raise()
+			gears.timer.delayed_call(M.centerMouseOnFocusedClient)
+			return
+		end
+	end
+
+	-- Not found: launch new
+	-- For taps, ensure spawn lands on the current primary selected tag
+	local targetTag = nil
+	if scope == "current" then
+		targetTag = awful.screen.focused().selected_tag
+	end
+	M.openNew(appCmd, targetTag)
 end
 
 local dropdown_class = "Dropdown"
@@ -796,4 +827,7 @@ function M.pasteFromHistory()
 	awful.spawn.with_shell("bash ~/Scripts/pasteFromHistory.sh")
 end
 
+function M.startDroidCam()
+	awful.spawn.with_shell("droidcam-cli -size=3840x2160 192.168.0.156 4747")
+end
 return M

@@ -76,7 +76,7 @@ alias ls="ls --color -a"
 alias pac="sudo pacman"
 alias teams="/opt/teams-for-linux/teams-for-linux"
 alias outlook="/opt/outlook-for-linux/outlook-for-linux"
-alias cl="clear"
+alias cl="cd /home/max/; clear"
 # git
 alias ga="git add"
 alias gc="git commit -m "
@@ -93,3 +93,5 @@ export OLLAMA_MODELS="/data/Ollama Models"
 export OLLAMA_KEEP_ALIVE=30
 
 
+# Load pywal colors for new terminal sessions
+(cat ~/.cache/wal/sequences &)

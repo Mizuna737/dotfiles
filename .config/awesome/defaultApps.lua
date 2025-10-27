@@ -4,27 +4,27 @@
 --------------------------------
 
 local defaultApps = {
-	terminalCommand = "alacritty -e tmux new-session -A -s main",
-	terminal = "alacritty",
-	browserCommand = "qutebrowser",
-	browser = "qutebrowser",
+	terminalCommand = "kitty -e tmux new-session -A -s main",
+	terminal = "kitty",
+	browserCommand = 'zen-browser --style "$HOME/.config/zen/pywal.css"',
+	browser = "zen",
 	editor = "NeoVim",
 	-- somewhere near your other commands…
 	editorCommand = [[
-  alacritty --class NeoVim -e \
+  kitty --class NeoVim -e \
     tmux new-session -A -s code -n NeoVim nvim 
 ]],
 	fileManagerCommand = [[
-  alacritty --class Ranger -e \
+  kitty --class Ranger -e \
     tmux new-session -A -s files -n Ranger ranger
 ]],
 	fileManager = "Ranger",
 	neovim = [[
-  alacritty --class NeoVim -e \
+  kitty --class NeoVim -e \
     tmux new-session -A -s code -n NeoVim nvim
 ]],
-
-	alacritty = "alacritty -e tmux new-session -A -s main",
+	kitty = "kitty -e tmux new-session -A -s main",
+	zen = 'zen-browser --style "$HOME/.config/zen/pywal.css"',
 }
 
 return defaultApps
