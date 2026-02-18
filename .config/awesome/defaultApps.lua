@@ -15,10 +15,10 @@ local defaultApps = {
     tmux new-session -A -s code -n NeoVim nvim 
 ]],
 	fileManagerCommand = [[
-  kitty --class Ranger -e \
-    tmux new-session -A -s files -n Ranger ranger
+  kitty --class Yazi -e \
+    tmux new-session -A -s files -n Yazi yazi
 ]],
-	fileManager = "Ranger",
+	fileManager = "Yazi",
 	neovim = [[
   kitty --class NeoVim -e \
     tmux new-session -A -s code -n NeoVim nvim
