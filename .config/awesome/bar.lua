@@ -93,7 +93,7 @@ local net = lain.widget.net({
 --------------------------------
 --
 local volume_bar = wibox.widget({
-	max_value = 100,
+	max_value = 200,
 	value = 50,
 	forced_height = 10,
 	forced_width = 50,

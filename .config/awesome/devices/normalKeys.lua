@@ -17,19 +17,19 @@ normalKeys.globalkeys = gears.table.join(
 	-- Volume
 
 	awful.key({}, "XF86AudioRaiseVolume", function()
-		myFuncs.volumeControl("up", 1)
+		myFuncs.volumeControl("up", 2)
 	end, { description = "increase volume", group = "volume" }),
 
 	awful.key({}, "XF86AudioLowerVolume", function()
-		myFuncs.volumeControl("down", 1)
+		myFuncs.volumeControl("down", 2)
 	end, { description = "decrease volume", group = "volume" }),
 
 	awful.key({ "Shift" }, "XF86AudioRaiseVolume", function()
-		myFuncs.volumeControl("up", 5)
+		myFuncs.volumeControl("up", 10)
 	end, { description = "increase volume", group = "volume" }),
 
 	awful.key({ "Shift" }, "XF86AudioLowerVolume", function()
-		myFuncs.volumeControl("down", 5)
+		myFuncs.volumeControl("down", 10)
 	end, { description = "decrease volume", group = "volume" }),
 
 	awful.key({}, "XF86AudioMute", function()

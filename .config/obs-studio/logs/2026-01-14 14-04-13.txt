@@ -1,0 +1,175 @@
+14:04:13.521: Using EGL/X11
+14:04:13.521: CPU Name: AMD Ryzen 7 5800X3D 8-Core Processor
+14:04:13.521: CPU Speed: 3560.087MHz
+14:04:13.521: Physical Cores: 8, Logical Cores: 16
+14:04:13.521: Physical Memory: 64219MB Total, 19613MB Free
+14:04:13.521: Kernel Version: Linux 6.18.3-arch1-1
+14:04:13.521: Distribution: "Arch Linux" Unknown
+14:04:13.521: Session Type: x11
+14:04:13.521: Window System: X11.0, Vendor: The X.Org Foundation, Version: 1.21.1
+14:04:13.522: Current Date/Time: 2026-01-14, 02:04:13 PM
+14:04:13.522: Browser Hardware Acceleration: true
+14:04:13.522: Qt Version: 6.10.1 (runtime), 6.10.1 (compiled)
+14:04:13.522: Portable mode: false
+14:04:13.545: OBS 32.0.2 (linux)
+14:04:13.545: ---------------------------------
+14:04:13.546: ---------------------------------
+14:04:13.546: audio settings reset:
+14:04:13.546: 	samples per sec: 48000
+14:04:13.546: 	speakers:        2
+14:04:13.546: 	max buffering:   960 milliseconds
+14:04:13.546: 	buffering type:  dynamically increasing
+14:04:13.547: ---------------------------------
+14:04:13.547: Initializing OpenGL...
+14:04:13.739: Loading up OpenGL on adapter NVIDIA Corporation NVIDIA GeForce RTX 3080/PCIe/SSE2
+14:04:13.739: OpenGL loaded successfully, version 3.3.0 NVIDIA 590.48.01, shading language 3.30 NVIDIA via Cg compiler
+14:04:13.849: ---------------------------------
+14:04:13.849: video settings reset:
+14:04:13.849: 	base resolution:   2560x1440
+14:04:13.849: 	output resolution: 2560x1440
+14:04:13.849: 	downscale filter:  Bicubic
+14:04:13.849: 	fps:               60/1
+14:04:13.849: 	format:            NV12
+14:04:13.849: 	YUV mode:          Rec. 709/Partial
+14:04:13.849: NV12 texture support enabled
+14:04:13.849: P010 texture support not available
+14:04:13.849: Audio monitoring device:
+14:04:13.849: 	name: Default
+14:04:13.849: 	id: default
+14:04:13.900: ---------------------------------
+14:04:13.902: Failed to load 'en-US' text for module: 'decklink-captions.so'
+14:04:13.904: Failed to load 'en-US' text for module: 'decklink-output-ui.so'
+14:04:13.905: A DeckLink iterator could not be created.  The DeckLink drivers may not be installed
+14:04:13.905: Failed to initialize module 'decklink.so'
+14:04:13.985: [pipewire] No capture sources available
+14:04:14.001: VAAPI: Failed to initialize display in vaapi_device_h264_supported
+14:04:14.001: FFmpeg VAAPI H264 encoding not supported
+14:04:14.001: VAAPI: Failed to initialize display in vaapi_device_av1_supported
+14:04:14.001: FFmpeg VAAPI AV1 encoding not supported
+14:04:14.001: VAAPI: Failed to initialize display in vaapi_device_hevc_supported
+14:04:14.001: FFmpeg VAAPI HEVC encoding not supported
+14:04:14.329: [obs-nvenc] NVENC version: 13.0 (compiled) / 13.0 (driver), CUDA driver version: 13.10, AV1 supported: false
+14:04:14.360: [obs-websocket] [obs_module_load] you can haz websockets (Version: 5.6.3 | RPC Version: 1)
+14:04:14.360: [obs-websocket] [obs_module_load] Qt version (compile-time): 6.10.1 | Qt version (run-time): 6.10.1
+14:04:14.360: [obs-websocket] [obs_module_load] Linked ASIO Version: 103600
+14:04:14.366: [obs-websocket] [obs_module_load] Module loaded.
+14:04:14.370: ---------------------------------
+14:04:14.370:   Loaded Modules:
+14:04:14.370:     text-freetype2.so
+14:04:14.370:     rtmp-services.so
+14:04:14.370:     obs-x264.so
+14:04:14.370:     obs-websocket.so
+14:04:14.370:     obs-webrtc.so
+14:04:14.370:     obs-vst.so
+14:04:14.370:     obs-transitions.so
+14:04:14.370:     obs-qsv11.so
+14:04:14.370:     obs-outputs.so
+14:04:14.370:     obs-nvenc.so
+14:04:14.370:     obs-libfdk.so
+14:04:14.370:     obs-filters.so
+14:04:14.370:     obs-ffmpeg.so
+14:04:14.370:     linux-v4l2.so
+14:04:14.370:     linux-pulseaudio.so
+14:04:14.370:     linux-pipewire.so
+14:04:14.370:     linux-jack.so
+14:04:14.370:     linux-capture.so
+14:04:14.370:     linux-alsa.so
+14:04:14.370:     image-source.so
+14:04:14.370:     frontend-tools.so
+14:04:14.370:     decklink-output-ui.so
+14:04:14.370:     decklink-captions.so
+14:04:14.370: ---------------------------------
+14:04:14.370: ---------------------------------
+14:04:14.370: Available Encoders:
+14:04:14.370:   Video Encoders:
+14:04:14.370: 	- ffmpeg_svt_av1 (SVT-AV1)
+14:04:14.370: 	- ffmpeg_aom_av1 (AOM AV1)
+14:04:14.370: 	- obs_nvenc_h264_tex (NVIDIA NVENC H.264)
+14:04:14.370: 	- obs_nvenc_hevc_tex (NVIDIA NVENC HEVC)
+14:04:14.370: 	- obs_x264 (x264)
+14:04:14.370:   Audio Encoders:
+14:04:14.370: 	- ffmpeg_aac (FFmpeg AAC)
+14:04:14.370: 	- ffmpeg_opus (FFmpeg Opus)
+14:04:14.370: 	- ffmpeg_pcm_s16le (FFmpeg PCM (16-bit))
+14:04:14.370: 	- ffmpeg_pcm_s24le (FFmpeg PCM (24-bit))
+14:04:14.370: 	- ffmpeg_pcm_f32le (FFmpeg PCM (32-bit float))
+14:04:14.370: 	- ffmpeg_alac (FFmpeg ALAC (24-bit))
+14:04:14.370: 	- ffmpeg_flac (FFmpeg FLAC (16-bit))
+14:04:14.370: 	- libfdk_aac (libfdk AAC)
+14:04:14.370: ==== Startup complete ===============================================
+14:04:14.399: All scene data cleared
+14:04:14.399: ------------------------------------------------
+14:04:14.403: xshm-input: Geometry 3440x1440 @ 0,0
+14:04:14.406: alsa-input: PCM 'front:CARD=Loopback,DEV=0' rate set to 44100
+14:04:14.406: alsa-input: PCM 'front:CARD=Loopback,DEV=0' channels set to 2
+14:04:14.415: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.9) 15.0.0'
+14:04:14.416: pulse-input: Audio format: s16le, 48000 Hz, 2 channels
+14:04:14.416: pulse-input: Started recording from 'alsa_output.usb-Burr-Brown_from_TI_USB_Audio_CODEC-00.analog-stereo-output.monitor'
+14:04:14.417: Switched to scene 'Gameplay'
+14:04:14.417: ------------------------------------------------
+14:04:14.417: Loaded scenes:
+14:04:14.417: - scene 'Gameplay':
+14:04:14.417:     - source: 'Display Capture (XSHM)' (xshm_input_v2)
+14:04:14.417:     - source: 'Audio Capture Device (ALSA)' (alsa_input_capture)
+14:04:14.417:     - source: 'Audio Output Capture (PulseAudio)' (pulse_output_capture)
+14:04:14.417: ------------------------------------------------
+14:04:14.954: adding 21 milliseconds of audio buffering, total audio buffering is now 21 milliseconds (source: Audio Capture Device (ALSA))
+14:04:14.954: 
+14:04:15.116: [rtmp-services plugin] Successfully updated file 'services.json' (version 281)
+14:04:15.116: [rtmp-services plugin] Successfully updated package (version 281)
+14:04:25.597: User added scene 'Audio Only'
+14:04:25.597: User added source 'Display Capture (XSHM)' (xshm_input_v2) to scene 'Audio Only'
+14:04:25.597: User added source 'Audio Capture Device (ALSA)' (alsa_input_capture) to scene 'Audio Only'
+14:04:25.597: User added source 'Audio Output Capture (PulseAudio)' (pulse_output_capture) to scene 'Audio Only'
+14:04:25.602: Switched to scene 'Audio Only'
+14:04:29.766: User Removed source 'Display Capture (XSHM)' (xshm_input_v2) from scene 'Audio Only'
+14:04:30.452: User switched to scene 'Gameplay'
+14:04:31.026: User switched to scene 'Audio Only'
+14:04:38.708: alsa-input: PCM 'default' rate set to 44100
+14:04:38.708: alsa-input: PCM 'default' channels set to 2
+14:04:41.676: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+14:04:42.676: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+14:04:44.677: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+14:04:47.490: pulse-input: Stopped recording from 'default'
+14:04:47.490: pulse-input: Got 1322 packets with 1586400 frames
+14:04:47.490: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.9) 15.0.0'
+14:04:47.490: pulse-input: Audio format: s16le, 48000 Hz, 2 channels
+14:04:47.490: pulse-input: Started recording from 'alsa_output.usb-Burr-Brown_from_TI_USB_Audio_CODEC-00.analog-stereo-output.monitor' (default)
+14:04:47.509: Device for 'Audio Output Capture' source is also used for audio monitoring:
+14:04:47.509: Deduplication logic is being applied to all monitored sources.
+14:04:47.509: 
+14:04:47.677: alsa-input: Failed to open 'front:CARD=CODEC,DEV=0': Device or resource busy
+14:04:51.568: alsa-input: PCM 'default' rate set to 44100
+14:04:51.568: alsa-input: PCM 'default' channels set to 2
+14:05:14.238: Get on org.freedesktop.portal.Settings returned an invalid reply
+14:05:14.238: Get on org.freedesktop.portal.Settings returned an invalid reply
+14:05:31.030: Settings changed (outputs)
+14:05:31.030: ------------------------------------------------
+14:05:33.624: [obs-nvenc: 'advanced_video_stream'] settings:
+14:05:33.624: 	codec:        H264
+14:05:33.624: 	rate_control: CBR
+14:05:33.624: 	bitrate:      6000
+14:05:33.624: 	keyint:       120
+14:05:33.624: 	preset:       p5
+14:05:33.624: 	tuning:       hq
+14:05:33.624: 	multipass:    qres
+14:05:33.624: 	profile:      high
+14:05:33.624: 	width:        2560
+14:05:33.624: 	height:       1440
+14:05:33.624: 	b-frames:     2
+14:05:33.624: 	b-ref-mode:   0
+14:05:33.624: 	lookahead:    true (8 frames)
+14:05:33.624: 	aq:           true
+14:05:33.624: 
+14:05:33.680: libfdk_aac encoder created
+14:05:33.680: libfdk_aac bitrate: 160, channels: 2
+14:05:33.711: ==== Recording Start ===============================================
+14:05:33.711: [ffmpeg muxer: 'adv_file_output'] Writing file '/data/Videos/OBS Recordings/2026-01-14 14-05-33.mkv'...
+15:17:48.825: [ffmpeg muxer: 'adv_file_output'] Output of file '/data/Videos/OBS Recordings/2026-01-14 14-05-33.mkv' stopped
+15:17:48.825: Output 'adv_file_output': stopping
+15:17:48.825: Output 'adv_file_output': Total frames output: 260089
+15:17:48.825: Output 'adv_file_output': Total drawn frames: 260015 (260107 attempted)
+15:17:48.825: Output 'adv_file_output': Number of lagged frames due to rendering lag/stalls: 92 (0.0%)
+15:17:48.825: Video stopped, number of skipped frames due to encoding lag: 92/260105 (0.0%)
+15:17:48.825: ==== Recording Stop ================================================
+15:17:49.044: libfdk_aac encoder destroyed
