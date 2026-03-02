@@ -15,6 +15,12 @@ end
 vim.api.nvim_create_autocmd({ "VimEnter", "FocusGained", "BufEnter" }, {
 	callback = focus_end,
 })
+vim.api.nvim_create_autocmd("FocusLost", {
+	callback = function()
+		vim.cmd("stopinsert")
+		vim.cmd("write")
+	end,
+})
 vim.opt.wrap = true
 vim.opt.linebreak = true
 vim.opt.spell = true
