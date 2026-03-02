@@ -2,7 +2,7 @@
 
 config.load_autoconfig()
 import os, re
-
+import pywalQute.draw
 
 # 1) Locate your quickmarks file (plaintext format)
 config_home = os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
@@ -41,13 +41,13 @@ config.bind("gy", "open https://www.youtube.com/")
 config.bind("gY", "open -t https://www.youtube.com/")
 
 # toggle between multiple  ↔  switching
-config.bind(",t", ":config-cycle tabs.show multiple switching")
+config.bind(",t", ":config-cycle tabs.show always switching")
 
-config.source("userscripts/wal.py")
+pywalQute.draw.color(c, {"spacing": {"vertical": 6, "horizontal": 8}})
 
 # ---- Zenful qutebrowser tweaks ----
 # Hide UI until you need it
-c.tabs.show = "multiple"
+c.tabs.show = "always"
 c.statusbar.show = "in-mode"
 
 # Scrolling
@@ -62,12 +62,13 @@ c.hints.chars = "asdfghjkl"
 c.content.notifications.enabled = False
 c.content.autoplay = False
 c.content.blocking.enabled = True
-c.auto_save.session = True
+c.auto_save.session = False
+c.session.lazy_restore = False
 
 
 # ---- Vertical Tabs ----
 # Move the tab bar
-c.tabs.position = "left"  # or "right"
+c.tabs.position = "bottom"  # or "right"
 
 # How wide the vertical bar is
 c.tabs.width = "15%"  # Try "200px" or "12%" until it feels right

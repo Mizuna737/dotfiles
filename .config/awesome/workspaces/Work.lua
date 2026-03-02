@@ -1,13 +1,14 @@
 return {
+  ["master_width_factor"] = 0.5,
   ["layoutName"] = "centerwork",
   ["windowOrder"] = {
     ["1"] = {
-      ["class"] = "zen",
-      ["name"] = "(45) Chat | CS/CF Mgmt | Microsoft Teams — Zen Browser",
+      ["class"] = "teams-for-linux",
+      ["name"] = "(45) Calendar | Calendar | Microsoft Teams",
     },
     ["2"] = {
-      ["class"] = "zen",
-      ["name"] = "Manager Call Tracker - Power BI — Zen Browser",
+      ["class"] = "qutebrowser",
+      ["name"] = "ChatGPT - qutebrowser",
     },
     ["3"] = {
       ["class"] = "outlook-for-linux",
@@ -15,5 +16,4 @@ return {
     },
   },
   ["workspace"] = "Work",
-  ["master_width_factor"] = 0.5,
 }

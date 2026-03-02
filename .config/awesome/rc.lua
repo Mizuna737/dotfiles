@@ -53,7 +53,6 @@ runOnce({
 	"lxqt=policykit-agent",
 	"copyq",
 	"windscribe-cli connect",
-	"wal -R",
 })
 
 awful.spawn.with_shell(
@@ -245,6 +244,14 @@ awful.rules.rules = {
 --------------------------------
 -- Signals
 --------------------------------
+
+awesome.connect_signal("wal::reload", function()
+	beautiful.init("/home/max/.config/awesome/themes/powerarrow/theme.lua")
+	beautiful.useless_gap = 6
+	for s in screen do
+		s.mywibox.bg = beautiful.bg_normal
+	end
+end)
 
 client.connect_signal("manage", function(c)
 	if awesome.startup and not c.size_hints.user_position and not c.size_hints.program_position then

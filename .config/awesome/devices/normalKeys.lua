@@ -84,8 +84,29 @@ normalKeys.globalkeys = gears.table.join(
 	-- Dropdown terminal
 
 	awful.key({ modkey }, "t", function()
-		myFuncs.toggleDropdownTerminal()
+		myFuncs.toggleDropdownApp({
+			class = "Dropdown",
+			spawn_cmd = "kitty --class 'Dropdown' -e tmux new-session -A -s dropdown",
+			spawn_props = { floating = true, tag = awful.screen.focused().selected_tag },
+		})
 	end, { description = "dropdown terminal", group = "launcher" }),
+
+	awful.key({ modkey }, "n", function()
+		myFuncs.toggleDropdownApp({
+			class = "Quick Notes",
+			spawn_cmd = {
+				"kitty",
+				"--class",
+				"Quick Notes",
+				"-e",
+				"nvim",
+				"-u",
+				os.getenv("HOME") .. "/.config/nvim/quickNotes.lua",
+				os.getenv("HOME") .. "/Documents/The Vault/Quick Notes.md",
+			},
+			spawn_props = { floating = true, tag = awful.screen.focused().selected_tag },
+		})
+	end, { description = "dropdown quick notes", group = "launcher" }),
 
 	-- bitwardenCLI interface
 
@@ -181,13 +202,9 @@ normalKeys.clientkeys = gears.table.join(
 		c:raise()
 	end, { description = "toggle fullscreen", group = "client" }),
 
-	awful.key({ modkey }, "Escape", function(c)
-		c:kill()
-		gears.timer.start_new(0.1, function()
-			myFuncs.centerMouseOnFocusedClient()
-			return false
-		end)
-	end, { description = "close", group = "client" }),
+	awful.key({ modkey }, "Escape", function()
+		myFuncs.smartCloseFocusedClient()
+	end, { description = "smart close", group = "client" }),
 
 	awful.key(
 		{ modkey, "Control" },

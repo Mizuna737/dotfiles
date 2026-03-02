@@ -1,0 +1,37 @@
+[[mgr.prepend_keymap]]
+on = ["f", "f"]
+run = '''
+shell '
+sel="$(cd / && fzf \
+  --walker=file,dir,follow,hidden \
+  --walker-root=/ \
+  --walker-skip=/.snapshots,/boot,/cache,/dev,/etc,/mnt,/opt,/proc,/root,/run,/srv,/sys,/tmp,/usr,/var \
+  --preview "/home/max/Scripts/previewCommand.sh {}"
+  --preview-window=right:60%:wrap \
+  --height=80% --reverse --prompt="Find (/)> "
+)";
+[ -z "$sel" ] && exit 0;
+
+case "$sel" in
+  /*) path="$sel" ;;
+  *)  path="/$sel" ;;
+esac
+
+if [ -d "$path" ]; then
+  ya emit cd "$path"
+else
+  ya emit reveal "$path"
+fi
+' --block
+'''
+desc = "Fuzzy find from / with preview (bat/tree)"
+
+[[mgr.prepend_keymap]]
+on = ["f", "r"]
+run = "plugin fr rg"
+desc = "Search file by content (rg)"
+
+[[mgr.prepend_keymap]]
+on = ["f", "a"]
+run = "plugin fr rga"
+desc = "Search file by content (rga)"

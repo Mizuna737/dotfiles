@@ -16,8 +16,6 @@ local function find_project_root()
 	return uv.cwd()
 end
 
-map("n", "<leader>e", "<cmd>Yazi<cr>", { noremap = true, silent = true })
-
 map("n", "<leader>dd", function()
 	-- Save all listed buffers
 	vim.cmd("wall")

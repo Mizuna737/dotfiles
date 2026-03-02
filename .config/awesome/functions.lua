@@ -503,8 +503,50 @@ function M.loadWorkspaceConfiguration(optionalFilename)
 end
 
 --------------------------------
--- App Launching
+-- App Control
 --------------------------------
+
+-- Helper: run after we "close"
+local function postClose()
+	gears.timer.start_new(0.1, function()
+		if M.centerMouseOnFocusedClient then
+			M.centerMouseOnFocusedClient()
+		end
+		return false
+	end)
+end
+
+-- Helper: is this client one of our dropdown apps?
+local function isDropdownClient(c)
+	if not c or not c.valid then
+		return false
+	end
+	if not M.dropdown_classes then
+		return false
+	end -- set by your dropdown module
+	return c.class and M.dropdown_classes[c.class] == true
+end
+
+-- Smart close:
+-- - Dropdown app: hide it
+-- - Otherwise: if it looks like a terminal, try tmux detach, else kill
+function M.smartCloseFocusedClient()
+	local c = client.focus
+	if not c or not c.valid then
+		return
+	end
+
+	-- 1) Dropdown: hide instead of kill
+	if isDropdownClient(c) then
+		c.hidden = true
+		postClose()
+		return
+	end
+
+	-- 2) Default: kill the client
+	c:kill()
+	postClose()
+end
 
 function M.openBrowser()
 	awful.spawn("zen-browser")
@@ -616,43 +658,89 @@ function M.findExisting(app, appCmd, scope)
 	M.openNew(appCmd, targetTag)
 end
 
-local dropdown_class = "Dropdown"
-
-function M.toggleDropdownTerminal()
-	local dropdown
+-- Toggle a floating "dropdown" app by WM_CLASS.
+-- opts = {
+--   class = "Quick Notes",
+--   spawn_cmd = "kitty --class 'Quick Notes' -e nvim -u NONE -U NONE --clean ~/Notes/quick.md",
+--   spawn_props = { floating = true, tag = awful.screen.focused().selected_tag },
+-- }
+-- Track which WM_CLASS values we consider "dropdown apps"
+M.dropdown_classes = {
+	["Dropdown"] = true,
+	["Quick Notes"] = true,
+	-- add more here later
+}
+local function hide_other_dropdowns(except_class)
 	for _, c in ipairs(client.get()) do
-		if c.class == dropdown_class then
-			dropdown = c
+		if
+			c.valid
+			and c.class
+			and M.dropdown_classes[c.class]
+			and c.class ~= except_class
+			and (c.hidden == false)
+			and (c.minimized == false)
+		then
+			c.hidden = true
+		end
+	end
+end
+
+function M.toggleDropdownApp(opts)
+	local class = opts.class
+	local spawn_cmd = opts.spawn_cmd
+	local spawn_props = opts.spawn_props or {}
+
+	-- Ensure class is registered
+	M.dropdown_classes[class] = true
+
+	local win
+	for _, c in ipairs(client.get()) do
+		if c.class == class then
+			win = c
 			break
 		end
 	end
 
-	if not dropdown then
-		awful.spawn("alacritty --class 'Dropdown' -e tmux new-session -A -s dropdown", {
-			floating = true,
-			tag = awful.screen.focused().selected_tag,
-		})
+	local current_tag = awful.screen.focused().selected_tag
+
+	if not win then
+		-- Before spawning, hide other dropdowns
+		hide_other_dropdowns(class)
+
+		if spawn_props.tag == nil then
+			spawn_props.tag = current_tag
+		end
+		if spawn_props.floating == nil then
+			spawn_props.floating = true
+		end
+		awful.spawn(spawn_cmd, spawn_props)
 		return
 	end
 
-	local current_tag = awful.screen.focused().selected_tag
-
-	if dropdown.hidden == true then
-		dropdown.hidden = false
-		dropdown.minimized = false
-		dropdown:move_to_tag(current_tag)
-		client.focus = dropdown
-		dropdown:raise()
-	elseif dropdown.first_tag == current_tag then
-		dropdown.hidden = true
-	else
-		dropdown:move_to_tag(current_tag)
-		client.focus = dropdown
-		dropdown:raise()
+	-- If we're about to show/focus this dropdown, hide the others first
+	local will_show = (win.hidden == true) or (win.minimized == true) or (win.first_tag ~= current_tag)
+	if will_show then
+		hide_other_dropdowns(class)
 	end
-end
 
---------------------------------
+	if win.hidden == true or win.minimized == true then
+		win.hidden = false
+		win.minimized = false
+		win:move_to_tag(current_tag)
+		client.focus = win
+		win:raise()
+
+		-- Optional: force focus reliably
+		win:emit_signal("request::activate", "dropdown", { raise = true })
+	elseif win.first_tag == current_tag then
+		win.hidden = true
+	else
+		win:move_to_tag(current_tag)
+		client.focus = win
+		win:raise()
+		win:emit_signal("request::activate", "dropdown", { raise = true })
+	end
+end --------------------------------
 -- Misc
 --------------------------------
 
