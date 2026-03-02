@@ -1,2 +1,14 @@
 [mgr]
 show_hidden = true
+
+[opener]
+edit = [{ run = 'nvim "$@"', block = true }]
+image = [
+  { run = 'feh --auto-zoom --scale-down --draw-filename "$@"', orphan = true },
+]
+[open]
+rules = [
+  { mime = "image/*", use = ["image"] },
+
+  # (keep your other rules below)
+]

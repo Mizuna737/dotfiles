@@ -77,7 +77,8 @@ alias pac="sudo pacman"
 alias teams="/opt/teams-for-linux/teams-for-linux"
 alias outlook="/opt/outlook-for-linux/outlook-for-linux"
 alias cl="cd /home/max/; clear"
-# git
+alias zen= "zen-browser"
+#git
 alias ga="git add"
 alias gc="git commit -m "
 alias gp="git push"
@@ -95,3 +96,4 @@ export OLLAMA_KEEP_ALIVE=30
 
 # Load pywal colors for new terminal sessions
 (cat ~/.cache/wal/sequences &)
+export PATH=/home/max/.local/bin:$PATH

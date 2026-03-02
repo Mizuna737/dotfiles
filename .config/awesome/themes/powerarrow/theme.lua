@@ -58,7 +58,7 @@ theme.tasklist_bg_focus = wal.WAL_COLOR0 .. "33" or "#1F2430"
 theme.tasklist_fg_focus = wal.WAL_COLOR4 or "#5CCFE6"
 
 theme.border_normal = wal.WAL_COLOR8 or "#5C6773"
-theme.border_focus = wal.WAL_COLOR4 or "#5CCFE6"
+theme.border_focus = wal.WAL_COLOR2 or "#5CCFE6"
 theme.border_marked = wal.WAL_COLOR3 or "#FFA759"
 theme.border_width = 2
 

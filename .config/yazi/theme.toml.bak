@@ -1,0 +1,101 @@
+# Auto-generated from pywal by updateYaziTheme.sh
+# Source: /home/max/.cache/wal/colors.env
+#
+# This file intentionally overrides only a handful of high-impact UI styles.
+# Anything not specified here falls back to Yazi's preset theme.
+
+[app]
+# Requires OSC 11 support (kitty supports it).
+overall = { bg = "#210700" }
+
+[mgr]
+# CWD/header
+cwd = { fg = "#805644", bold = true }
+
+# Markers
+marker_selected = { fg = "#805644", bold = true }
+marker_marked   = { fg = "#416b7a", bold = true }
+marker_copied   = { fg = "#875649", bold = true }
+marker_cut      = { fg = "#71473d", bold = true }
+
+# Counts
+count_selected = { fg = "#805644", bold = true }
+count_copied   = { fg = "#875649" }
+count_cut      = { fg = "#71473d" }
+
+# Pane borders
+border_symbol = "│"
+border_style  = { fg = "#58453f" }
+
+[indicator]
+parent  = { fg = "#58453f" }
+current = { fg = "#805644" }
+preview = { fg = "#416b7a" }
+
+[tabs]
+active   = { fg = "#210700", bg = "#805644", bold = true }
+inactive = { fg = "#c7c1bf", bg = "#210700" }
+sep_inner = { open = "[", close = "]" }
+sep_outer = { open = "", close = "" }
+
+[mode]
+normal_main = { fg = "#210700", bg = "#805644", bold = true }
+normal_alt  = { fg = "#c7c1bf", bg = "#210700" }
+select_main = { fg = "#210700", bg = "#875649", bold = true }
+select_alt  = { fg = "#c7c1bf", bg = "#210700" }
+unset_main  = { fg = "#210700", bg = "#a66b5b", bold = true }
+unset_alt   = { fg = "#c7c1bf", bg = "#210700" }
+
+[status]
+overall         = { fg = "#c7c1bf", bg = "#210700" }
+progress_label  = { fg = "#805644", bold = true }
+progress_normal = { fg = "#210700", bg = "#805644" }
+progress_error  = { fg = "#210700", bg = "#71473d" }
+perm_type  = { fg = "#416b7a" }
+perm_read  = { fg = "#875649" }
+perm_write = { fg = "#a66b5b" }
+perm_exec  = { fg = "#71473d" }
+perm_sep   = { fg = "#58453f" }
+
+[notify]
+title_info  = { fg = "#805644", bold = true }
+title_warn  = { fg = "#a66b5b", bold = true }
+title_error = { fg = "#71473d", bold = true }
+
+[pick]
+border   = { fg = "#58453f" }
+active   = { fg = "#210700", bg = "#805644" }
+inactive = { fg = "#c7c1bf", bg = "#210700" }
+
+[input]
+border   = { fg = "#58453f" }
+title    = { fg = "#805644", bold = true }
+value    = { fg = "#c7c1bf" }
+selected = { fg = "#210700", bg = "#805644" }
+
+[cmp]
+border   = { fg = "#58453f" }
+active   = { fg = "#210700", bg = "#805644" }
+inactive = { fg = "#c7c1bf", bg = "#210700" }
+
+[tasks]
+border  = { fg = "#58453f" }
+title   = { fg = "#805644", bold = true }
+hovered = { fg = "#210700", bg = "#805644" }
+
+[help]
+on      = { fg = "#805644", bold = true }
+run     = { fg = "#c7c1bf" }
+desc    = { fg = "#58453f" }
+hovered = { fg = "#210700", bg = "#805644" }
+footer  = { fg = "#58453f" }
+
+[filetype]
+# A small set of readable defaults that won't depend on terminal palette.
+rules = [
+  { mime = "image/*",            fg = "#a66b5b" },
+  { mime = "{audio,video}/*",    fg = "#70adb2" },
+  { mime = "inode/empty",        fg = "#416b7a" },
+  { url  = "*", is = "orphan",   fg = "#71473d", bold = true },
+  { url  = "*/",                fg = "#805644", bold = true },
+]

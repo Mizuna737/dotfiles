@@ -4,26 +4,26 @@
 --------------------------------
 
 local defaultApps = {
-	terminalCommand = "kitty -e tmux new-session -A -s main",
+	terminalCommand = "kitty --override confirm_os_window_close=0 -e tmux new-session -A -s kitty",
 	terminal = "kitty",
-	browserCommand = 'zen-browser --style "$HOME/.config/zen/pywal.css"',
-	browser = "zen",
-	editor = "NeoVim",
+	browserCommand = "qutebrowser",
+	browser = "qutebrowser",
+	editor = "neovim",
 	-- somewhere near your other commands…
 	editorCommand = [[
-  kitty --class NeoVim -e \
+  kitty --class neovim --override confirm_os_window_close=0 -e \
     tmux new-session -A -s code -n NeoVim nvim 
 ]],
 	fileManagerCommand = [[
-  kitty --class Yazi -e \
+  kitty --class yazi --override confirm_os_window_close=0 -e \
     tmux new-session -A -s files -n Yazi yazi
 ]],
-	fileManager = "Yazi",
+	fileManager = "yazi",
 	neovim = [[
-  kitty --class NeoVim -e \
+  kitty --class neovim --override confirm_os_window_close=0 -e \
     tmux new-session -A -s code -n NeoVim nvim
 ]],
-	kitty = "kitty -e tmux new-session -A -s main",
+	kitty = "kitty --override confirm_os_window_close=0 -e tmux new-session -A -s kitty",
 	zen = 'zen-browser --style "$HOME/.config/zen/pywal.css"',
 }
 

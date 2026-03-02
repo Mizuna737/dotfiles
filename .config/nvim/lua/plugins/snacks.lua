@@ -1,14 +1,7 @@
 return {
 	"folke/snacks.nvim",
-	opts = {
-		-- if you also use the files picker, show hidden there too
-		picker = {
-			sources = {
-				files = {
-					hidden = true,
-					ignored = true,
-				},
-			},
-		},
-	},
+	opts = function(_, opts)
+		opts.explorer = opts.explorer or {}
+		opts.explorer.replace_netrw = false
+	end,
 }

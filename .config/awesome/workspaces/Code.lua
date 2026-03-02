@@ -1,18 +1,18 @@
 return {
-  ["layoutName"] = "centerwork",
   ["workspace"] = "Code",
+  ["layoutName"] = "centerwork",
   ["windowOrder"] = {
     ["1"] = {
       ["name"] = "tmux",
-      ["class"] = "NeoVim",
+      ["class"] = "neovim",
     },
     ["2"] = {
-      ["name"] = "tmux",
-      ["class"] = "kitty",
+      ["name"] = "ChatGPT - qutebrowser",
+      ["class"] = "qutebrowser",
     },
     ["3"] = {
-      ["name"] = "Zen Browser",
-      ["class"] = "zen",
+      ["name"] = "tmux",
+      ["class"] = "kitty",
     },
   },
   ["master_width_factor"] = 0.5,
