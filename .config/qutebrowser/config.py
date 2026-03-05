@@ -40,7 +40,7 @@ config.bind("gy", "open https://www.youtube.com/")
 # Bind “gY” to open YouTube in a new tab
 config.bind("gY", "open -t https://www.youtube.com/")
 
-# toggle between multiple  ↔  switching
+# toggle between always  ↔  switching
 config.bind(",t", ":config-cycle tabs.show always switching")
 
 pywalQute.draw.color(c, {"spacing": {"vertical": 6, "horizontal": 8}})
@@ -66,7 +66,7 @@ c.auto_save.session = False
 c.session.lazy_restore = False
 
 
-# ---- Vertical Tabs ----
+# ---- Tabs ----
 # Move the tab bar
 c.tabs.position = "bottom"  # or "right"
 
@@ -74,7 +74,6 @@ c.tabs.position = "bottom"  # or "right"
 c.tabs.width = "15%"  # Try "200px" or "12%" until it feels right
 
 # Only show favicons (mini “Zen” mode)
-c.tabs.show = "switching"  # still hides when only one tab
 c.tabs.title.format = (
     "{audio}{index} {current_title}"  # use "{audio}{index} {title}" for more detail
 )
@@ -91,8 +90,8 @@ c.url.searchengines = {
 }
 
 
-# Open ChatGPT on startup
-c.url.start_pages = ["https://chat.openai.com/"]
+# Open Claude on startup
+c.url.start_pages = ["https://claude.ai/project/019cace2-12a1-7221-ad0a-cf900e4b0933"]
 
 # Use ChatGPT as the default page (for :open or new-tab)
-c.url.default_page = "https://chat.openai.com/"
+c.url.default_page = "https://claude.ai/project/019cace2-12a1-7221-ad0a-cf900e4b0933"
