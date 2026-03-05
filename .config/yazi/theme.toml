@@ -6,96 +6,96 @@
 
 [app]
 # Requires OSC 11 support (kitty supports it).
-overall = { bg = "#152127" }
+overall = { bg = "#1d2727" }
 
 [mgr]
 # CWD/header
-cwd = { fg = "#4d7090", bold = true }
+cwd = { fg = "#3f6676", bold = true }
 
 # Markers
-marker_selected = { fg = "#4d7090", bold = true }
-marker_marked   = { fg = "#bc82a1", bold = true }
-marker_copied   = { fg = "#5b8ba6", bold = true }
-marker_cut      = { fg = "#79a4b6", bold = true }
+marker_selected = { fg = "#3f6676", bold = true }
+marker_marked   = { fg = "#3d5c71", bold = true }
+marker_copied   = { fg = "#447880", bold = true }
+marker_cut      = { fg = "#92c4c4", bold = true }
 
 # Counts
-count_selected = { fg = "#4d7090", bold = true }
-count_copied   = { fg = "#5b8ba6" }
-count_cut      = { fg = "#79a4b6" }
+count_selected = { fg = "#3f6676", bold = true }
+count_copied   = { fg = "#447880" }
+count_cut      = { fg = "#92c4c4" }
 
 # Pane borders
 border_symbol = "│"
-border_style  = { fg = "#4f585d" }
+border_style  = { fg = "#555d5d" }
 
 [indicator]
-parent  = { fg = "#4f585d" }
-current = { fg = "#4d7090" }
-preview = { fg = "#bc82a1" }
+parent  = { fg = "#555d5d" }
+current = { fg = "#3f6676" }
+preview = { fg = "#3d5c71" }
 
 [tabs]
-active   = { fg = "#152127", bg = "#4d7090", bold = true }
-inactive = { fg = "#c4c7c9", bg = "#152127" }
+active   = { fg = "#1d2727", bg = "#3f6676", bold = true }
+inactive = { fg = "#c6c9c9", bg = "#1d2727" }
 sep_inner = { open = "[", close = "]" }
 sep_outer = { open = "", close = "" }
 
 [mode]
-normal_main = { fg = "#152127", bg = "#4d7090", bold = true }
-normal_alt  = { fg = "#c4c7c9", bg = "#152127" }
-select_main = { fg = "#152127", bg = "#5b8ba6", bold = true }
-select_alt  = { fg = "#c4c7c9", bg = "#152127" }
-unset_main  = { fg = "#152127", bg = "#466582", bold = true }
-unset_alt   = { fg = "#c4c7c9", bg = "#152127" }
+normal_main = { fg = "#1d2727", bg = "#3f6676", bold = true }
+normal_alt  = { fg = "#c6c9c9", bg = "#1d2727" }
+select_main = { fg = "#1d2727", bg = "#447880", bold = true }
+select_alt  = { fg = "#c6c9c9", bg = "#1d2727" }
+unset_main  = { fg = "#1d2727", bg = "#3d6672", bold = true }
+unset_alt   = { fg = "#c6c9c9", bg = "#1d2727" }
 
 [status]
-overall         = { fg = "#c4c7c9", bg = "#152127" }
-progress_label  = { fg = "#4d7090", bold = true }
-progress_normal = { fg = "#152127", bg = "#4d7090" }
-progress_error  = { fg = "#152127", bg = "#79a4b6" }
-perm_type  = { fg = "#bc82a1" }
-perm_read  = { fg = "#5b8ba6" }
-perm_write = { fg = "#466582" }
-perm_exec  = { fg = "#79a4b6" }
-perm_sep   = { fg = "#4f585d" }
+overall         = { fg = "#c6c9c9", bg = "#1d2727" }
+progress_label  = { fg = "#3f6676", bold = true }
+progress_normal = { fg = "#1d2727", bg = "#3f6676" }
+progress_error  = { fg = "#1d2727", bg = "#92c4c4" }
+perm_type  = { fg = "#3d5c71" }
+perm_read  = { fg = "#447880" }
+perm_write = { fg = "#3d6672" }
+perm_exec  = { fg = "#92c4c4" }
+perm_sep   = { fg = "#555d5d" }
 
 [notify]
-title_info  = { fg = "#4d7090", bold = true }
-title_warn  = { fg = "#466582", bold = true }
-title_error = { fg = "#79a4b6", bold = true }
+title_info  = { fg = "#3f6676", bold = true }
+title_warn  = { fg = "#3d6672", bold = true }
+title_error = { fg = "#92c4c4", bold = true }
 
 [pick]
-border   = { fg = "#4f585d" }
-active   = { fg = "#152127", bg = "#4d7090" }
-inactive = { fg = "#c4c7c9", bg = "#152127" }
+border   = { fg = "#555d5d" }
+active   = { fg = "#1d2727", bg = "#3f6676" }
+inactive = { fg = "#c6c9c9", bg = "#1d2727" }
 
 [input]
-border   = { fg = "#4f585d" }
-title    = { fg = "#4d7090", bold = true }
-value    = { fg = "#c4c7c9" }
-selected = { fg = "#152127", bg = "#4d7090" }
+border   = { fg = "#555d5d" }
+title    = { fg = "#3f6676", bold = true }
+value    = { fg = "#c6c9c9" }
+selected = { fg = "#1d2727", bg = "#3f6676" }
 
 [cmp]
-border   = { fg = "#4f585d" }
-active   = { fg = "#152127", bg = "#4d7090" }
-inactive = { fg = "#c4c7c9", bg = "#152127" }
+border   = { fg = "#555d5d" }
+active   = { fg = "#1d2727", bg = "#3f6676" }
+inactive = { fg = "#c6c9c9", bg = "#1d2727" }
 
 [tasks]
-border  = { fg = "#4f585d" }
-title   = { fg = "#4d7090", bold = true }
-hovered = { fg = "#152127", bg = "#4d7090" }
+border  = { fg = "#555d5d" }
+title   = { fg = "#3f6676", bold = true }
+hovered = { fg = "#1d2727", bg = "#3f6676" }
 
 [help]
-on      = { fg = "#4d7090", bold = true }
-run     = { fg = "#c4c7c9" }
-desc    = { fg = "#4f585d" }
-hovered = { fg = "#152127", bg = "#4d7090" }
-footer  = { fg = "#4f585d" }
+on      = { fg = "#3f6676", bold = true }
+run     = { fg = "#c6c9c9" }
+desc    = { fg = "#555d5d" }
+hovered = { fg = "#1d2727", bg = "#3f6676" }
+footer  = { fg = "#555d5d" }
 
 [filetype]
 # A small set of readable defaults that won't depend on terminal palette.
 rules = [
-  { mime = "image/*",            fg = "#466582" },
-  { mime = "{audio,video}/*",    fg = "#415879" },
-  { mime = "inode/empty",        fg = "#bc82a1" },
-  { url  = "*", is = "orphan",   fg = "#79a4b6", bold = true },
-  { url  = "*/",                fg = "#4d7090", bold = true },
+  { mime = "image/*",            fg = "#3d6672" },
+  { mime = "{audio,video}/*",    fg = "#3e6173" },
+  { mime = "inode/empty",        fg = "#3d5c71" },
+  { url  = "*", is = "orphan",   fg = "#92c4c4", bold = true },
+  { url  = "*/",                fg = "#3f6676", bold = true },
 ]
