@@ -8,4 +8,4 @@ TASK=$(rofi -dmenu -p "Capture Task" -l 0)
 [ -z "$TASK" ] && exit 0
 
 # Fire QuickAdd via Obsidian CLI
-obsidian quickadd choice="Capture Task" vars="{\"taskText\":\"$TASK\"}"
+obsidian quickadd choice="Task: " vars="{\"taskText\":\"$TASK\",\"dueDate\":\"\",\"importance\":\"\"}"
