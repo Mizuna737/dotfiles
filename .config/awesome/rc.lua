@@ -53,6 +53,7 @@ runOnce({
 	"lxqt=policykit-agent",
 	"copyq",
 	"windscribe-cli connect",
+	"bash ~/.config/dashboard/dashboardLaunch.sh",
 })
 
 awful.spawn.with_shell(
@@ -109,6 +110,18 @@ awful.layout.primaryLayouts = {
 }
 
 local primary_tags = awful.tag(awful.util.primaryTagnames, screen.primary, awful.layout.primaryLayouts)
+
+-- Dashboard screen: single locked tag
+local dashboardScreen = nil
+for s in screen do
+	if s ~= screen.primary then
+		dashboardScreen = s
+		break
+	end
+end
+if dashboardScreen then
+	awful.tag({ "Dashboard" }, dashboardScreen, awful.layout.suit.max)
+end
 
 --------------------------------
 -- Custom layout settings
@@ -177,6 +190,17 @@ awful.rules.rules = {
 			screen = awful.screen.preferred,
 			placement = awful.placement.no_overlap + awful.placement.no_offscreen,
 			size_hints_honor = false,
+		},
+	},
+	{
+		rule = { instance = "dashboard" },
+		properties = {
+			screen = function()
+				return dashboardScreen
+			end,
+			tag = "Dashboard",
+			border_width = 0,
+			focusable = false,
 		},
 	},
 	{
@@ -249,6 +273,9 @@ awesome.connect_signal("wal::reload", function()
 	beautiful.init("/home/max/.config/awesome/themes/powerarrow/theme.lua")
 	beautiful.useless_gap = 6
 	for s in screen do
+		if s ~= screen.primary then
+			return
+		end
 		s.mywibox.bg = beautiful.bg_normal
 	end
 end)

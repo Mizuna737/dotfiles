@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard</title>
+<link rel="stylesheet" href="/home/max/.cache/wal/colors.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:         var(--color0, #0d0d0d);
+    --bg2:        var(--color1, #1a1a1a);
+    --fg:         var(--color7, #e0e0e0);
+    --fg-dim:     var(--color8, #666);
+    --accent:     var(--color2, #7ecf8e);
+    --accent2:    var(--color3, #cfb97e);
+    --accent3:    var(--color4, #7eaecf);
+    --danger:     var(--color1, #cf7e7e);
+    --border:     color-mix(in srgb, var(--accent) 20%, transparent);
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-mono:    'IBM Plex Mono', monospace;
+    --h: 400px;
+    --panel-radius: 4px;
+  }
+
+  html, body {
+    width: 1280px;
+    height: var(--h);
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 17px;
+  }
+
+  /* Refresh button */
+  #refreshBtn {
+    position: fixed;
+    top: 12px;
+    right: 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--fg-dim);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--panel-radius);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  #refreshBtn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Subtle scanline texture */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.04) 2px,
+      rgba(0,0,0,0.04) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  #app {
+    display: grid;
+    grid-template-columns: 1.4fr 2.2fr 1.4fr;
+    grid-template-rows: 1fr;
+    gap: 1px;
+    height: 100%;
+    background: var(--border);
+  }
+
+  /* ── Panels ── */
+  .panel {
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    padding: 18px 22px 22px;
+    gap: 13px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .panel::before {
+    content: attr(data-label);
+    position: absolute;
+    top: 0; right: 0;
+    font-family: var(--font-display);
+    font-size: 68px;
+    line-height: 1;
+    color: color-mix(in srgb, var(--accent) 6%, transparent);
+    letter-spacing: 2px;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .panelHeader {
+    font-family: var(--font-display);
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    flex-shrink: 0;
+  }
+
+  /* ── LEFT: Toggles ── */
+  #togglePanel { grid-column: 1; }
+
+  .toggleGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    height: 52px;
+    min-height: 52px;
+    max-height: 52px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    border: 1px solid var(--border);
+    border-radius: var(--panel-radius);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+    background: transparent;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .toggle:hover { border-color: var(--accent); }
+
+  .toggle.active {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    outline: 1px solid transparent;
+    outline-offset: -1px;
+  }
+
+  .toggle.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+  }
+
+  .toggleLeft {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .toggleIcon {
+    font-size: 19px;
+    width: 26px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .toggleText {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .toggleName {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    color: var(--fg);
+    line-height: 1;
+  }
+
+  .toggleSub {
+    font-size: 11px;
+    color: var(--fg-dim);
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1;
+  }
+
+  .togglePill {
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 3px 9px;
+    border-radius: 2px;
+    font-family: var(--font-display);
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .toggle.active .togglePill {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  .toggle:not(.active) .togglePill {
+    background: var(--bg2);
+    color: var(--fg-dim);
+  }
+
+  /* ── CENTER: Media ── */
+  #mediaPanel { grid-column: 2; }
+
+  .mediaBody {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 14px;
+  }
+
+  .mediaTrack {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .mediaTitle {
+    font-family: var(--font-display);
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--fg);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.1;
+  }
+
+  .mediaArtist {
+    font-size: 14px;
+    color: var(--accent2);
+    letter-spacing: 2px;
+  }
+
+  .mediaAlbum {
+    font-size: 13px;
+    color: var(--fg-dim);
+    letter-spacing: 1px;
+  }
+
+  /* Progress bar */
+  .progressWrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .progressBar {
+    flex: 1;
+    height: 2px;
+    background: var(--bg2);
+    border-radius: 1px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progressFill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 1px;
+    transition: width 1s linear;
+    width: 0%;
+  }
+
+  .progressTime {
+    font-size: 13px;
+    color: var(--fg-dim);
+    letter-spacing: 1px;
+    white-space: nowrap;
+    min-width: 38px;
+    text-align: right;
+  }
+
+  /* Controls */
+  .mediaControls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .ctrlBtn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font-size: 16px;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--panel-radius);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+  }
+
+  .ctrlBtn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .ctrlBtn.play {
+    width: 56px;
+    border-color: var(--accent);
+    color: var(--accent);
+    font-size: 19px;
+  }
+
+  .ctrlBtn.play:hover {
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+
+  .volumeWrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .volumeLabel {
+    font-size: 13px;
+    color: var(--fg-dim);
+    letter-spacing: 1px;
+    min-width: 28px;
+    text-align: right;
+  }
+
+  .volumeBar {
+    width: 60px;
+    height: 2px;
+    background: var(--bg2);
+    border-radius: 1px;
+    position: relative;
+  }
+
+  .volumeFill {
+    height: 100%;
+    background: var(--accent3);
+    border-radius: 1px;
+    transition: width 0.3s;
+  }
+
+  .mediaIdle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 6px;
+  }
+
+  .idleClock {
+    font-family: var(--font-display);
+    font-size: 72px;
+    letter-spacing: 4px;
+    color: var(--fg);
+    line-height: 1;
+  }
+
+  .idleDate {
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: var(--fg-dim);
+    text-transform: uppercase;
+  }
+
+  .idleDay {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .mediaClockStrip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border-top: 1px solid var(--border);
+    flex: 1;
+  }
+
+  .mediaClockTime {
+    font-family: var(--font-display);
+    font-size: 32px;
+    letter-spacing: 3px;
+    color: var(--fg);
+    line-height: 1;
+  }
+
+  .mediaClockDate {
+    font-size: 13px;
+    color: var(--fg-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ── RIGHT: Tasks ── */
+  #taskPanel { grid-column: 3; }
+
+  .taskList {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  .taskItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 9px 12px;
+    border-left: 2px solid transparent;
+    transition: border-color 0.15s;
+    border-radius: 0 var(--panel-radius) var(--panel-radius) 0;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .taskItem:hover {
+    border-left-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
+  }
+
+  .taskItem.completing {
+    transition: opacity 0.4s ease, transform 0.4s ease, max-height 0.4s ease 0.3s;
+    opacity: 0;
+    transform: translateX(-8px);
+    max-height: 0;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+  }
+
+  .taskCheck {
+    width: 12px;
+    height: 12px;
+    border: 1px solid var(--fg-dim);
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .taskCheck:hover { border-color: var(--accent); }
+
+  .taskText {
+    font-size: 14px;
+    color: var(--fg);
+    line-height: 1.4;
+    letter-spacing: 0.3px;
+  }
+
+  .taskMeta {
+    font-size: 12px;
+    color: var(--fg-dim);
+    letter-spacing: 1px;
+    margin-top: 1px;
+  }
+
+  .taskEmpty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fg-dim);
+    font-size: 13px;
+    letter-spacing: 3px;
+    opacity: 0.5;
+  }
+
+  /* Loading / error states */
+  .statusDot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* Fade-in on load */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel {
+    animation: fadeUp 0.4s ease both;
+  }
+  #togglePanel { animation-delay: 0s; }
+  #mediaPanel  { animation-delay: 0.07s; }
+  #taskPanel   { animation-delay: 0.14s; }
+
+  .dcStatus {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--panel-radius);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .dcStatus:hover { border-color: var(--accent); }
+
+  .dcStatus.connected {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+  }
+
+  .dcStatus.connected::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--accent);
+  }
+
+  .dcStatusIcon { font-size: 19px; width: 26px; text-align: center; }
+
+  .dcStatusName {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    flex: 1;
+  }
+
+  .dcStatusPill {
+    font-family: var(--font-display);
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 3px 9px;
+    border-radius: 2px;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .dcStatus.connected .dcStatusPill {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  .dcStatus:not(.connected) .dcStatusPill {
+    background: var(--bg2);
+    color: var(--fg-dim);
+  }
+
+  .dcControls {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .dcControlRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .dcLabel {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--fg-dim);
+    text-transform: uppercase;
+    width: 46px;
+    flex-shrink: 0;
+  }
+
+  .dcSlider {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 2px;
+    background: var(--bg2);
+    border-radius: 1px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .dcSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--accent3);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .dcSlider:hover::-webkit-slider-thumb { background: var(--fg); }
+
+  .dcSliderVal {
+    font-size: 13px;
+    color: var(--accent3);
+    letter-spacing: 1px;
+    min-width: 28px;
+    text-align: right;
+  }
+
+  .dcBtn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--fg-dim);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 5px 10px;
+    border-radius: var(--panel-radius);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    text-transform: uppercase;
+  }
+
+  .dcBtn:hover { border-color: var(--accent); color: var(--accent); }
+  .dcBtn.active { border-color: var(--accent2); color: var(--accent2); }
+
+</style>
+</head>
+<body>
+<div id="app">
+  <button id="refreshBtn" onclick="window.location.reload()" title="Refresh">↺</button>
+
+  <!-- LEFT: Toggles -->
+  <div class="panel" id="togglePanel" data-label="SYS">
+    <div class="panelHeader">System</div>
+    <div class="toggleGrid" id="toggleGrid">
+      <!-- VPN + sink populated by JS -->
+      <div id="toggleDynamic"></div>
+      <div class="toggle" id="dcToggle" onclick="droidcamToggle()">
+        <div class="toggleLeft">
+          <div class="toggleIcon">◉</div>
+          <div class="toggleText">
+            <div class="toggleName">Camera</div>
+            <div class="toggleSub" id="dcSub">Disconnected</div>
+          </div>
+        </div>
+        <div class="togglePill" id="dcPill">OFF</div>
+      </div>
+      <div class="dcControls" id="dcControls">
+        <div class="dcControlRow">
+          <div class="dcLabel">Zoom</div>
+          <input type="range" class="dcSlider" id="zmSlider"
+            min="1.0" max="6.0" step="0.1" value="1.0"
+            oninput="onZoomInput(this.value)"
+            onchange="sendZoom(this.value)">
+          <div class="dcSliderVal" id="zmVal">1.0×</div>
+        </div>
+        <div class="dcControlRow">
+          <div class="dcLabel">Focus</div>
+          <button class="dcBtn" id="afTriggerBtn" onclick="droidcamAF()">AF</button>
+          <button class="dcBtn" id="afSBtn" onclick="droidcamFocusMode(0)">AF-S</button>
+          <button class="dcBtn" id="afCBtn" onclick="droidcamFocusMode(1)">AF-C</button>
+          <button class="dcBtn" id="mfBtn"  onclick="droidcamFocusMode(2)">MF</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CENTER: Media -->
+  <div class="panel" id="mediaPanel" data-label="NOW">
+    <div class="panelHeader">Now Playing</div>
+    <div class="mediaBody" id="mediaBody">
+      <div class="mediaIdle" id="mediaIdle">
+        <div class="idleClock" id="idleClock">00:00</div>
+        <div class="idleDate" id="idleDate">—</div>
+        <div class="idleDay" id="idleDay">—</div>
+      </div>
+      <div id="mediaActive" style="display:none; flex-direction:column; gap:0; flex:1;">
+        <div style="display:flex; flex-direction:column; justify-content:center; gap:8px; flex:2;">
+        <div class="mediaTrack">
+          <div class="mediaTitle" id="mediaTitle">—</div>
+          <div class="mediaArtist" id="mediaArtist">—</div>
+          <div class="mediaAlbum" id="mediaAlbum">—</div>
+        </div>
+        <div class="progressWrap">
+          <div class="progressBar"><div class="progressFill" id="progressFill"></div></div>
+          <div class="progressTime" id="progressTime">—</div>
+        </div>
+        <div class="mediaControls">
+          <button class="ctrlBtn" onclick="mediaCmd('previous')" title="Previous">⏮</button>
+          <button class="ctrlBtn play" id="playBtn" onclick="togglePlay()">▶</button>
+          <button class="ctrlBtn" onclick="mediaCmd('next')" title="Next">⏭</button>
+
+        </div>
+        </div>
+        <div class="mediaClockStrip">
+          <div class="mediaClockTime" id="mediaClockTime">00:00</div>
+          <div class="mediaClockDate" id="mediaClockDate">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Tasks -->
+  <div class="panel" id="taskPanel" data-label="DO">
+    <div class="panelHeader">Today</div>
+    <div class="taskList" id="taskList">
+      <div class="taskEmpty">Loading…</div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const API = 'http://localhost:9876';
+
+// ── Clock ──────────────────────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2,'0');
+  const mm = String(now.getMinutes()).padStart(2,'0');
+  const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const shortDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  // Idle media clock
+  document.getElementById('idleClock').textContent = `${hh}:${mm}`;
+  document.getElementById('idleDate').textContent =
+    `${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+  document.getElementById('idleDay').textContent = days[now.getDay()];
+
+  // Active media clock strip
+  document.getElementById('mediaClockTime').textContent = `${hh}:${mm}`;
+  document.getElementById('mediaClockDate').textContent =
+    `${shortDays[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── API helper ─────────────────────────────────────────────────────────────
+async function apiGet(path) {
+  const r = await fetch(API + path);
+  return r.json();
+}
+async function apiPost(path, body = {}) {
+  const r = await fetch(API + path, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  return r.json();
+}
+
+// ── Toggles ────────────────────────────────────────────────────────────────
+const toggleDefs = [
+  { id: 'vpn',  icon: '⬡', name: 'VPN',         endpoint: '/toggle/vpn'  },
+  { id: 'sink', icon: '◎', name: 'Audio Sink',   endpoint: '/toggle/sink' },
+];
+
+function renderToggles(states) {
+  const grid = document.getElementById('toggleDynamic');
+  grid.innerHTML = '';
+  grid.style.display = 'contents'; // makes it invisible to flex layout
+  toggleDefs.forEach(def => {
+    const state = states[def.id] || {};
+
+    let active, sub, pill;
+    if (def.id === 'sink') {
+      // Sink is always "active" — show current sink name and cycle label
+      active = true;
+      sub  = state.label || '—';
+      pill = '⇄';
+    } else {
+      active = !!state.active;
+      sub    = state.label || '';
+      pill   = active ? 'ON' : 'OFF';
+    }
+
+    const el = document.createElement('div');
+    el.className = 'toggle' + (active ? ' active' : '');
+    el.innerHTML = `
+      <div class="toggleLeft">
+        <div class="toggleIcon">${def.icon}</div>
+        <div class="toggleText">
+          <div class="toggleName">${def.name}</div>
+          <div class="toggleSub">${sub || 'Disconnected'}</div>
+        </div>
+      </div>
+      <div class="togglePill">${pill}</div>
+    `;
+    el.addEventListener('click', async () => {
+      await apiPost(def.endpoint);
+      setTimeout(refreshToggles, 600);
+    });
+    grid.appendChild(el);
+  });
+}
+
+async function refreshToggles() {
+  try {
+    const data = await apiGet('/status/toggles');
+    renderToggles(data);
+  } catch(e) {
+    renderToggles({});
+  }
+}
+
+// ── Media ──────────────────────────────────────────────────────────────────
+let isPlaying = false;
+
+function fmtSec(s) {
+  if (!s || isNaN(s)) return '0:00';
+  const m = Math.floor(s / 60);
+  const ss = String(Math.floor(s % 60)).padStart(2,'0');
+  return `${m}:${ss}`;
+}
+
+async function refreshMedia() {
+  try {
+    const d = await apiGet('/status/media');
+    const idle = document.getElementById('mediaIdle');
+    const active = document.getElementById('mediaActive');
+    if (!d || !d.title) {
+      idle.style.display = 'flex';
+      active.style.display = 'none';
+      return;
+    }
+    idle.style.display = 'none';
+    active.style.display = 'flex';
+    document.getElementById('mediaTitle').textContent  = d.title  || '—';
+    document.getElementById('mediaArtist').textContent = d.artist || '—';
+    document.getElementById('mediaAlbum').textContent  = d.album  || '';
+    isPlaying = d.status === 'Playing';
+    document.getElementById('playBtn').textContent = isPlaying ? '⏸' : '▶';
+    const safePos = (d.length > 0 && d.position <= d.length) ? d.position : 0;
+    const remaining = d.length > 0 ? Math.max(0, d.length - safePos) : 0;
+    const pct = d.length > 0 ? Math.min(100, (remaining / d.length) * 100) : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressTime').textContent = '-' + fmtSec(remaining);
+
+  } catch(e) { /* server not up yet */ }
+}
+
+async function mediaCmd(cmd) {
+  await apiPost('/media/' + cmd);
+  setTimeout(refreshMedia, 300);
+}
+
+async function togglePlay() {
+  await apiPost(isPlaying ? '/media/pause' : '/media/play');
+  setTimeout(refreshMedia, 300);
+}
+
+// ── Tasks ──────────────────────────────────────────────────────────────────
+function renderTasks(tasks) {
+  const list = document.getElementById('taskList');
+  if (!tasks || tasks.length === 0) {
+    list.innerHTML = '<div class="taskEmpty">All clear</div>';
+    return;
+  }
+  list.innerHTML = '';
+  tasks.slice(0, 6).forEach(task => {
+    const el = document.createElement('div');
+    el.className = 'taskItem';
+    el.style.maxHeight = '100px';
+    el.style.transition = 'opacity 0.4s ease, transform 0.4s ease, max-height 0.5s ease 0.3s, padding 0.5s ease 0.3s';
+    el.innerHTML = `
+      <div class="taskCheck" title="Mark done">□</div>
+      <div>
+        <div class="taskText">${escHtml(task.text)}</div>
+        ${task.tags ? `<div class="taskMeta">${escHtml(task.tags)}</div>` : ''}
+      </div>
+    `;
+    const check = el.querySelector('.taskCheck');
+    check.addEventListener('click', async e => {
+      e.stopPropagation();
+      // Animate out
+      el.style.opacity = '0';
+      el.style.transform = 'translateX(-8px)';
+      setTimeout(() => {
+        el.style.maxHeight = '0';
+        el.style.padding = '0';
+        el.style.overflow = 'hidden';
+      }, 350);
+      setTimeout(() => el.remove(), 800);
+      // Write to file
+      await apiPost('/task/complete', { path: task.path, raw: task.raw });
+    });
+
+    // Click item body to open in Obsidian
+    el.addEventListener('click', () => {
+      const vault = encodeURIComponent('The Vault');
+      const file  = encodeURIComponent(task.relPath.split('\\').join('/'));
+      // Use Advanced URI plugin format for line navigation
+      // Falls back gracefully to just opening the file if plugin not installed
+      const line  = task.line ? `&line=${task.line}` : '';
+      window.location.href = `obsidian://adv-uri?vault=${vault}&filepath=${file}${line}`;
+    });
+    list.appendChild(el);
+  });
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function refreshTasks() {
+  try {
+    const data = await apiGet('/status/tasks');
+    renderTasks(data);
+  } catch(e) {
+    document.getElementById('taskList').innerHTML = '<div class="taskEmpty">Unavailable</div>';
+  }
+}
+
+// ── DroidCam ──────────────────────────────────────────────────────────────
+let zmDebounce = null;
+
+function onZoomInput(val) {
+  document.getElementById('zmVal').textContent = parseFloat(val).toFixed(1) + '×';
+}
+
+function sendZoom(val) {
+  clearTimeout(zmDebounce);
+  zmDebounce = setTimeout(async () => {
+    await apiPost('/droidcam/zoom', { value: parseFloat(val) });
+  }, 80);
+}
+
+async function droidcamAF() {
+  await apiPost('/droidcam/autofocus');
+}
+
+async function droidcamFocusMode(mode) {
+  await apiPost('/droidcam/focusmode/' + mode, {});
+  setTimeout(refreshDroidcam, 400);
+}
+
+async function droidcamToggle() {
+  const result = await apiPost('/toggle/droidcam');
+  if (result && result.error === 'unreachable') {
+    const dcSub = document.getElementById('dcSub');
+    if (dcSub) {
+      const prev = dcSub.textContent;
+      dcSub.textContent = 'Unavailable';
+      dcSub.style.color = 'var(--danger)';
+      setTimeout(() => {
+        dcSub.textContent = prev;
+        dcSub.style.color = '';
+      }, 3000);
+    }
+    return;
+  }
+  // Give process time to start/stop before polling
+  setTimeout(refreshDroidcam, 1200);
+}
+
+function applyDroidcamState(d) {
+  const toggleEl  = document.getElementById('dcToggle');
+  const pill      = document.getElementById('dcPill');
+  const controls  = document.getElementById('dcControls');
+  const slider    = document.getElementById('zmSlider');
+  const valLabel  = document.getElementById('zmVal');
+
+  const dcSub = document.getElementById('dcSub');
+  if (d.connected) {
+    toggleEl.classList.add('connected');
+    toggleEl.classList.add('active');
+    pill.textContent = 'ON';
+    if (dcSub) dcSub.textContent = d.host || 'Connected';
+    controls.style.opacity = '1';
+    controls.style.pointerEvents = 'auto';
+    slider.min   = d.zmMin;
+    slider.max   = d.zmMax;
+    slider.value = d.zmValue;
+    valLabel.textContent = parseFloat(d.zmValue).toFixed(1) + '×';
+
+    // Highlight active focus mode button
+    const focusBtns = ['afSBtn','afCBtn','mfBtn'];
+    focusBtns.forEach((id, i) => {
+      document.getElementById(id).classList.toggle('active', d.focusMode === i);
+    });
+  } else {
+    toggleEl.classList.remove('connected');
+    toggleEl.classList.remove('active');
+    pill.textContent = 'OFF';
+    if (dcSub) dcSub.textContent = 'Disconnected';
+    controls.style.opacity = '0.3';
+    controls.style.pointerEvents = 'none';
+  }
+}
+
+async function refreshDroidcam() {
+  try {
+    const d = await apiGet('/status/droidcam');
+    applyDroidcamState(d);
+  } catch(e) {}
+}
+
+// ── SSE: instant push for sink + VPN changes ──────────────────────────────
+function connectSSE() {
+  const es = new EventSource(API + '/events');
+
+  es.addEventListener('sink-changed', e => {
+    const data = JSON.parse(e.data);
+    // Patch only the sink portion of the toggle display
+    const states = { sink: data };
+    // Re-fetch full toggle state so VPN stays current too
+    refreshToggles();
+  });
+
+  es.addEventListener('vpn-changed', e => {
+    refreshToggles();
+  });
+
+  es.addEventListener('reload', e => {
+    window.location.reload();
+  });
+
+  es.onerror = () => {
+    // Reconnect after 3s if the stream drops
+    es.close();
+    setTimeout(connectSSE, 3000);
+  };
+}
+connectSSE();
+
+// ── Poll loop (fallback + slower-changing data) ────────────────────────────
+refreshToggles();
+refreshMedia();
+refreshTasks();
+refreshDroidcam();
+
+setInterval(refreshMedia,    1000);
+setInterval(refreshToggles,  5000);
+setInterval(refreshTasks,    30000);
+setInterval(refreshDroidcam, 5000);
+</script>
+</body>
+</html>

@@ -47,5 +47,6 @@ bash "$HOME/Scripts/updateTMUXColors.sh"
 bash "$HOME/Scripts/updateObsidianColors.sh"
 bash "$HOME/Scripts/updateYaziColors.sh"
 tmux source-file "$HOME/.config/tmux/tmux.conf"
+curl -s -X POST http://localhost:9876/reload
 awesome-client "awesome.emit_signal('save::focused_tag')"
 awesome-client 'awesome.emit_signal("wal::reload")'

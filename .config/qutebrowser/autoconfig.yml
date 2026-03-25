@@ -25,10 +25,12 @@ settings:
   content.javascript.clipboard:
     https://app.dataannotation.tech: access-paste
     https://chatgpt.com: access-paste
+    https://claude.ai: access-paste
     https://github.com: access-paste
     https://indeocorp-my.sharepoint.com: access-paste
     https://indeocorp.sharepoint.com: access-paste
     https://indeocustomercare.my.connect.aws: access-paste
+    https://make.powerautomate.com: access-paste
     https://starship.rs: access-paste
   content.media.audio_capture:
     https://app.zoom.us: true

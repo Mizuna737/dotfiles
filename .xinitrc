@@ -5,12 +5,8 @@ usermodmap=$HOME/.Xmodmap
 sysresources=/etc/X11/xinit/.Xresources
 sysmodmap=/etc/X11/xinit/.Xmodmap
 
-# merge in defaults and keymaps
-
 if [ -f $sysresources ]; then
-
   xrdb -merge $sysresources
-
 fi
 
 if [ -f $sysmodmap ]; then
@@ -18,16 +14,12 @@ if [ -f $sysmodmap ]; then
 fi
 
 if [ -f "$userresources" ]; then
-
   xrdb -merge "$userresources"
-
 fi
 
 if [ -f "$usermodmap" ]; then
   xmodmap "$usermodmap"
 fi
-
-# start some nice programs
 
 if [ -d /etc/X11/xinit/xinitrc.d ]; then
   for f in /etc/X11/xinit/xinitrc.d/?*.sh; do
@@ -36,6 +28,13 @@ if [ -d /etc/X11/xinit/xinitrc.d ]; then
   unset f
 fi
 
-notify-send "In xinit" &
-home/max/.config/autostart/autorun.sh &
+# Set up monitors before AwesomeWM starts so it enumerates both screens
+~/.screenlayout/DefaultLayout.sh
+
+# Restore last pywal theme so colors are available before AwesomeWM initializes
+wal -R -q
+
+# Autorun
+/home/max/.config/autostart/autorun.sh &
+
 exec awesome
