@@ -96,4 +96,4 @@ export OLLAMA_KEEP_ALIVE=30
 
 # Load pywal colors for new terminal sessions
 (cat ~/.cache/wal/sequences &)
-export PATH=/home/max/.local/bin:$PATH
+export PATH=/home/max/.local/bin:$HOME/Scripts:$PATH
