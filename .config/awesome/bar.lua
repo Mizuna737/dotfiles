@@ -305,8 +305,12 @@ local focused_window_class = wibox.widget({
 
 local function updateFocusedClass()
 	local c = client.focus
-	local classname = c and c.class or "Unknown"
-	local script = "~/Scripts/getPWAAppName.sh " .. classname
+	local classname
+	if c and c.instance == "dashboard" then
+		classname = "dashboard"
+	else
+		classname = c and c.class or "Unknown"
+	end
 	focused_window_class:set_text(classname)
 end
 
@@ -343,6 +347,9 @@ function bar.setupWibar()
 
 	-- Actually build the bar on each screen
 	awful.screen.connect_for_each_screen(function(s)
+		if s ~= screen.primary then
+			return
+		end -- skip dashboard screen
 		-- Taglist & Tasklist
 		s.mypromptbox = awful.widget.prompt()
 		s.mylayoutbox = awful.widget.layoutbox(s)
