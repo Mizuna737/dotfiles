@@ -1,26 +1,29 @@
 -- Minimal config for Quick Notes nvim instance
 
-local function focus_end()
+local function focusEnd()
 	local last = vim.fn.line("$")
-	local lastline = vim.fn.getline(last)
-
+	local lastLine = vim.fn.getline(last)
 	vim.cmd("normal! G")
-	if lastline ~= "" then
+	if lastLine ~= "" then
 		vim.cmd("normal! o")
 	else
 		vim.cmd("startinsert!")
 	end
 end
 
+-- Write buffer to disk on focus loss so the shell script can pick it up
+local function saveOnFocusLost()
+	vim.cmd("silent! write")
+end
+
 vim.api.nvim_create_autocmd({ "VimEnter", "FocusGained", "BufEnter" }, {
-	callback = focus_end,
+	callback = focusEnd,
 })
-vim.api.nvim_create_autocmd("FocusLost", {
-	callback = function()
-		vim.cmd("stopinsert")
-		vim.cmd("write")
-	end,
+
+vim.api.nvim_create_autocmd({ "FocusLost" }, {
+	callback = saveOnFocusLost,
 })
+
 vim.opt.wrap = true
 vim.opt.linebreak = true
 vim.opt.spell = true

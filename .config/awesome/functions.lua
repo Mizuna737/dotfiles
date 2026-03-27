@@ -521,10 +521,10 @@ local function isDropdownClient(c)
 	if not c or not c.valid then
 		return false
 	end
-	if not M.dropdown_classes then
+	if not M.dropdownClasses then
 		return false
 	end -- set by your dropdown module
-	return c.class and M.dropdown_classes[c.class] == true
+	return c.class and M.dropdownClasses[c.class] == true
 end
 
 -- Smart close:
@@ -665,17 +665,17 @@ end
 --   spawn_props = { floating = true, tag = awful.screen.focused().selected_tag },
 -- }
 -- Track which WM_CLASS values we consider "dropdown apps"
-M.dropdown_classes = {
+M.dropdownClasses = {
 	["Dropdown"] = true,
 	["Quick Notes"] = true,
 	-- add more here later
 }
-local function hide_other_dropdowns(except_class)
+local function hideOtherDropdowns(except_class)
 	for _, c in ipairs(client.get()) do
 		if
 			c.valid
 			and c.class
-			and M.dropdown_classes[c.class]
+			and M.dropdownClasses[c.class]
 			and c.class ~= except_class
 			and (c.hidden == false)
 			and (c.minimized == false)
@@ -691,7 +691,7 @@ function M.toggleDropdownApp(opts)
 	local spawn_props = opts.spawn_props or {}
 
 	-- Ensure class is registered
-	M.dropdown_classes[class] = true
+	M.dropdownClasses[class] = true
 
 	local win
 	for _, c in ipairs(client.get()) do
@@ -705,7 +705,7 @@ function M.toggleDropdownApp(opts)
 
 	if not win then
 		-- Before spawning, hide other dropdowns
-		hide_other_dropdowns(class)
+		hideOtherDropdowns(class)
 
 		if spawn_props.tag == nil then
 			spawn_props.tag = current_tag
@@ -720,7 +720,7 @@ function M.toggleDropdownApp(opts)
 	-- If we're about to show/focus this dropdown, hide the others first
 	local will_show = (win.hidden == true) or (win.minimized == true) or (win.first_tag ~= current_tag)
 	if will_show then
-		hide_other_dropdowns(class)
+		hideOtherDropdowns(class)
 	end
 
 	if win.hidden == true or win.minimized == true then
@@ -763,6 +763,10 @@ end
 -- Prompts the user for a to-do item in a centered floating window
 function M.addInboxTodo()
 	awful.spawn.with_shell("bash ~/Scripts/captureTask.sh")
+end
+
+function M.fileTasks()
+	awful.spawn.with_shell("bash ~/Scripts/fileTasks.sh")
 end
 
 function M.bitwardenPasswordCLI()
