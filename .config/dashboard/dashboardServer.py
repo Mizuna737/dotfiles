@@ -24,7 +24,6 @@ import queue
 
 OBSIDIAN_VAULT = os.path.expanduser("~/Documents/The Vault")
 PORT = 9876
-TODAY = date.today().strftime("%Y-%m-%d")
 
 # ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -195,6 +194,7 @@ TASK_RE = re.compile(r'^\s*-\s*\[\s*\]\s*(.+)$', re.MULTILINE)
 TAG_RE  = re.compile(r'(#\w+)')
 
 def extractTasks():
+    TODAY = date.today().strftime("%Y-%m-%d")  # recompute each call
     todayTasks   = []
     undatedTasks = []
     mdFiles = glob.glob(os.path.join(OBSIDIAN_VAULT, "**", "*.md"), recursive=True)
@@ -211,9 +211,8 @@ def extractTasks():
             dateMatches = DATE_RE.findall(raw)
 
             if dateMatches:
-                # Has a date marker — only include if it matches today
-                if TODAY not in dateMatches:
-                    continue
+                # Has a date marker — include all dated tasks
+                taskDate = min(dateMatches)
                 bucket = todayTasks
             else:
                 # No date marker — include as undated
@@ -247,7 +246,19 @@ def extractTasks():
                 "dated": bool(dateMatches),
             })
 
-    # Today's dated tasks first, then undated
+    # Sort dated tasks: overdue first, then today, then future — all by date asc
+    todayTasks.sort(key=lambda t: DATE_RE.findall(t["raw"])[0] if DATE_RE.findall(t["raw"]) else TODAY)
+
+    # Tag overdue tasks so the frontend can highlight them
+    for t in todayTasks:
+        dates = DATE_RE.findall(t["raw"])
+        if dates:
+            t["overdue"] = min(dates) < TODAY
+            t["dueDate"] = min(dates)
+        else:
+            t["overdue"] = False
+            t["dueDate"] = None
+
     return todayTasks + undatedTasks
 
 # ── SSE broadcast ─────────────────────────────────────────────────────────

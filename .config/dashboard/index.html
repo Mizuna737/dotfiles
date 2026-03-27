@@ -502,6 +502,22 @@
     opacity: 0.5;
   }
 
+  .taskItem.overdue {
+    border-left-color: var(--danger);
+    background: color-mix(in srgb, var(--danger) 8%, transparent);
+  }
+
+  .taskItem.overdue .taskCheck {
+    border-color: var(--danger);
+  }
+
+  .taskDue {
+    font-size: 10px;
+    color: var(--danger);
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
   /* Loading / error states */
   .statusDot {
     width: 6px; height: 6px;
@@ -886,14 +902,18 @@ function renderTasks(tasks) {
   list.innerHTML = '';
   tasks.slice(0, 6).forEach(task => {
     const el = document.createElement('div');
-    el.className = 'taskItem';
+    el.className = 'taskItem' + (task.overdue ? ' overdue' : '');
     el.style.maxHeight = '100px';
     el.style.transition = 'opacity 0.4s ease, transform 0.4s ease, max-height 0.5s ease 0.3s, padding 0.5s ease 0.3s';
+    const dueLine = task.overdue && task.dueDate
+      ? `<div class="taskDue">⚠ ${task.dueDate}</div>`
+      : '';
     el.innerHTML = `
       <div class="taskCheck" title="Mark done">□</div>
       <div>
         <div class="taskText">${escHtml(task.text)}</div>
         ${task.tags ? `<div class="taskMeta">${escHtml(task.tags)}</div>` : ''}
+        ${dueLine}
       </div>
     `;
     const check = el.querySelector('.taskCheck');

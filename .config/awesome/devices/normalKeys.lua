@@ -99,10 +99,8 @@ normalKeys.globalkeys = gears.table.join(
 				"--class",
 				"Quick Notes",
 				"-e",
-				"nvim",
-				"-u",
-				os.getenv("HOME") .. "/.config/nvim/quickNotes.lua",
-				os.getenv("HOME") .. "/Documents/The Vault/Quick Notes.md",
+				"bash",
+				os.getenv("HOME") .. "/Scripts/quickNotes.sh",
 			},
 			spawn_props = { floating = true, tag = awful.screen.focused().selected_tag },
 		})
