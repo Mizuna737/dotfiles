@@ -360,13 +360,10 @@ tartarus.globalkeys = gears.table.join(
 	-- Key space
 	tk({ modkey, ctrl }, "space", function()
 		myFuncs.addInboxTodo()
-	end, "Tab tap => add to inbox"),
+	end, "Space tap => add to inbox"),
 	tk({ modkey, ctrl, altkey }, "space", function()
-		local function loadCodeWorkspace()
-			myFuncs.loadWorkspaceConfiguration()
-		end
-		gears.timer.delayed_call(loadCodeWorkspace)
-	end, "R hold => show cheatsheet"),
+		myFuncs.fileTasks()
+	end, "Space hold => File Tasks"),
 	tk({ modkey, ctrl, shft }, "space", function()
 		naughty.notify({ title = "T space", text = "mod tap pressed" })
 	end, "Space mod tap => notify"),

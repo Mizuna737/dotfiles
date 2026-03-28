@@ -1,11 +1,11 @@
 return {
   ["windowOrder"] = {
     ["1"] = {
-      ["class"] = "zen",
-      ["name"] = "Overview – Home Assistant — Zen Browser",
+      ["name"] = "(1361) THIS IS WHAT I DO TO QUINN TOP PLAYERS! (YOUR SOUL IS MINE) - YouTube - qutebrowser",
+      ["class"] = "qutebrowser",
     },
   },
-  ["master_width_factor"] = 0.694,
-  ["layoutName"] = "centerwork",
   ["workspace"] = "Entertainment",
+  ["master_width_factor"] = 0.72558139534884,
+  ["layoutName"] = "centerwork",
 }
