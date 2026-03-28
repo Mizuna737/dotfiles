@@ -200,7 +200,6 @@ awful.rules.rules = {
 			end,
 			tag = "Dashboard",
 			border_width = 0,
-			focusable = false,
 		},
 	},
 	{

@@ -686,6 +686,20 @@ local function hideOtherDropdowns(except_class)
 end
 
 function M.toggleDropdownApp(opts)
+	-- Position a dropdown window centered on the primary screen
+	-- widthPct and heightPct are 0.0-1.0 fractions of the screen workarea
+	local function positionDropdown(win, widthPct, heightPct)
+		local s = screen.primary
+		local wa = s.workarea
+		local w = math.floor(wa.width * (widthPct or 0.3))
+		local h = math.floor(wa.height * (heightPct or 0.6))
+		win:geometry({
+			x = wa.x + math.floor((wa.width - w) / 2),
+			y = wa.y + math.floor((wa.height - h) / 2),
+			width = w,
+			height = h,
+		})
+	end
 	local class = opts.class
 	local spawn_cmd = opts.spawn_cmd
 	local spawn_props = opts.spawn_props or {}
@@ -704,19 +718,24 @@ function M.toggleDropdownApp(opts)
 	local current_tag = awful.screen.focused().selected_tag
 
 	if not win then
-		-- Before spawning, hide other dropdowns
 		hideOtherDropdowns(class)
-
 		if spawn_props.tag == nil then
 			spawn_props.tag = current_tag
 		end
 		if spawn_props.floating == nil then
 			spawn_props.floating = true
 		end
+		-- Hook manage signal to position on first spawn
+		local function onManage(c)
+			if c.class == class then
+				positionDropdown(c, opts.widthPct, opts.heightPct)
+				client.disconnect_signal("manage", onManage)
+			end
+		end
+		client.connect_signal("manage", onManage)
 		awful.spawn(spawn_cmd, spawn_props)
 		return
 	end
-
 	-- If we're about to show/focus this dropdown, hide the others first
 	local will_show = (win.hidden == true) or (win.minimized == true) or (win.first_tag ~= current_tag)
 	if will_show then
@@ -727,10 +746,9 @@ function M.toggleDropdownApp(opts)
 		win.hidden = false
 		win.minimized = false
 		win:move_to_tag(current_tag)
+		positionDropdown(win, opts.widthPct, opts.heightPct) -- ← add this
 		client.focus = win
 		win:raise()
-
-		-- Optional: force focus reliably
 		win:emit_signal("request::activate", "dropdown", { raise = true })
 	elseif win.first_tag == current_tag then
 		win.hidden = true
@@ -740,7 +758,9 @@ function M.toggleDropdownApp(opts)
 		win:raise()
 		win:emit_signal("request::activate", "dropdown", { raise = true })
 	end
-end --------------------------------
+end
+
+--------------------------------
 -- Misc
 --------------------------------
 

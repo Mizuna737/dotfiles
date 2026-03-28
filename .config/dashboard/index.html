@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard</title>
-<link rel="stylesheet" href="/home/max/.cache/wal/colors.css">
+<link rel="stylesheet" href="/colors.css">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;500&display=swap');
 
@@ -36,11 +36,16 @@
     font-size: 17px;
   }
 
-  /* Refresh button */
-  #refreshBtn {
+  /* Refresh / exit buttons */
+  #dashButtons {
     position: fixed;
     top: 12px;
     right: 14px;
+    display: flex;
+    gap: 6px;
+    z-index: 1000;
+  }
+  .dashBtn {
     background: transparent;
     border: 1px solid var(--border);
     color: var(--fg-dim);
@@ -53,10 +58,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
     transition: border-color 0.15s, color 0.15s;
   }
-  #refreshBtn:hover { border-color: var(--accent); color: var(--accent); }
+  .dashBtn:hover { border-color: var(--accent); color: var(--accent); }
+  #exitBtn:hover { border-color: var(--danger); color: var(--danger); }
 
   /* Subtle scanline texture */
   body::after {
@@ -671,7 +676,10 @@
 </head>
 <body>
 <div id="app">
-  <button id="refreshBtn" onclick="window.location.reload()" title="Refresh">↺</button>
+  <div id="dashButtons">
+    <button class="dashBtn" onclick="window.location.reload()" title="Refresh">↺</button>
+    <button class="dashBtn" id="exitBtn" onclick="apiPost('/exit').then(() => {})" title="Close dashboard">✕</button>
+  </div>
 
   <!-- LEFT: Toggles -->
   <div class="panel" id="togglePanel" data-label="SYS">
@@ -757,7 +765,7 @@
 </div>
 
 <script>
-const API = 'http://localhost:9876';
+const API = '';
 
 // ── Clock ──────────────────────────────────────────────────────────────────
 function updateClock() {
@@ -847,7 +855,11 @@ async function refreshToggles() {
 }
 
 // ── Media ──────────────────────────────────────────────────────────────────
-let isPlaying = false;
+let isPlaying   = false;
+let mediaLength = 0;
+let mediaPos    = 0;
+let lastPosSyncTime = 0;
+let animFrame   = null;
 
 function fmtSec(s) {
   if (!s || isNaN(s)) return '0:00';
@@ -856,30 +868,64 @@ function fmtSec(s) {
   return `${m}:${ss}`;
 }
 
+function applyMediaState(d) {
+  const idle   = document.getElementById('mediaIdle');
+  const active = document.getElementById('mediaActive');
+  if (!d || !d.title) {
+    idle.style.display = 'flex';
+    active.style.display = 'none';
+    cancelAnimationFrame(animFrame);
+    return;
+  }
+  idle.style.display = 'none';
+  active.style.display = 'flex';
+  document.getElementById('mediaTitle').textContent  = d.title  || '—';
+  document.getElementById('mediaArtist').textContent = d.artist || '—';
+  document.getElementById('mediaAlbum').textContent  = d.album  || '';
+  isPlaying = d.status === 'Playing';
+  document.getElementById('playBtn').textContent = isPlaying ? '⏸' : '▶';
+  if (d.length > 0) mediaLength = d.length;
+  mediaPos = d.position || 0;
+  lastPosSyncTime = performance.now() / 1000;
+  updateProgress();
+  if (isPlaying) animateProgress();
+  else cancelAnimationFrame(animFrame);
+}
+
+function updateProgress() {
+  if (!mediaLength) return;
+  const elapsed = Math.min(mediaPos, mediaLength);
+  const pct = (elapsed / mediaLength) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  const remaining = Math.max(0, mediaLength - elapsed);
+  document.getElementById('progressTime').textContent = '-' + fmtSec(remaining);
+}
+
+function animateProgress() {
+  cancelAnimationFrame(animFrame);
+  function tick() {
+    if (!isPlaying) return;
+    const now = performance.now() / 1000;
+    const elapsed = now - lastPosSyncTime;
+    mediaPos += elapsed;
+    lastPosSyncTime = now;
+    if (mediaPos >= mediaLength) {
+      mediaPos = mediaLength;
+      updateProgress();
+      return; // stop animating at end
+    }
+    updateProgress();
+    animFrame = requestAnimationFrame(tick);
+  }
+  animFrame = requestAnimationFrame(tick);
+}
+
 async function refreshMedia() {
+  // Slow poll — corrects position drift, SSE handles track/state changes
   try {
     const d = await apiGet('/status/media');
-    const idle = document.getElementById('mediaIdle');
-    const active = document.getElementById('mediaActive');
-    if (!d || !d.title) {
-      idle.style.display = 'flex';
-      active.style.display = 'none';
-      return;
-    }
-    idle.style.display = 'none';
-    active.style.display = 'flex';
-    document.getElementById('mediaTitle').textContent  = d.title  || '—';
-    document.getElementById('mediaArtist').textContent = d.artist || '—';
-    document.getElementById('mediaAlbum').textContent  = d.album  || '';
-    isPlaying = d.status === 'Playing';
-    document.getElementById('playBtn').textContent = isPlaying ? '⏸' : '▶';
-    const safePos = (d.length > 0 && d.position <= d.length) ? d.position : 0;
-    const remaining = d.length > 0 ? Math.max(0, d.length - safePos) : 0;
-    const pct = d.length > 0 ? Math.min(100, (remaining / d.length) * 100) : 0;
-    document.getElementById('progressFill').style.width = pct + '%';
-    document.getElementById('progressTime').textContent = '-' + fmtSec(remaining);
-
-  } catch(e) { /* server not up yet */ }
+    applyMediaState(d);
+  } catch(e) {}
 }
 
 async function mediaCmd(cmd) {
@@ -905,13 +951,19 @@ function renderTasks(tasks) {
     el.className = 'taskItem' + (task.overdue ? ' overdue' : '');
     el.style.maxHeight = '100px';
     el.style.transition = 'opacity 0.4s ease, transform 0.4s ease, max-height 0.5s ease 0.3s, padding 0.5s ease 0.3s';
-    const dueLine = task.overdue && task.dueDate
-      ? `<div class="taskDue">⚠ ${task.dueDate}</div>`
-      : '';
+    // Extract priority emoji from text and show separately
+    const PRIORITY_RE = /[🔼⏫🔽⏬🔽]/gu;
+    const priorities = (task.text.match(PRIORITY_RE) || []).join(' ');
+    const cleanText = task.text.replace(PRIORITY_RE, '').trim();
+
+    const dueLine = task.dueDate
+      ? `<div class="taskDue">${task.overdue ? '⚠ ' : ''}${task.dueDate}${priorities ? ' · ' + priorities : ''}</div>`
+      : (priorities ? `<div class="taskDue">${priorities}</div>` : '');
+
     el.innerHTML = `
       <div class="taskCheck" title="Mark done">□</div>
       <div>
-        <div class="taskText">${escHtml(task.text)}</div>
+        <div class="taskText">${escHtml(cleanText)}</div>
         ${task.tags ? `<div class="taskMeta">${escHtml(task.tags)}</div>` : ''}
         ${dueLine}
       </div>
@@ -1058,6 +1110,11 @@ function connectSSE() {
     refreshToggles();
   });
 
+  es.addEventListener('media-changed', e => {
+    const d = JSON.parse(e.data);
+    applyMediaState(d);
+  });
+
   es.addEventListener('reload', e => {
     window.location.reload();
   });
@@ -1076,7 +1133,7 @@ refreshMedia();
 refreshTasks();
 refreshDroidcam();
 
-setInterval(refreshMedia,    1000);
+setInterval(refreshMedia,   10000);
 setInterval(refreshToggles,  5000);
 setInterval(refreshTasks,    30000);
 setInterval(refreshDroidcam, 5000);

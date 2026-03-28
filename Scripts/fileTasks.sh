@@ -9,6 +9,7 @@ PEOPLE_DIR="$VAULT/People"
 parse_date() {
   local input="${1,,}"
   case "$input" in
+  ponder) echo "ponder" ;;
   today) date +%Y-%m-%d ;;
   tomorrow) date -d "+1 day" +%Y-%m-%d ;;
   "next week") date -d "+7 days" +%Y-%m-%d ;;
@@ -71,12 +72,14 @@ while true; do
 
   # Due date prompt if missing
   DUE_STR=""
-  if [[ ! "$TASK_LINE" =~ 📅 ]]; then
-    DUE_INPUT=$(rofi -dmenu -p "Due date (e.g. 'friday', blank to skip)" -l 0) || true
+  if [[ ! "$TASK_LINE" =~ \[\[ ]]; then
+    DUE_INPUT=$(rofi -dmenu -p "Due date (e.g. 'friday', 'ponder', blank to skip)" -l 0) || true
     if [ -n "$DUE_INPUT" ] && [ "$DUE_INPUT" != "skip" ]; then
       PARSED_DATE=$(parse_date "$DUE_INPUT")
-      if [ -n "$PARSED_DATE" ]; then
-        DUE_STR=" 📅 $PARSED_DATE [[$PARSED_DATE]]"
+      if [ "$PARSED_DATE" = "ponder" ]; then
+        DUE_STR=" #ponder"
+      elif [ -n "$PARSED_DATE" ]; then
+        DUE_STR=" [[$PARSED_DATE]]"
       else
         notify-send "File Task" "Couldn't parse date — filing without due date."
       fi

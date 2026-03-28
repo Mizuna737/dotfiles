@@ -98,6 +98,8 @@ normalKeys.globalkeys = gears.table.join(
 				"kitty",
 				"--class",
 				"Quick Notes",
+				"--override",
+				"font_size=18.0",
 				"-e",
 				"bash",
 				os.getenv("HOME") .. "/Scripts/quickNotes.sh",

@@ -21,6 +21,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 from urllib.parse import urlparse
 import threading
 import queue
+import gi
+gi.require_version("GLib", "2.0")
 
 OBSIDIAN_VAULT = os.path.expanduser("~/Documents/The Vault")
 PORT = 9876
@@ -119,27 +121,17 @@ def getSinkState():
 
 # ── Media (playerctl) ─────────────────────────────────────────────────────
 
-_lastTrackId = None
-_lastValidLength = 0
-_lengthFlushed = False
-
 def getMediaState():
-    global _lastTrackId, _lastValidLength, _lengthFlushed
-
     status, code = run(["playerctl", "status"])
     if code != 0 or status in ("No players found", ""):
-        _lastTrackId = None
-        _lastValidLength = 0
-        _lengthFlushed = False
         return {}
 
     metaOut, _ = run(["playerctl", "metadata", "--format",
-        "{{xesam:title}}|{{xesam:artist}}|{{xesam:album}}|{{mpris:trackid}}"])
+        "{{xesam:title}}|{{xesam:artist}}|{{xesam:album}}"])
     lines = metaOut.split("|")
-    title   = lines[0] if len(lines) > 0 else ""
-    artist  = lines[1] if len(lines) > 1 else ""
-    album   = lines[2] if len(lines) > 2 else ""
-    trackId = lines[3].strip() if len(lines) > 3 else ""
+    title  = lines[0] if len(lines) > 0 else ""
+    artist = lines[1] if len(lines) > 1 else ""
+    album  = lines[2] if len(lines) > 2 else ""
 
     rawPos, _ = run(["playerctl", "position"])
     try:
@@ -147,24 +139,11 @@ def getMediaState():
     except Exception:
         posF = 0
 
-    # Trackid changed — flush length until we get a fresh one
-    if trackId != _lastTrackId:
-        _lastTrackId = trackId
-        _lastValidLength = 0
-        _lengthFlushed = True
-
     rawLen, _ = run(["playerctl", "metadata", "mpris:length"])
     try:
         lenF = int(rawLen) / 1e6
     except Exception:
         lenF = 0
-
-    # Accept new length only if it's consistent with current position
-    if _lengthFlushed and lenF > 0 and lenF > posF:
-        _lastValidLength = lenF
-        _lengthFlushed = False
-    elif not _lengthFlushed and lenF > 0:
-        _lastValidLength = lenF
 
     return {
         "status": status,
@@ -172,7 +151,7 @@ def getMediaState():
         "artist": artist,
         "album":  album,
         "position": posF,
-        "length":   _lastValidLength,
+        "length":   lenF,
     }
 
 def mediaCommand(cmd):
@@ -189,7 +168,7 @@ def mediaCommand(cmd):
 # Tasks with a future/past date are excluded.
 # Tasks with no date marker at all are included as undated (shown below dated ones).
 
-DATE_RE = re.compile(r'[📅⏳🛫]\s*(\d{4}-\d{2}-\d{2})')
+DATE_RE = re.compile(r'(?:[📅⏳🛫]\s*|\[\[)(\d{4}-\d{2}-\d{2})(?:\]\])?')
 TASK_RE = re.compile(r'^\s*-\s*\[\s*\]\s*(.+)$', re.MULTILINE)
 TAG_RE  = re.compile(r'(#\w+)')
 
@@ -405,6 +384,82 @@ def completeTask(filepath, rawText):
     except Exception as e:
         return False
 
+# ── playerctl watcher ─────────────────────────────────────────────────────
+
+def startMediaWatcher():
+    """
+    Listens to D-Bus MPRIS PropertiesChanged signals directly.
+    This is the correct approach — fired synchronously by the media player
+    the instant any property changes, with zero polling latency.
+    """
+    def watch():
+        import dbus
+        import dbus.mainloop.glib
+        from gi.repository import GLib
+
+        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+        bus = dbus.SessionBus()
+
+        def onPropertiesChanged(interface, changed, invalidated, sender=None):
+            # Only care about MPRIS Player interface changes
+            if interface != "org.mpris.MediaPlayer2.Player":
+                return
+            relevant = {"Metadata", "PlaybackStatus", "Position", "Rate"}
+            if not relevant.intersection(set(changed.keys()) | set(invalidated)):
+                return
+
+            # Get full state from playerctl
+            state = getMediaState()
+
+            # Override length directly from D-Bus signal payload if present
+            # This bypasses the playerctl stale-cache issue entirely
+            if "Metadata" in changed:
+                meta = changed["Metadata"]
+                if "mpris:length" in meta:
+                    try:
+                        state["length"] = int(meta["mpris:length"]) / 1e6
+                    except Exception:
+                        pass
+                if "xesam:title" in meta:
+                    try:
+                        state["title"] = str(meta["xesam:title"])
+                    except Exception:
+                        pass
+                if "xesam:artist" in meta:
+                    try:
+                        artists = meta["xesam:artist"]
+                        state["artist"] = str(artists[0]) if hasattr(artists, '__iter__') and not isinstance(artists, str) else str(artists)
+                    except Exception:
+                        pass
+
+            sseBroadcast("media-changed", state)
+
+        # Match PropertiesChanged on any MPRIS player
+        bus.add_signal_receiver(
+            onPropertiesChanged,
+            dbus_interface="org.freedesktop.DBus.Properties",
+            signal_name="PropertiesChanged",
+            path="/org/mpris/MediaPlayer2",
+            sender_keyword="sender",
+        )
+
+        # Also watch for players appearing/disappearing
+        def onNameOwnerChanged(name, old_owner, new_owner):
+            if "mpris" in name.lower():
+                state = getMediaState()
+                sseBroadcast("media-changed", state)
+
+        bus.add_signal_receiver(
+            onNameOwnerChanged,
+            dbus_interface="org.freedesktop.DBus",
+            signal_name="NameOwnerChanged",
+        )
+
+        loop = GLib.MainLoop()
+        loop.run()
+
+    threading.Thread(target=watch, daemon=True).start()
+
 # ── HTTP Handler ──────────────────────────────────────────────────────────
 
 class Handler(BaseHTTPRequestHandler):
@@ -433,6 +488,31 @@ class Handler(BaseHTTPRequestHandler):
             jsonResp(self, extractTasks())
         elif path == "/status/droidcam":
             jsonResp(self, getDroidcamState())
+        elif path == "/colors.css":
+            try:
+                cssPath = os.path.expanduser("~/.cache/wal/colors.css")
+                with open(cssPath, "rb") as f:
+                    body = f.read()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/css")
+                self.send_header("Content-Length", len(body))
+                self.end_headers()
+                self.wfile.write(body)
+            except Exception:
+                self.send_response(404)
+                self.end_headers()
+        elif path == "/":
+            try:
+                with open(os.path.join(os.path.dirname(__file__), "index.html"), "rb") as f:
+                    body = f.read()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", len(body))
+                self.end_headers()
+                self.wfile.write(body)
+            except Exception as e:
+                self.send_response(500)
+                self.end_headers()
         elif path == "/events":
             # Server-Sent Events stream
             self.send_response(200)
@@ -478,6 +558,15 @@ class Handler(BaseHTTPRequestHandler):
         elif path == "/reload":
             sseBroadcast("reload", {})
             jsonResp(self, {"ok": True})
+        elif path == "/exit":
+            jsonResp(self, {"ok": True})
+            # Kill the qutebrowser dashboard window after responding
+            import threading
+            def killDashboard():
+                import time
+                time.sleep(0.3)
+                run(["xdotool", "search", "--classname", "dashboard", "windowkill"])
+            threading.Thread(target=killDashboard, daemon=True).start()
         elif path == "/task/complete":
             length = int(self.headers.get("Content-Length", 0))
             body = json.loads(self.rfile.read(length)) if length else {}
@@ -507,6 +596,7 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     startSinkWatcher()
+    startMediaWatcher()
     server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
     print(f"Dashboard server running on port {PORT}")
     server.serve_forever()
