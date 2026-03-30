@@ -955,19 +955,6 @@ class Handler(BaseHTTPRequestHandler):
                 eisenhowerUnsubscribe(q)
         elif path == "/shopping/items":
             jsonResp(self, getShoppingListItems())
-        elif path == "/shopping/test":
-            try:
-                htmlPath = os.path.join(os.path.dirname(__file__), "shoppingList.html")
-                with open(htmlPath, "rb") as f:
-                    body = f.read()
-                self.send_response(200)
-                self.send_header("Content-Type", "text/html; charset=utf-8")
-                self.send_header("Content-Length", len(body))
-                self.end_headers()
-                self.wfile.write(body)
-            except Exception as e:
-                self.send_response(500)
-                self.end_headers()
         else:
             self.send_response(404)
             self.end_headers()

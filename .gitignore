@@ -1,2 +1,4 @@
 .config/qutebrowser/pywalQute
 .config/tmux/plugins
+.config/dashboard/todoist.conf
+.config/dashboard/__pycache__/
