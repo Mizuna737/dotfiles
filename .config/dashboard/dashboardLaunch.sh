@@ -1,26 +1,9 @@
 #!/usr/bin/env bash
-# dashboard-launch.sh
-# Starts the Python bridge server and opens the dashboard in luakit
-# on the secondary screen. Called from AwesomeWM autostart.
+# dashboardLaunch.sh
+# Opens the dashboard in luakit on the secondary screen.
+# Server lifecycle is managed by the dashboard.service systemd user service.
+# Called from AwesomeWM autostart.
 
-DASHBOARD_DIR="$HOME/.config/dashboard"
-SERVER_SCRIPT="$DASHBOARD_DIR/dashboardServer.py"
-LOG_FILE="$HOME/.cache/dashboard-server.log"
-PID_FILE="$HOME/.cache/dashboard-server.pid"
-
-# ── Start server (if not already running) ─────────────────────────────────
-if [ -f "$PID_FILE" ] && kill -0 "$(cat $PID_FILE)" 2>/dev/null; then
-  echo "Stopping existing dashboard server..."
-  kill "$(cat $PID_FILE)"
-  sleep 0.5
-fi
-
-python3 "$SERVER_SCRIPT" >>"$LOG_FILE" 2>&1 &
-echo $! >"$PID_FILE"
-echo "Dashboard server started (PID $(cat $PID_FILE))."
-sleep 0.5
-
-# ── Launch luakit only if not already running ──────────────────────────────
 if xdotool search --classname dashboard 2>/dev/null | grep -q .; then
   echo "Dashboard already running."
   exit 0
