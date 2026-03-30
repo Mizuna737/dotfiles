@@ -1,0 +1,1013 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Eisenhower Matrix</title>
+    <link rel="stylesheet" href="/colors.css" />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;500&display=swap");
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: var(--color0, #0d0d0d);
+        --bg2: var(--color1, #1a1a1a);
+        --fg: var(--color7, #e0e0e0);
+        --fg-dim: var(--color8, #666);
+        --accent: var(--color2, #7ecf8e);
+        --accent2: var(--color3, #cfb97e);
+        --accent3: var(--color4, #7eaecf);
+        --danger: var(--color1, #cf7e7e);
+        --border: color-mix(in srgb, var(--accent) 20%, transparent);
+        --font-display: "Bebas Neue", sans-serif;
+        --font-mono: "IBM Plex Mono", monospace;
+        --panel-radius: 4px;
+        --q1: #e05c5c;
+        --q2: #e0c45c;
+        --q3: #e0945c;
+        --q4: #5c9ee0;
+      }
+
+      html,
+      body {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--font-mono);
+        font-size: 20px;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 0, 0, 0.04) 2px,
+          rgba(0, 0, 0, 0.04) 4px
+        );
+        pointer-events: none;
+        z-index: 9999;
+      }
+
+      /* ── Header ── */
+      #header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      #headerLeft {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      #statusDot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--fg-dim);
+        flex-shrink: 0;
+        transition: background 0.3s;
+      }
+      #statusDot.live {
+        background: var(--accent);
+      }
+
+      #headerTitle {
+        font-family: var(--font-display);
+        font-size: 20px;
+        letter-spacing: 4px;
+        color: var(--accent);
+        text-transform: uppercase;
+      }
+
+      #headerButtons {
+        display: flex;
+        gap: 6px;
+      }
+
+      .dashBtn {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--fg-dim);
+        font-family: var(--font-mono);
+        font-size: 14px;
+        width: 32px;
+        height: 32px;
+        border-radius: var(--panel-radius);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          border-color 0.15s,
+          color 0.15s;
+      }
+      .dashBtn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      #exitBtn:hover {
+        border-color: var(--danger);
+        color: var(--danger);
+      }
+      .dashBtn.active {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      /* ── Matrix view ── */
+      #grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 1px;
+        background: var(--border);
+        overflow: hidden;
+      }
+
+      .quadrant {
+        background: var(--bg);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        position: relative;
+      }
+
+      .quadrant::before {
+        content: attr(data-label);
+        position: absolute;
+        top: 0;
+        right: 0;
+        font-family: var(--font-display);
+        font-size: 56px;
+        line-height: 1;
+        color: color-mix(in srgb, var(--q-color) 6%, transparent);
+        letter-spacing: 2px;
+        pointer-events: none;
+        user-select: none;
+      }
+
+      #q1 {
+        --q-color: var(--q1);
+      }
+      #q2 {
+        --q-color: var(--q2);
+      }
+      #q3 {
+        --q-color: var(--q3);
+      }
+      #q4 {
+        --q-color: var(--q4);
+      }
+
+      .qHeader {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        flex-shrink: 0;
+        border-bottom: 1px solid
+          color-mix(in srgb, var(--q-color) 30%, transparent);
+        padding: 8px 12px 6px;
+        margin-bottom: 4px;
+      }
+
+      .qTitle {
+        font-family: var(--font-display);
+        font-size: 18px;
+        letter-spacing: 3px;
+        color: var(--q-color);
+        text-transform: uppercase;
+      }
+
+      .qSub {
+        font-size: 14px;
+        color: var(--fg-dim);
+        letter-spacing: 1px;
+      }
+
+      .qList {
+        flex: 1;
+        overflow-y: auto;
+        padding: 4px 12px;
+        min-height: 0;
+      }
+      .qList::-webkit-scrollbar {
+        width: 3px;
+      }
+      .qList::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .qList::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 2px;
+      }
+
+      /* ── Shopping view ── */
+      #shoppingView {
+        display: none;
+        flex-direction: column;
+        padding: 12px 16px;
+        gap: 8px;
+        overflow: hidden;
+      }
+
+      #shoppingList {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      #shoppingList::-webkit-scrollbar {
+        width: 3px;
+      }
+      #shoppingList::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      #shoppingList::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 2px;
+      }
+
+      .shopItem {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px 0;
+        border-bottom: 1px solid
+          color-mix(in srgb, var(--border) 50%, transparent);
+      }
+      .shopItem:last-child {
+        border-bottom: none;
+      }
+
+      .shopCheck {
+        flex-shrink: 0;
+        width: 14px;
+        height: 14px;
+        border: 1px solid var(--fg-dim);
+        border-radius: 2px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: transparent;
+        transition:
+          border-color 0.15s,
+          color 0.15s,
+          background 0.15s;
+      }
+      .shopCheck:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .shopCheck:hover::after {
+        content: "✓";
+      }
+      .shopCheck.done {
+        background: var(--fg-dim);
+        border-color: var(--fg-dim);
+      }
+
+      .shopText {
+        flex: 1;
+        font-size: 20px;
+        color: var(--fg);
+        letter-spacing: 0.3px;
+        transition: color 0.15s;
+      }
+      .shopText.done {
+        text-decoration: line-through;
+        color: var(--fg-dim);
+      }
+
+      #addRow {
+        flex-shrink: 0;
+        display: flex;
+        gap: 8px;
+        padding-top: 10px;
+        border-top: 1px solid var(--border);
+      }
+
+      #addInput {
+        flex: 1;
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        color: var(--fg);
+        font-family: var(--font-mono);
+        font-size: 18px;
+        padding: 6px 10px;
+        border-radius: var(--panel-radius);
+        outline: none;
+      }
+      #addInput:focus {
+        border-color: var(--accent);
+      }
+
+      #addBtn {
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--fg-dim);
+        font-family: var(--font-display);
+        font-size: 16px;
+        letter-spacing: 2px;
+        padding: 6px 14px;
+        border-radius: var(--panel-radius);
+        cursor: pointer;
+        transition:
+          border-color 0.15s,
+          color 0.15s;
+      }
+      #addBtn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      /* ── Shared task styles ── */
+      .taskItem {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 0;
+        border-bottom: 1px solid
+          color-mix(in srgb, var(--border) 50%, transparent);
+        transition: opacity 0.3s ease;
+        overflow: hidden;
+      }
+      .taskItem:last-child {
+        border-bottom: none;
+      }
+
+      .taskCheck {
+        flex-shrink: 0;
+        width: 14px;
+        height: 14px;
+        border: 1px solid var(--fg-dim);
+        border-radius: 2px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: transparent;
+        transition:
+          border-color 0.15s,
+          color 0.15s;
+      }
+      .taskCheck:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .taskCheck:hover::after {
+        content: "✓";
+      }
+
+      .taskBody {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .taskText {
+        font-size: 20px;
+        color: var(--fg);
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+        line-height: 1.3;
+      }
+      .taskText:hover {
+        color: var(--accent);
+      }
+
+      .taskMeta {
+        display: flex;
+        gap: 8px;
+        margin-top: 2px;
+      }
+      .taskDue {
+        font-size: 14px;
+        color: var(--fg-dim);
+        letter-spacing: 0.5px;
+      }
+      .taskDue.overdue {
+        color: var(--danger);
+      }
+      .taskPriority {
+        font-size: 14px;
+        color: var(--fg-dim);
+      }
+
+      .taskActions {
+        flex-shrink: 0;
+        display: flex;
+        gap: 2px;
+        align-items: center;
+        position: relative;
+      }
+
+      .actionBtn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        opacity: 0.4;
+        padding: 1px 3px;
+        transition: opacity 0.15s;
+      }
+      .actionBtn:hover {
+        opacity: 1;
+      }
+
+      .dateOverlay {
+        display: flex;
+        align-items: center;
+        margin-top: 2px;
+      }
+      .dateInput {
+        font-size: 14px;
+        font-family: var(--font-mono);
+        padding: 1px 4px;
+        border-radius: 2px;
+        border: 1px solid var(--border);
+        background: var(--bg2);
+        color: var(--fg);
+        width: 100px;
+        outline: none;
+      }
+      .dateInput:focus {
+        border-color: var(--accent);
+      }
+      .dateInput.error {
+        border-color: var(--danger);
+      }
+
+      .priorityOverlay {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--panel-radius);
+        padding: 3px;
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        min-width: 110px;
+      }
+      .priorityOpt {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 3px 8px;
+        text-align: left;
+        border-radius: 2px;
+        color: var(--fg);
+        font-family: var(--font-mono);
+        font-size: 16px;
+      }
+      .priorityOpt:hover {
+        background: color-mix(in srgb, var(--accent) 15%, transparent);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header">
+      <div id="headerLeft">
+        <div id="statusDot"></div>
+        <div id="headerTitle">Eisenhower Matrix</div>
+      </div>
+      <div id="headerButtons">
+        <button class="dashBtn" id="shoppingBtn" title="Shopping List">
+          🛒
+        </button>
+        <button class="dashBtn" id="refreshBtn" title="Refresh">↺</button>
+        <button class="dashBtn" id="exitBtn" title="Close">✕</button>
+      </div>
+    </div>
+
+    <!-- Matrix view -->
+    <div id="grid">
+      <div class="quadrant" id="q1" data-label="DO FIRST">
+        <div class="qHeader">
+          <div class="qTitle">🔴 Do First</div>
+          <div class="qSub">Urgent &amp; Important</div>
+        </div>
+        <div class="qList" id="list-q1"></div>
+      </div>
+      <div class="quadrant" id="q2" data-label="SCHEDULE">
+        <div class="qHeader">
+          <div class="qTitle">🟡 Schedule</div>
+          <div class="qSub">Unscheduled Tasks</div>
+        </div>
+        <div class="qList" id="list-q2"></div>
+      </div>
+      <div class="quadrant" id="q3" data-label="UPCOMING">
+        <div class="qHeader">
+          <div class="qTitle">🟠 Upcoming</div>
+          <div class="qSub">Scheduled, Not This Week</div>
+        </div>
+        <div class="qList" id="list-q3"></div>
+      </div>
+      <div class="quadrant" id="q4" data-label="PONDER">
+        <div class="qHeader">
+          <div class="qTitle">🔵 Ponder</div>
+          <div class="qSub">Tagged #ponder</div>
+        </div>
+        <div class="qList" id="list-q4"></div>
+      </div>
+    </div>
+
+    <!-- Shopping view -->
+    <div id="shoppingView">
+      <div id="shoppingList"></div>
+      <div id="addRow">
+        <input id="addInput" type="text" placeholder="Add item..." />
+        <button id="addBtn">ADD</button>
+      </div>
+    </div>
+
+    <script>
+      const API = "http://localhost:9876";
+      const PRIORITY_EMOJIS = ["⏫", "🔼", "🔽", "⏬"];
+
+      // ── Layout ────────────────────────────────────────────────────────────────
+
+      function setMainHeight() {
+        const header = document.getElementById("header");
+        const h = window.innerHeight - header.getBoundingClientRect().height;
+        document.getElementById("grid").style.height = h + "px";
+        document.getElementById("shoppingView").style.height = h + "px";
+      }
+      setMainHeight();
+      window.addEventListener("resize", setMainHeight);
+
+      // ── View toggle ───────────────────────────────────────────────────────────
+
+      let currentView = "matrix";
+
+      function showMatrix() {
+        currentView = "matrix";
+        document.getElementById("grid").style.display = "grid";
+        document.getElementById("shoppingView").style.display = "none";
+        document.getElementById("headerTitle").textContent =
+          "Eisenhower Matrix";
+        document.getElementById("shoppingBtn").classList.remove("active");
+      }
+
+      function showShopping() {
+        currentView = "shopping";
+        document.getElementById("grid").style.display = "none";
+        document.getElementById("shoppingView").style.display = "flex";
+        document.getElementById("headerTitle").textContent = "Shopping List";
+        document.getElementById("shoppingBtn").classList.add("active");
+        loadShoppingItems();
+      }
+
+      document.getElementById("shoppingBtn").addEventListener("click", () => {
+        if (currentView === "matrix") showShopping();
+        else showMatrix();
+      });
+
+      // ── Helpers ───────────────────────────────────────────────────────────────
+
+      function fmtDate(d) {
+        if (!d) return "";
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+        if (d === todayStr) return "Today";
+        return d;
+      }
+
+      function parseNaturalDate(input) {
+        const s = input.toLowerCase().trim();
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+        if (s === "today") return today;
+        if (s === "tomorrow") { const d = new Date(today); d.setDate(d.getDate() + 1); return d; }
+        if (s === "yesterday") { const d = new Date(today); d.setDate(d.getDate() - 1); return d; }
+        if (s === "next week") { const d = new Date(today); d.setDate(d.getDate() + 7); return d; }
+        if (s === "next month") { const d = new Date(today); d.setMonth(d.getMonth() + 1); return d; }
+        if (s === "end of month" || s === "eom") {
+          return new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        }
+
+        // "in N days/weeks/months"
+        const inMatch = s.match(/^in (\d+) (day|days|week|weeks|month|months)$/);
+        if (inMatch) {
+          const n = parseInt(inMatch[1]);
+          const d = new Date(today);
+          if (inMatch[2].startsWith("day")) d.setDate(d.getDate() + n);
+          else if (inMatch[2].startsWith("week")) d.setDate(d.getDate() + n * 7);
+          else d.setMonth(d.getMonth() + n);
+          return d;
+        }
+
+        // weekday names — next occurrence
+        const days = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+        const dayMatch = s.match(/^(?:next )?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)$/);
+        if (dayMatch) {
+          const di = days.indexOf(dayMatch[1]);
+          const d = new Date(today);
+          d.setDate(d.getDate() + ((di - d.getDay() + 7) % 7 || 7));
+          return d;
+        }
+
+        // YYYY-MM-DD
+        const isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (isoMatch) return new Date(parseInt(isoMatch[1]), parseInt(isoMatch[2]) - 1, parseInt(isoMatch[3]));
+
+        // MM/DD or MM/DD/YYYY
+        const slashMatch = s.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?$/);
+        if (slashMatch) {
+          const yr = slashMatch[3] ? parseInt(slashMatch[3]) : today.getFullYear();
+          const d = new Date(yr, parseInt(slashMatch[1]) - 1, parseInt(slashMatch[2]));
+          if (!slashMatch[3] && d < today) d.setFullYear(d.getFullYear() + 1);
+          return isNaN(d) ? null : d;
+        }
+
+        // "month day" or "month day, year" e.g. "march 15", "mar 15", "march 15, 2027"
+        const months = ["january","february","march","april","may","june","july","august","september","october","november","december"];
+        const monthsShort = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
+        const mMatch = s.match(/^([a-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s*(\d{4}))?$/);
+        if (mMatch) {
+          let mi = months.indexOf(mMatch[1]);
+          if (mi === -1) mi = monthsShort.indexOf(mMatch[1]);
+          if (mi !== -1) {
+            const yr = mMatch[3] ? parseInt(mMatch[3]) : today.getFullYear();
+            const d = new Date(yr, mi, parseInt(mMatch[2]));
+            if (!mMatch[3] && d < today) d.setFullYear(d.getFullYear() + 1);
+            return isNaN(d) ? null : d;
+          }
+        }
+
+        return null;
+      }
+
+      function formatDateStr(d) {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      }
+
+      async function apiPost(path, body) {
+        await fetch(API + path, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+      }
+
+      function getPriority(raw) {
+        return PRIORITY_EMOJIS.find((e) => raw.includes(e)) || "";
+      }
+      function stripPriority(raw) {
+        return PRIORITY_EMOJIS.reduce((s, e) => s.replace(e, ""), raw)
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+      function stripDate(raw) {
+        return raw
+          .replace(/\[\[\d{4}-\d{2}-\d{2}\]\]/g, "")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      // ── Matrix ────────────────────────────────────────────────────────────────
+
+      function fadeOut(item) {
+        item.style.opacity = "0";
+        setTimeout(() => {
+          item.style.maxHeight = "0";
+          item.style.overflow = "hidden";
+          item.style.padding = "0";
+        }, 250);
+        setTimeout(() => item.remove(), 600);
+      }
+
+      function openInObsidian(task) {
+        const vault = encodeURIComponent("The Vault");
+        const file = encodeURIComponent(task.relPath.split("\\").join("/"));
+        const line = task.line ? `&line=${task.line}` : "";
+        apiPost("/obsidian/open", {
+          uri: `obsidian://adv-uri?vault=${vault}&filepath=${file}${line}`,
+        });
+      }
+
+      function showPriorityOverlay(task, btn, item) {
+        const existing = document.querySelector(".priorityOverlay");
+        if (existing) {
+          existing.remove();
+          return;
+        }
+        const overlay = document.createElement("div");
+        overlay.className = "priorityOverlay";
+
+        const rect = btn.getBoundingClientRect();
+        overlay.style.position = "fixed";
+        overlay.style.top = rect.bottom + 2 + "px";
+        overlay.style.right = window.innerWidth - rect.right + "px";
+        overlay.style.zIndex = "1000";
+
+        const opts = [
+          { label: "⏫ Highest", value: "⏫" },
+          { label: "🔼 High", value: "🔼" },
+          { label: "➡ Normal", value: "" },
+          { label: "🔽 Low", value: "🔽" },
+          { label: "⏬ Lowest", value: "⏬" },
+        ];
+        opts.forEach((opt) => {
+          const b = document.createElement("button");
+          b.className = "priorityOpt";
+          b.textContent = opt.label;
+          b.addEventListener("mousedown", async (e) => {
+            e.preventDefault();
+            overlay.remove();
+            const newRaw = opt.value
+              ? stripPriority(task.raw).trimEnd() + " " + opt.value
+              : stripPriority(task.raw);
+            await apiPost("/task/modify", {
+              path: task.path,
+              oldRaw: task.raw,
+              newRaw,
+            });
+            fadeOut(item);
+          });
+          overlay.appendChild(b);
+        });
+
+        document.body.appendChild(overlay);
+
+        const closeOverlay = (e) => {
+          if (!overlay.contains(e.target) && e.target !== btn) {
+            overlay.remove();
+            document.removeEventListener("mousedown", closeOverlay);
+          }
+        };
+        setTimeout(() => document.addEventListener("mousedown", closeOverlay), 0);
+      }
+
+      function showDateInput(task, meta, item) {
+        const existing = item.querySelector(".dateOverlay");
+        if (existing) {
+          existing.remove();
+          return;
+        }
+        const overlay = document.createElement("div");
+        overlay.className = "dateOverlay";
+        const input = document.createElement("input");
+        input.className = "dateInput";
+        input.type = "text";
+        input.placeholder = "e.g. friday";
+        overlay.appendChild(input);
+        meta.appendChild(overlay);
+        input.focus();
+        const confirm = async () => {
+          const val = input.value.trim();
+          if (!val) {
+            overlay.remove();
+            return;
+          }
+          const parsed = parseNaturalDate(val);
+          if (!parsed) {
+            input.classList.add("error");
+            return;
+          }
+          const newRaw =
+            stripDate(task.raw)
+              .replace(/#ponder/g, "")
+              .trimEnd() + ` [[${formatDateStr(parsed)}]]`;
+          await apiPost("/task/modify", {
+            path: task.path,
+            oldRaw: task.raw,
+            newRaw,
+          });
+          overlay.remove();
+          fadeOut(item);
+        };
+        input.addEventListener("keydown", async (e) => {
+          if (e.key === "Enter") await confirm();
+          if (e.key === "Escape") overlay.remove();
+        });
+        input.addEventListener("blur", () =>
+          setTimeout(() => overlay.remove(), 150),
+        );
+      }
+
+      function renderQuadrant(listId, tasks, showPonder) {
+        const list = document.getElementById(listId);
+        list.innerHTML = "";
+        if (!tasks || tasks.length === 0) {
+          list.innerHTML =
+            '<div style="color:var(--fg-dim);font-style:italic;padding:4px 0;font-size:14px;">None</div>';
+          return;
+        }
+        tasks.forEach((task) => {
+          const priority = getPriority(task.raw);
+          const PRIORITY_RE = /[⏫🔼🔽⏬]/gu;
+          const cleanText = task.text.replace(PRIORITY_RE, "").trim();
+          const hasMeta = task.dueDate || priority;
+
+          const item = document.createElement("div");
+          item.className = "taskItem";
+
+          const check = document.createElement("div");
+          check.className = "taskCheck";
+          check.addEventListener("click", async () => {
+            await apiPost("/task/complete", { path: task.path, raw: task.raw });
+            fadeOut(item);
+          });
+
+          const body = document.createElement("div");
+          body.className = "taskBody";
+
+          const textEl = document.createElement("div");
+          textEl.className = "taskText";
+          textEl.textContent = cleanText;
+          textEl.addEventListener("click", () => openInObsidian(task));
+          body.appendChild(textEl);
+
+          const meta = document.createElement("div");
+          meta.className = "taskMeta";
+          if (task.dueDate) {
+            const due = document.createElement("span");
+            due.className = "taskDue" + (task.overdue ? " overdue" : "");
+            due.textContent =
+              (task.overdue ? "⚠ " : "") + fmtDate(task.dueDate);
+            meta.appendChild(due);
+          }
+          if (priority) {
+            const pri = document.createElement("span");
+            pri.className = "taskPriority";
+            pri.textContent = priority;
+            meta.appendChild(pri);
+          }
+          if (hasMeta) body.appendChild(meta);
+
+          const actions = document.createElement("div");
+          actions.className = "taskActions";
+
+          if (showPonder) {
+            const ponderBtn = document.createElement("button");
+            ponderBtn.className = "actionBtn";
+            ponderBtn.textContent = "🔵";
+            ponderBtn.title = "Mark as ponder";
+            ponderBtn.addEventListener("click", async () => {
+              const newRaw =
+                stripDate(task.raw)
+                  .replace(/#ponder/g, "")
+                  .trimEnd() + " #ponder";
+              await apiPost("/task/modify", {
+                path: task.path,
+                oldRaw: task.raw,
+                newRaw,
+              });
+              fadeOut(item);
+            });
+            actions.appendChild(ponderBtn);
+          }
+
+          const priorityBtn = document.createElement("button");
+          priorityBtn.className = "actionBtn";
+          priorityBtn.textContent = "🎯";
+          priorityBtn.title = "Set priority";
+          priorityBtn.style.position = "relative";
+          priorityBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            showPriorityOverlay(task, priorityBtn, item);
+          });
+          actions.appendChild(priorityBtn);
+
+          const calBtn = document.createElement("button");
+          calBtn.className = "actionBtn";
+          calBtn.textContent = "📅";
+          calBtn.title = "Schedule task";
+          calBtn.addEventListener("click", () =>
+            showDateInput(task, meta, item),
+          );
+          actions.appendChild(calBtn);
+
+          item.appendChild(check);
+          item.appendChild(body);
+          item.appendChild(actions);
+          list.appendChild(item);
+        });
+      }
+
+      function renderMatrix(data) {
+        renderQuadrant("list-q1", data.q1, true);
+        renderQuadrant("list-q2", data.q2, true);
+        renderQuadrant("list-q3", data.q3, true);
+        renderQuadrant("list-q4", data.ponder, false);
+        setMainHeight();
+      }
+
+      // ── Shopping ──────────────────────────────────────────────────────────────
+
+      async function loadShoppingItems() {
+        const resp = await fetch(API + "/shopping/items");
+        const items = await resp.json();
+        const list = document.getElementById("shoppingList");
+        list.innerHTML = "";
+        if (!items || items.length === 0) {
+          list.innerHTML =
+            '<div style="color:var(--fg-dim);font-style:italic;font-size:14px;">No items</div>';
+          return;
+        }
+        items.forEach((item) => {
+          const el = document.createElement("div");
+          el.className = "shopItem";
+
+          const check = document.createElement("div");
+          check.className = "shopCheck" + (item.completed ? " done" : "");
+          check.addEventListener("click", async () => {
+            if (item.completed) return;
+            check.classList.add("done");
+            text.classList.add("done");
+            await apiPost("/shopping/complete", { todoistId: item.todoistId });
+          });
+
+          const text = document.createElement("div");
+          text.className = "shopText" + (item.completed ? " done" : "");
+          text.textContent = item.text;
+
+          el.appendChild(check);
+          el.appendChild(text);
+          list.appendChild(el);
+        });
+      }
+
+      async function addShoppingItem() {
+        const input = document.getElementById("addInput");
+        const text = input.value.trim();
+        if (!text) return;
+        input.value = "";
+        await apiPost("/shopping/add", { text });
+        loadShoppingItems();
+      }
+
+      document
+        .getElementById("addBtn")
+        .addEventListener("click", addShoppingItem);
+      document.getElementById("addInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") addShoppingItem();
+      });
+
+      // ── SSE ───────────────────────────────────────────────────────────────────
+
+      function connectSSE() {
+        const es = new EventSource(API + "/eisenhower/events");
+        const dot = document.getElementById("statusDot");
+        es.addEventListener("matrix-update", (e) =>
+          renderMatrix(JSON.parse(e.data)),
+        );
+        es.addEventListener("ping", () => dot.classList.add("live"));
+        es.onerror = () => {
+          dot.classList.remove("live");
+          es.close();
+          setTimeout(connectSSE, 3000);
+        };
+
+        const mainEs = new EventSource(API + "/events");
+        mainEs.addEventListener("reload", () => window.location.reload());
+        mainEs.onerror = () => {
+          mainEs.close();
+          setTimeout(() => {
+            const e2 = new EventSource(API + "/events");
+            e2.addEventListener("reload", () => window.location.reload());
+          }, 3000);
+        };
+      }
+
+      // ── Buttons ───────────────────────────────────────────────────────────────
+
+      document
+        .getElementById("refreshBtn")
+        .addEventListener("click", () => window.location.reload());
+      document.getElementById("exitBtn").addEventListener("click", async () => {
+        await fetch(API + "/eisenhower/exit", { method: "POST" });
+        window.close();
+      });
+
+      // ── Init ──────────────────────────────────────────────────────────────────
+
+      connectSSE();
+    </script>
+  </body>
+</html>

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-dashboard-server.py
-Thin HTTP bridge for the AwesomeWM dashboard.
-Runs on localhost:9876, handles:
-  GET  /status/toggles  → VPN + audio sink state
-  GET  /status/media    → playerctl metadata
-  GET  /status/tasks    → today's Obsidian tasks
-  POST /toggle/vpn      → toggle Windscribe VPN
-  POST /toggle/sink     → cycle PulseAudio/Pipewire sink
-  POST /media/<cmd>     → playerctl commands
+dashboardServer.py
+Custom HTTP bridge for the AwesomeWM dashboard.
+Written with Claude (Anthropic) - March 2026.
+
+Handles system toggles, media control, Obsidian task management,
+DroidCam integration, and Todoist shopping list sync.
+
+Todoist integration uses the Todoist API v1:
+  https://developer.todoist.com/api/v1/
 """
 
 import json
@@ -16,18 +16,42 @@ import subprocess
 import re
 import os
 import glob
-from datetime import date
+import time
+from datetime import date, timedelta
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 from urllib.parse import urlparse
+import urllib.request
+import urllib.error
 import threading
 import queue
 import gi
+import configparser
+
 gi.require_version("GLib", "2.0")
 
 OBSIDIAN_VAULT = os.path.expanduser("~/Documents/The Vault")
+
+
+def loadTodoistConfig():
+    config = configparser.ConfigParser()
+    configPath = os.path.expanduser("~/.config/dashboard/todoist.conf")
+    # configparser requires a section header
+    with open(configPath) as f:
+        config.read_string("[todoist]\n" + f.read())
+    return config["todoist"]
+
+
+todoistConf = loadTodoistConfig()
+TODOIST_API_TOKEN = todoistConf.get("TODOIST_API_TOKEN", "")
+TODOIST_CLIENT_ID = todoistConf.get("TODOIST_CLIENT_ID", "")
+TODOIST_CLIENT_SECRET = todoistConf.get("TODOIST_CLIENT_SECRET", "")
+TODOIST_PROJECT_NAME = "Shopping List"
+SHOPPING_LIST_FILE = os.path.join(OBSIDIAN_VAULT, "Notes/Shopping List.md")
+
 PORT = 9876
 
 # ── Helpers ────────────────────────────────────────────────────────────────
+
 
 def run(cmd, timeout=4):
     try:
@@ -35,6 +59,7 @@ def run(cmd, timeout=4):
         return r.stdout.strip(), r.returncode
     except Exception:
         return "", 1
+
 
 def jsonResp(handler, data, status=200):
     body = json.dumps(data).encode()
@@ -45,7 +70,209 @@ def jsonResp(handler, data, status=200):
     handler.end_headers()
     handler.wfile.write(body)
 
+
+def getEndOfWeek():
+    today = date.today()
+    # Days until Sunday (weekday: Mon=0, Sun=6)
+    daysUntilSunday = 6 - today.weekday()
+    return today + timedelta(days=daysUntilSunday)
+
+
+PRIORITY_ORDER = {"⏫": 0, "🔼": 1, "": 2, "🔽": 3, "⏬": 4}
+PRIORITY_RE = re.compile(r"[⏫🔼🔽⏬]")
+PONDER_RE = re.compile(r"#ponder")
+
+
+def getPriority(text):
+    for p in ["⏫", "🔼", "🔽", "⏬"]:
+        if p in text:
+            return p
+    return ""
+
+
+def isImportant(text):
+    p = getPriority(text)
+    return p in ("⏫", "🔼")
+
+
+def buildMatrix():
+    today = date.today()
+    endOfWeek = getEndOfWeek()
+    todayStr = today.strftime("%Y-%m-%d")
+    endOfWeekStr = endOfWeek.strftime("%Y-%m-%d")
+
+    allTasks = extractTasks()
+
+    q1, q2, q3, ponder = [], [], [], []
+
+    for t in allTasks:
+        raw = t["raw"]
+        dueDate = t.get("dueDate")
+        important = isImportant(raw)
+        isPonder = "#ponder" in raw
+
+        if isPonder:
+            ponder.append(t)
+            continue
+
+        if dueDate:
+            urgent = dueDate <= endOfWeekStr
+            if urgent:
+                q1.append(t)
+            else:
+                q3.append(t)
+        else:
+            q2.append(t)
+
+    return {"q1": q1, "q2": q2, "q3": q3, "ponder": ponder}
+
+
+# --- Shopping List ──────────────────────────────────────────────────────────────────
+
+
+def todoistPollLoop():
+    while True:
+        try:
+            syncShoppingListFromTodoist()
+        except Exception as e:
+            print(f"Todoist poll error: {e}")
+        time.sleep(60)
+
+
+def todoistRequest(method, path, body=None):
+    url = f"https://api.todoist.com/api/v1{path}"
+    data = json.dumps(body).encode() if body else None
+    req = urllib.request.Request(url, data=data, method=method)
+    req.add_header("Authorization", f"Bearer {TODOIST_API_TOKEN}")
+    req.add_header("Content-Type", "application/json")
+    try:
+        with urllib.request.urlopen(req, timeout=10) as r:
+            if r.status == 204:
+                return {}
+            return json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        return {"error": str(e)}
+
+
+def getTodoistProjectId():
+    resp = todoistRequest("GET", "/projects")
+    projects = resp.get("results", resp) if isinstance(resp, dict) else resp
+    for p in projects:
+        if p["name"] == TODOIST_PROJECT_NAME:
+            return p["id"]
+    return None
+
+
+def getTodoistTasks(projectId):
+    resp = todoistRequest("GET", f"/tasks?project_id={projectId}")
+    return resp.get("results", resp) if isinstance(resp, dict) else resp
+
+
+def createTodoistTask(content, projectId):
+    return todoistRequest(
+        "POST", "/tasks", {"content": content, "project_id": projectId}
+    )
+
+
+def closeTodoistTask(taskId):
+    return todoistRequest("POST", f"/tasks/{taskId}/close")
+
+
+def deleteTodoistTask(taskId):
+    return todoistRequest("DELETE", f"/tasks/{taskId}")
+
+
+def readShoppingList():
+    try:
+        with open(SHOPPING_LIST_FILE, "r", encoding="utf-8") as f:
+            return f.readlines()
+    except Exception:
+        return []
+
+
+def writeShoppingList(lines):
+    with open(SHOPPING_LIST_FILE, "w", encoding="utf-8") as f:
+        f.writelines(lines)
+
+
+def getShoppingListItems():
+    lines = readShoppingList()
+    items = []
+    for i, line in enumerate(lines):
+        m = re.match(r"^\s*-\s*\[( |x)\]\s*(.+)$", line)
+        if m:
+            completed = m.group(1) == "x"
+            text = m.group(2).strip()
+            todoistId = None
+            idMatch = re.search(r"\[todoist::\s*([\w]+)\]", text)
+            if idMatch:
+                todoistId = idMatch.group(1)
+                text = re.sub(r"\s*\[todoist::\s*\w+\]", "", text).strip()
+            items.append(
+                {
+                    "line": i,
+                    "text": text,
+                    "todoistId": todoistId,
+                    "completed": completed,
+                    "raw": line.rstrip(),
+                }
+            )
+    return items
+
+
+def addShoppingItem(text, todoistId):
+    lines = readShoppingList()
+    idxStr = next((i for i, l in enumerate(lines) if l.strip() == "## Items"), None)
+    newLine = f"- [ ] {text} [todoist:: {todoistId}]\n"
+    if idxStr is not None:
+        insertAt = idxStr + 1
+        while insertAt < len(lines) and (
+            lines[insertAt].strip() == "" or lines[insertAt].strip().startswith("<!--")
+        ):
+            insertAt += 1
+        lines.insert(insertAt, newLine)
+    else:
+        lines.append(newLine)
+    writeShoppingList(lines)
+
+
+def completeShoppingItem(todoistId):
+    lines = readShoppingList()
+    for i, line in enumerate(lines):
+        if f"[todoist:: {todoistId}]" in line and "- [ ]" in line:
+            lines[i] = line.replace("- [ ]", "- [x]", 1)
+            break
+    writeShoppingList(lines)
+
+
+def removeShoppingItem(todoistId):
+    lines = readShoppingList()
+    lines = [l for l in lines if f"[todoist:: {todoistId}]" not in l]
+    writeShoppingList(lines)
+
+
+def syncShoppingListFromTodoist():
+    """Full sync — rebuild vault file from Todoist state."""
+    projectId = getTodoistProjectId()
+    if not projectId:
+        return
+    tasks = getTodoistTasks(projectId)
+    if isinstance(tasks, dict) and "error" in tasks:
+        return
+    lines = readShoppingList()
+    # Keep everything up to and including ## Items header
+    headerEnd = next((i for i, l in enumerate(lines) if l.strip() == "## Items"), None)
+    if headerEnd is not None:
+        newLines = lines[: headerEnd + 1] + ["\n"]
+    else:
+        newLines = lines + ["## Items\n", "\n"]
+    for task in tasks:
+        newLines.append(f"- [ ] {task['content']} [todoist:: {task['id']}]\n")
+    writeShoppingList(newLines)
+
+
 # ── VPN ───────────────────────────────────────────────────────────────────
+
 
 def getVpnState():
     out, _ = run(["windscribe-cli", "status"])
@@ -63,6 +290,7 @@ def getVpnState():
             label = parts[2].strip() if len(parts) >= 3 else ""
     return {"active": active, "label": label}
 
+
 def toggleVpn():
     state = getVpnState()
     if state["active"]:
@@ -71,8 +299,11 @@ def toggleVpn():
         # Connect to best location; change "best" to a specific location if preferred
         run(["windscribe-cli", "connect", "best"])
     # Push updated VPN state (slight delay to let windscribe-cli settle)
-    import time; time.sleep(1)
+    import time
+
+    time.sleep(1)
     sseBroadcast("vpn-changed", getVpnState())
+
 
 # ── Audio Sink ────────────────────────────────────────────────────────────
 
@@ -81,6 +312,7 @@ SINK_NAMES = {
     "alsa_output.usb-Burr-Brown_from_TI_USB_Audio_CODEC-00.analog-stereo-output": "Headphones",
     "alsa_output.pci-0000_2d_00.4.analog-stereo": "Speakers",
 }
+
 
 def getSinks():
     out, _ = run(["pactl", "list", "short", "sinks"])
@@ -91,9 +323,11 @@ def getSinks():
             sinks.append({"id": parts[0], "name": parts[1]})
     return sinks
 
+
 def getDefaultSink():
     out, _ = run(["pactl", "get-default-sink"])
     return out.strip()
+
 
 def cycleSink():
     # Only cycle between known named sinks
@@ -114,24 +348,33 @@ def cycleSink():
     # Push updated state to all SSE clients immediately
     sseBroadcast("sink-changed", getSinkState())
 
+
 def getSinkState():
     current = getDefaultSink()
     label = SINK_NAMES.get(current, current.split(".")[-1])
     return {"active": True, "label": label, "sink": current}
 
+
 # ── Media (playerctl) ─────────────────────────────────────────────────────
+
 
 def getMediaState():
     status, code = run(["playerctl", "status"])
     if code != 0 or status in ("No players found", ""):
         return {}
 
-    metaOut, _ = run(["playerctl", "metadata", "--format",
-        "{{xesam:title}}|{{xesam:artist}}|{{xesam:album}}"])
+    metaOut, _ = run(
+        [
+            "playerctl",
+            "metadata",
+            "--format",
+            "{{xesam:title}}|{{xesam:artist}}|{{xesam:album}}",
+        ]
+    )
     lines = metaOut.split("|")
-    title  = lines[0] if len(lines) > 0 else ""
+    title = lines[0] if len(lines) > 0 else ""
     artist = lines[1] if len(lines) > 1 else ""
-    album  = lines[2] if len(lines) > 2 else ""
+    album = lines[2] if len(lines) > 2 else ""
 
     rawPos, _ = run(["playerctl", "position"])
     try:
@@ -147,17 +390,19 @@ def getMediaState():
 
     return {
         "status": status,
-        "title":  title,
+        "title": title,
         "artist": artist,
-        "album":  album,
+        "album": album,
         "position": posF,
-        "length":   lenF,
+        "length": lenF,
     }
+
 
 def mediaCommand(cmd):
     validCmds = {"play", "pause", "play-pause", "next", "previous", "stop"}
     if cmd in validCmds:
         run(["playerctl", cmd])
+
 
 # ── Tasks ─────────────────────────────────────────────────────────────────
 
@@ -168,17 +413,21 @@ def mediaCommand(cmd):
 # Tasks with a future/past date are excluded.
 # Tasks with no date marker at all are included as undated (shown below dated ones).
 
-DATE_RE = re.compile(r'(?:[📅⏳🛫]\s*|\[\[)(\d{4}-\d{2}-\d{2})(?:\]\])?')
-TASK_RE = re.compile(r'^\s*-\s*\[\s*\]\s*(.+)$', re.MULTILINE)
-TAG_RE  = re.compile(r'(#\w+)')
+DATE_RE = re.compile(r"(?:[📅⏳🛫]\s*|\[\[)(\d{4}-\d{2}-\d{2})(?:\]\])?")
+TASK_RE = re.compile(r"^\s*-\s*\[\s*\]\s*(.+)$", re.MULTILINE)
+TAG_RE = re.compile(r"(#\w+)")
+
 
 def extractTasks():
     TODAY = date.today().strftime("%Y-%m-%d")  # recompute each call
-    todayTasks   = []
+    todayTasks = []
     undatedTasks = []
     mdFiles = glob.glob(os.path.join(OBSIDIAN_VAULT, "**", "*.md"), recursive=True)
 
     for filepath in mdFiles:
+        # Skip shopping list — handled separately via Todoist
+        if os.path.basename(filepath) == "Shopping List.md":
+            continue
         try:
             with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
                 content = f.read()
@@ -198,10 +447,10 @@ def extractTasks():
                 bucket = undatedTasks
 
             # Clean display text
-            displayText = DATE_RE.sub('', raw).strip()
+            displayText = DATE_RE.sub("", raw).strip()
             tags = TAG_RE.findall(displayText)
-            displayText = TAG_RE.sub('', displayText).strip()
-            displayText = displayText.rstrip('|').strip()
+            displayText = TAG_RE.sub("", displayText).strip()
+            displayText = displayText.rstrip("|").strip()
 
             if not displayText:
                 continue
@@ -211,22 +460,29 @@ def extractTasks():
             # Find line number for direct navigation in Obsidian
             lineNum = 0
             for i, line in enumerate(content.splitlines()):
-                if raw.strip() in line and '- [ ]' in line:
+                if raw.strip() in line and "- [ ]" in line:
                     lineNum = i + 1  # 1-indexed
                     break
-            bucket.append({
-                "text": displayText,
-                "tags": ' '.join(tags) if tags else "",
-                "file": os.path.basename(filepath),
-                "path": filepath,
-                "relPath": relPath,
-                "line": lineNum,
-                "raw":  raw.strip(),  # original line text for matching
-                "dated": bool(dateMatches),
-            })
+            bucket.append(
+                {
+                    "text": displayText,
+                    "tags": " ".join(tags) if tags else "",
+                    "file": os.path.basename(filepath),
+                    "path": filepath,
+                    "relPath": relPath,
+                    "line": lineNum,
+                    "raw": raw.strip(),  # original line text for matching
+                    "dated": bool(dateMatches),
+                }
+            )
 
     # Sort dated tasks: overdue first, then today, then future — all by date asc
-    todayTasks.sort(key=lambda t: DATE_RE.findall(t["raw"])[0] if DATE_RE.findall(t["raw"]) else TODAY)
+    todayTasks.sort(
+        key=lambda t: (
+            DATE_RE.findall(t["raw"])[0] if DATE_RE.findall(t["raw"]) else TODAY,
+            PRIORITY_ORDER.get(getPriority(t["raw"]), 2),
+        )
+    )
 
     # Tag overdue tasks so the frontend can highlight them
     for t in todayTasks:
@@ -240,11 +496,13 @@ def extractTasks():
 
     return todayTasks + undatedTasks
 
+
 # ── SSE broadcast ─────────────────────────────────────────────────────────
 
 # All active SSE clients subscribe to this queue-per-client list
 _sseClients = []
 _sseLock = threading.Lock()
+
 
 def sseSubscribe():
     q = queue.Queue()
@@ -252,12 +510,14 @@ def sseSubscribe():
         _sseClients.append(q)
     return q
 
+
 def sseUnsubscribe(q):
     with _sseLock:
         try:
             _sseClients.remove(q)
         except ValueError:
             pass
+
 
 def sseBroadcast(event, data):
     msg = f"event: {event}\ndata: {json.dumps(data)}\n\n".encode()
@@ -268,16 +528,88 @@ def sseBroadcast(event, data):
             except queue.Full:
                 pass
 
+
+_eisenhowerClients = []
+_eisenhowerLock = threading.Lock()
+
+
+def eisenhowerSubscribe():
+    q = queue.Queue()
+    with _eisenhowerLock:
+        _eisenhowerClients.append(q)
+    return q
+
+
+def eisenhowerUnsubscribe(q):
+    with _eisenhowerLock:
+        try:
+            _eisenhowerClients.remove(q)
+        except ValueError:
+            pass
+
+
+def eisenhowerBroadcast(data):
+    msg = f"event: matrix-update\ndata: {json.dumps(data)}\n\n".encode()
+    with _eisenhowerLock:
+        for q in list(_eisenhowerClients):
+            try:
+                q.put_nowait(msg)
+            except queue.Full:
+                pass
+
+
+def syncCompletedShoppingItems():
+    """Close any completed shopping items in Todoist that haven't been closed yet."""
+    lines = readShoppingList()
+    for line in lines:
+        m = re.match(r"^\s*-\s*\[x\]\s*(.+)$", line)
+        if m:
+            text = m.group(1)
+            idMatch = re.search(r"\[todoist::\s*([\w]+)\]", text)
+            if idMatch:
+                todoistId = idMatch.group(1)
+                closeTodoistTask(todoistId)
+
+
+def startVaultWatcher():
+    def watch():
+        proc = subprocess.Popen(
+            [
+                "inotifywait",
+                "-m",
+                "-r",
+                "-e",
+                "close_write",
+                "--include",
+                r".*\.md$",
+                OBSIDIAN_VAULT,
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+        )
+        for line in proc.stdout:
+            eisenhowerBroadcast(buildMatrix())
+            # Check if Shopping List was modified
+            if "Shopping List.md" in line:
+                syncCompletedShoppingItems()
+
+    t = threading.Thread(target=watch, daemon=True)
+    t.start()
+
+
 # ── DroidCam ──────────────────────────────────────────────────────────────
 
-DROIDCAM_IP   = "192.168.0.156"
+DROIDCAM_IP = "192.168.0.156"
 DROIDCAM_PORT = 4747
 DROIDCAM_SIZE = "3840x2160"
 DROIDCAM_BASE = f"http://{DROIDCAM_IP}:{DROIDCAM_PORT}"
 
+
 def droidcamPut(path):
     """Send a PUT request to the droidcam HTTP API on the phone."""
     import urllib.request
+
     url = DROIDCAM_BASE + path
     req = urllib.request.Request(url, method="PUT")
     try:
@@ -286,13 +618,16 @@ def droidcamPut(path):
     except Exception:
         return None
 
+
 def getDroidcamInfo():
     import urllib.request
+
     try:
         with urllib.request.urlopen(DROIDCAM_BASE + "/v1/camera/info", timeout=3) as r:
             return json.loads(r.read())
     except Exception:
         return None
+
 
 def getDroidcamState():
     # Check if droidcam-cli process is running
@@ -301,16 +636,18 @@ def getDroidcamState():
     info = getDroidcamInfo() if connected else None
     return {
         "connected": connected,
-        "host":      f"{DROIDCAM_IP}:{DROIDCAM_PORT}",
-        "zmValue":   info["zmValue"]   if info else 1.0,
-        "zmMin":     info["zmMin"]     if info else 1.0,
-        "zmMax":     info["zmMax"]     if info else 6.0,
+        "host": f"{DROIDCAM_IP}:{DROIDCAM_PORT}",
+        "zmValue": info["zmValue"] if info else 1.0,
+        "zmMin": info["zmMin"] if info else 1.0,
+        "zmMax": info["zmMax"] if info else 6.0,
         "focusMode": info["focusMode"] if info else 0,
     }
+
 
 def isDroidcamReachable():
     """Check if the phone is reachable and droidcam is listening before connecting."""
     import socket
+
     try:
         sock = socket.create_connection((DROIDCAM_IP, DROIDCAM_PORT), timeout=2)
         sock.close()
@@ -319,6 +656,7 @@ def isDroidcamReachable():
         return False
     except Exception:
         return False  # network unreachable
+
 
 def toggleDroidcam():
     out, code = run(["pgrep", "-x", "droidcam-cli"])
@@ -334,11 +672,13 @@ def toggleDroidcam():
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            start_new_session=True
+            start_new_session=True,
         )
     return {"ok": True}
 
+
 # ── pactl subscribe watcher ───────────────────────────────────────────────
+
 
 def startSinkWatcher():
     """
@@ -346,12 +686,13 @@ def startSinkWatcher():
     Fires an SSE broadcast whenever the default sink changes externally
     (e.g. StreamDeck, pavucontrol, any other tool).
     """
+
     def watch():
         proc = subprocess.Popen(
             ["pactl", "subscribe"],
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
-            text=True
+            text=True,
         )
         lastSink = getDefaultSink()
         for line in proc.stdout:
@@ -361,10 +702,13 @@ def startSinkWatcher():
                 if current != lastSink:
                     lastSink = current
                     sseBroadcast("sink-changed", getSinkState())
+
     t = threading.Thread(target=watch, daemon=True)
     t.start()
 
+
 # ── Task completion ───────────────────────────────────────────────────────
+
 
 def completeTask(filepath, rawText):
     """Mark a task as complete by replacing '- [ ]' with '- [x]' in the file."""
@@ -384,7 +728,9 @@ def completeTask(filepath, rawText):
     except Exception as e:
         return False
 
+
 # ── playerctl watcher ─────────────────────────────────────────────────────
+
 
 def startMediaWatcher():
     """
@@ -392,6 +738,7 @@ def startMediaWatcher():
     This is the correct approach — fired synchronously by the media player
     the instant any property changes, with zero polling latency.
     """
+
     def watch():
         import dbus
         import dbus.mainloop.glib
@@ -428,7 +775,12 @@ def startMediaWatcher():
                 if "xesam:artist" in meta:
                     try:
                         artists = meta["xesam:artist"]
-                        state["artist"] = str(artists[0]) if hasattr(artists, '__iter__') and not isinstance(artists, str) else str(artists)
+                        state["artist"] = (
+                            str(artists[0])
+                            if hasattr(artists, "__iter__")
+                            and not isinstance(artists, str)
+                            else str(artists)
+                        )
                     except Exception:
                         pass
 
@@ -460,7 +812,9 @@ def startMediaWatcher():
 
     threading.Thread(target=watch, daemon=True).start()
 
+
 # ── HTTP Handler ──────────────────────────────────────────────────────────
+
 
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
@@ -479,7 +833,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = urlparse(self.path).path
         if path == "/status/toggles":
-            vpn  = getVpnState()
+            vpn = getVpnState()
             sink = getSinkState()
             jsonResp(self, {"vpn": vpn, "sink": sink})
         elif path == "/status/media":
@@ -503,7 +857,9 @@ class Handler(BaseHTTPRequestHandler):
                 self.end_headers()
         elif path == "/":
             try:
-                with open(os.path.join(os.path.dirname(__file__), "index.html"), "rb") as f:
+                with open(
+                    os.path.join(os.path.dirname(__file__), "index.html"), "rb"
+                ) as f:
                     body = f.read()
                 self.send_response(200)
                 self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -539,6 +895,79 @@ class Handler(BaseHTTPRequestHandler):
                 pass
             finally:
                 sseUnsubscribe(q)
+        elif path == "/eisenhower":
+            try:
+                htmlPath = os.path.join(os.path.dirname(__file__), "eisenhower.html")
+                with open(htmlPath, "rb") as f:
+                    body = f.read()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", len(body))
+                self.end_headers()
+                self.wfile.write(body)
+            except Exception as e:
+                self.send_response(500)
+                self.end_headers()
+
+        elif path.endswith(".js"):
+            jsPath = os.path.join(os.path.dirname(__file__), os.path.basename(path))
+            try:
+                with open(jsPath, "rb") as f:
+                    body = f.read()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/javascript; charset=utf-8")
+                self.send_header("Content-Length", len(body))
+                self.end_headers()
+                self.wfile.write(body)
+            except FileNotFoundError:
+                self.send_response(404)
+                self.end_headers()
+
+        elif path == "/eisenhower/data":
+            jsonResp(self, buildMatrix())
+
+        elif path == "/eisenhower/events":
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream")
+            self.send_header("Cache-Control", "no-cache")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("X-Accel-Buffering", "no")
+            self.end_headers()
+            q = eisenhowerSubscribe()
+            try:
+                self.wfile.write(b"event: ping\ndata: {}\n\n")
+                self.wfile.flush()
+                # Send initial data immediately
+                initial = f"event: matrix-update\ndata: {json.dumps(buildMatrix())}\n\n".encode()
+                self.wfile.write(initial)
+                self.wfile.flush()
+                while True:
+                    try:
+                        msg = q.get(timeout=30)
+                        self.wfile.write(msg)
+                        self.wfile.flush()
+                    except queue.Empty:
+                        self.wfile.write(b": keepalive\n\n")
+                        self.wfile.flush()
+            except (BrokenPipeError, ConnectionResetError):
+                pass
+            finally:
+                eisenhowerUnsubscribe(q)
+        elif path == "/shopping/items":
+            jsonResp(self, getShoppingListItems())
+        elif path == "/shopping/test":
+            try:
+                htmlPath = os.path.join(os.path.dirname(__file__), "shoppingList.html")
+                with open(htmlPath, "rb") as f:
+                    body = f.read()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", len(body))
+                self.end_headers()
+                self.wfile.write(body)
+            except Exception as e:
+                self.send_response(500)
+                self.end_headers()
         else:
             self.send_response(404)
             self.end_headers()
@@ -562,16 +991,110 @@ class Handler(BaseHTTPRequestHandler):
             jsonResp(self, {"ok": True})
             # Kill the qutebrowser dashboard window after responding
             import threading
+
             def killDashboard():
                 import time
+
                 time.sleep(0.3)
                 run(["xdotool", "search", "--classname", "dashboard", "windowkill"])
+
             threading.Thread(target=killDashboard, daemon=True).start()
+        elif path == "/eisenhower/exit":
+            jsonResp(self, {"ok": True})
+
+            def killWindow():
+                import time
+
+                time.sleep(0.3)
+                run(["xdotool", "search", "--classname", "eisenhower", "windowkill"])
+
+            threading.Thread(target=killWindow, daemon=True).start()
+        elif path == "/todoist/webhook":
+            length = int(self.headers.get("Content-Length", 0))
+            rawBody = self.rfile.read(length)
+            body = json.loads(rawBody) if length else {}
+            event = body.get("event_name", "")
+            data = body.get("event_data", {})
+            taskId = str(data.get("id", ""))
+            projectId = str(data.get("project_id", ""))
+
+            # Verify it's from our Shopping List project
+            ourProjectId = getTodoistProjectId()
+            if projectId != str(ourProjectId):
+                jsonResp(self, {"ok": True, "skipped": True})
+                return
+
+            if event == "item:added":
+                addShoppingItem(data.get("content", ""), taskId)
+            elif event in ("item:completed", "item:updated") and data.get("checked"):
+                completeShoppingItem(taskId)
+            elif event == "item:deleted":
+                removeShoppingItem(taskId)
+
+            jsonResp(self, {"ok": True})
+
+        elif path == "/shopping/add":
+            length = int(self.headers.get("Content-Length", 0))
+            body = json.loads(self.rfile.read(length)) if length else {}
+            text = body.get("text", "").strip()
+            if not text:
+                jsonResp(self, {"ok": False, "error": "No text"}, 400)
+                return
+            projectId = getTodoistProjectId()
+            if not projectId:
+                jsonResp(self, {"ok": False, "error": "Project not found"}, 500)
+                return
+            task = createTodoistTask(text, projectId)
+            if "error" in task:
+                jsonResp(self, {"ok": False, "error": task["error"]}, 500)
+                return
+            addShoppingItem(text, task["id"])
+            jsonResp(self, {"ok": True, "id": task["id"]})
+
+        elif path == "/shopping/complete":
+            length = int(self.headers.get("Content-Length", 0))
+            body = json.loads(self.rfile.read(length)) if length else {}
+            todoistId = body.get("todoistId", "")
+            if todoistId:
+                closeTodoistTask(todoistId)
+                completeShoppingItem(todoistId)
+            jsonResp(self, {"ok": True})
+
+        elif path == "/shopping/sync":
+            syncShoppingListFromTodoist()
+            jsonResp(self, {"ok": True})
+        elif path == "/task/modify":
+            length = int(self.headers.get("Content-Length", 0))
+            body = json.loads(self.rfile.read(length)) if length else {}
+            filepath = body.get("path", "")
+            oldRaw = body.get("oldRaw", "")
+            newRaw = body.get("newRaw", "")
+            try:
+                with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+                if f"- [ ] {oldRaw}" not in content:
+                    jsonResp(self, {"ok": False, "error": "Task not found"}, 404)
+                    return
+                content = content.replace(f"- [ ] {oldRaw}", f"- [ ] {newRaw}", 1)
+                with open(filepath, "w", encoding="utf-8") as f:
+                    f.write(content)
+                jsonResp(self, {"ok": True})
+            except Exception as e:
+                jsonResp(self, {"ok": False, "error": str(e)}, 500)
         elif path == "/task/complete":
             length = int(self.headers.get("Content-Length", 0))
             body = json.loads(self.rfile.read(length)) if length else {}
             success = completeTask(body.get("path", ""), body.get("raw", ""))
             jsonResp(self, {"ok": success})
+        elif path == "/obsidian/open":
+            length = int(self.headers.get("Content-Length", 0))
+            body = json.loads(self.rfile.read(length)) if length else {}
+            uri = body.get("uri", "")
+            if uri.startswith("obsidian://"):
+                subprocess.Popen(["xdg-open", uri])
+                jsonResp(self, {"ok": True})
+            else:
+                jsonResp(self, {"ok": False, "error": "Invalid URI"}, 400)
         elif path == "/toggle/droidcam":
             result = toggleDroidcam()
             jsonResp(self, result if result else {"ok": True})
@@ -590,13 +1113,57 @@ class Handler(BaseHTTPRequestHandler):
             mode = path.split("/")[-1]
             droidcamPut(f"/v1/camera/autofocus_mode/{mode}")
             jsonResp(self, {"ok": True})
+        elif path == "/webhook":
+            length = int(self.headers.get("Content-Length", 0))
+            body = json.loads(self.rfile.read(length)) if length else {}
+            action = body.get("action")
+            if action == "captureTask":
+                task = body.get("task", "").strip()
+                due = body.get("due", "skip").strip() or "skip"
+                priority = body.get("priority", "skip").strip() or "skip"
+                if not task:
+                    jsonResp(self, {"ok": False, "error": "No task text"}, 400)
+                    return
+                env = os.environ.copy()
+                env["DISPLAY"] = ":0"
+                env["XAUTHORITY"] = "/home/max/.Xauthority"
+                env["XDG_RUNTIME_DIR"] = "/run/user/1000"
+                env["HOME"] = "/home/max"
+                try:
+                    result = subprocess.run(
+                        ["/home/max/Scripts/captureTask.sh", task, due, priority],
+                        capture_output=True,
+                        text=True,
+                        env=env,
+                        timeout=15,
+                    )
+                    if result.returncode == 0:
+                        jsonResp(self, {"ok": True, "action": action, "task": task})
+                    else:
+                        jsonResp(self, {"ok": False, "error": result.stderr}, 500)
+                except subprocess.TimeoutExpired:
+                    jsonResp(self, {"ok": False, "error": "Timeout"}, 500)
+            else:
+                jsonResp(self, {"ok": False, "error": f"Unknown action: {action}"}, 400)
         else:
             self.send_response(404)
             self.end_headers()
 
+
 if __name__ == "__main__":
     startSinkWatcher()
     startMediaWatcher()
+    startVaultWatcher()
+
+    try:
+        syncShoppingListFromTodoist()
+        print("Todoist initial sync complete")
+    except Exception as e:
+        print(f"Todoist initial sync error: {e}")
+
+    todoistThread = threading.Thread(target=todoistPollLoop, daemon=True)
+    todoistThread.start()
+
     server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
     print(f"Dashboard server running on port {PORT}")
     server.serve_forever()
