@@ -746,18 +746,36 @@ function M.toggleDropdownApp(opts)
 		win.hidden = false
 		win.minimized = false
 		win:move_to_tag(current_tag)
-		positionDropdown(win, opts.widthPct, opts.heightPct) -- ← add this
+		positionDropdown(win, opts.widthPct, opts.heightPct)
 		client.focus = win
 		win:raise()
 		win:emit_signal("request::activate", "dropdown", { raise = true })
 	elseif win.first_tag == current_tag then
-		win.hidden = true
+		if opts.closeOnHide then
+			win:kill()
+		else
+			win.hidden = true
+		end
 	else
 		win:move_to_tag(current_tag)
 		client.focus = win
 		win:raise()
 		win:emit_signal("request::activate", "dropdown", { raise = true })
 	end
+end
+
+function M.toggleEisenhower()
+	M.toggleDropdownApp({
+		class = "eisenhower",
+		spawn_cmd = "bash /home/max/Scripts/eisenhower.sh",
+		spawn_props = {
+			floating = true,
+			ontop = true,
+			tag = awful.screen.focused().selected_tag,
+		},
+		widthPct = 0.3,
+		heightPct = 0.6,
+	})
 end
 
 --------------------------------

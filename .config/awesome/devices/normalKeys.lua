@@ -81,7 +81,7 @@ normalKeys.globalkeys = gears.table.join(
 		myFuncs.openRofi()
 	end, { description = "open browser", group = "launcher" }),
 
-	-- Dropdown terminal
+	-- Dropdown apps
 
 	awful.key({ modkey }, "t", function()
 		myFuncs.toggleDropdownApp({
@@ -100,6 +100,8 @@ normalKeys.globalkeys = gears.table.join(
 				"Quick Notes",
 				"--override",
 				"font_size=18.0",
+				"--override",
+				"confirm_os_window_close=0",
 				"-e",
 				"bash",
 				os.getenv("HOME") .. "/Scripts/quickNotes.sh",
@@ -107,6 +109,10 @@ normalKeys.globalkeys = gears.table.join(
 			spawn_props = { floating = true, tag = awful.screen.focused().selected_tag },
 		})
 	end, { description = "dropdown quick notes", group = "launcher" }),
+
+	awful.key({ modkey }, "e", function()
+		myFuncs.toggleEisenhower()
+	end, { description = "toggle eisenhower matrix", group = "launcher" }),
 
 	-- bitwardenCLI interface
 

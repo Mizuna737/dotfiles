@@ -63,6 +63,8 @@ awful.spawn.with_shell(
 		.. '"${XDG_CONFIG_HOME:-$HOME/.config}/autostart:${XDG_CONFIG_DIRS:-/etc/xdg}/autostart";'
 )
 
+awful.spawn.with_shell("zsh ~/Scripts/dpmsInhibit.sh")
+
 --------------------------------
 -- Theme & Layout
 --------------------------------
@@ -262,6 +264,12 @@ awful.rules.rules = {
 			skip_taskbar = true,
 		},
 	},
+	{
+		rule = { class = "eisenhower" },
+		properties = {
+			ontop = true,
+		},
+	},
 }
 
 --------------------------------
@@ -287,6 +295,15 @@ end)
 
 client.connect_signal("mouse::enter", function(c)
 	c:emit_signal("request::activate", "mouse_enter", { raise = false })
+end)
+
+client.connect_signal("request::activate", function(c, context, hints)
+	if not c:isvisible() then
+		local t = c.first_tag
+		if t then
+			t:view_only()
+		end
+	end
 end)
 
 client.connect_signal("focus", function(c)

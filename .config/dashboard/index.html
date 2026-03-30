@@ -428,101 +428,88 @@
     text-transform: uppercase;
   }
 
-  /* ── RIGHT: Tasks ── */
-  #taskPanel { grid-column: 3; }
+ /* ── RIGHT: Tasks ── */
+#taskPanel { grid-column: 3; }
 
-  .taskList {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    overflow: hidden;
-  }
+.taskList {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
 
-  .taskItem {
-    display: flex;
-    align-items: flex-start;
-    gap: 11px;
-    padding: 9px 12px;
-    border-left: 2px solid transparent;
-    transition: border-color 0.15s;
-    border-radius: 0 var(--panel-radius) var(--panel-radius) 0;
-    cursor: pointer;
-    user-select: none;
-  }
+.taskItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+  transition: opacity 0.3s ease;
+  overflow: hidden;
+}
 
-  .taskItem:hover {
-    border-left-color: var(--accent);
-    background: color-mix(in srgb, var(--accent) 5%, transparent);
-  }
+.taskItem:last-child { border-bottom: none; }
 
-  .taskItem.completing {
-    transition: opacity 0.4s ease, transform 0.4s ease, max-height 0.4s ease 0.3s;
-    opacity: 0;
-    transform: translateX(-8px);
-    max-height: 0;
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-  }
+.taskCheck {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--fg-dim);
+  border-radius: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: transparent;
+  transition: border-color 0.15s, color 0.15s;
+}
+.taskCheck:hover { border-color: var(--accent); color: var(--accent); }
+.taskCheck:hover::after { content: '✓'; }
 
-  .taskCheck {
-    width: 12px;
-    height: 12px;
-    border: 1px solid var(--fg-dim);
-    border-radius: 2px;
-    flex-shrink: 0;
-    margin-top: 1px;
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+.taskBody {
+  flex: 1;
+  min-width: 0;
+}
 
-  .taskCheck:hover { border-color: var(--accent); }
+.taskText {
+  font-size: 15px;
+  color: var(--fg);
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  line-height: 1.3;
+  transition: color 0.15s;
+}
+.taskText:hover { color: var(--accent); }
 
-  .taskText {
-    font-size: 14px;
-    color: var(--fg);
-    line-height: 1.4;
-    letter-spacing: 0.3px;
-  }
+.taskMeta {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
 
-  .taskMeta {
-    font-size: 12px;
-    color: var(--fg-dim);
-    letter-spacing: 1px;
-    margin-top: 1px;
-  }
+.taskDue {
+  font-size: 11px;
+  color: var(--fg-dim);
+  letter-spacing: 0.5px;
+}
+.taskDue.overdue { color: var(--danger); }
+.taskPriority { font-size: 11px; color: var(--fg-dim); }
 
-  .taskEmpty {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--fg-dim);
-    font-size: 13px;
-    letter-spacing: 3px;
-    opacity: 0.5;
-  }
-
-  .taskItem.overdue {
-    border-left-color: var(--danger);
-    background: color-mix(in srgb, var(--danger) 8%, transparent);
-  }
-
-  .taskItem.overdue .taskCheck {
-    border-color: var(--danger);
-  }
-
-  .taskDue {
-    font-size: 10px;
-    color: var(--danger);
-    letter-spacing: 1px;
-    margin-top: 2px;
-  }
-
+.taskEmpty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg-dim);
+  font-size: 13px;
+  letter-spacing: 3px;
+  opacity: 0.5;
+}
   /* Loading / error states */
   .statusDot {
     width: 6px; height: 6px;
@@ -946,54 +933,69 @@ function renderTasks(tasks) {
     return;
   }
   list.innerHTML = '';
-  tasks.slice(0, 6).forEach(task => {
-    const el = document.createElement('div');
-    el.className = 'taskItem' + (task.overdue ? ' overdue' : '');
-    el.style.maxHeight = '100px';
-    el.style.transition = 'opacity 0.4s ease, transform 0.4s ease, max-height 0.5s ease 0.3s, padding 0.5s ease 0.3s';
-    // Extract priority emoji from text and show separately
-    const PRIORITY_RE = /[🔼⏫🔽⏬🔽]/gu;
-    const priorities = (task.text.match(PRIORITY_RE) || []).join(' ');
+  tasks.slice(0, 8).forEach(task => {
+    const PRIORITY_RE = /[⏫🔼🔽⏬]/gu;
+    const priority = (task.text.match(PRIORITY_RE) || [])[0] || '';
     const cleanText = task.text.replace(PRIORITY_RE, '').trim();
 
-    const dueLine = task.dueDate
-      ? `<div class="taskDue">${task.overdue ? '⚠ ' : ''}${task.dueDate}${priorities ? ' · ' + priorities : ''}</div>`
-      : (priorities ? `<div class="taskDue">${priorities}</div>` : '');
+    const item = document.createElement('div');
+    item.className = 'taskItem';
+    item.style.transition = 'opacity 0.3s ease, max-height 0.4s ease 0.25s';
 
-    el.innerHTML = `
-      <div class="taskCheck" title="Mark done">□</div>
-      <div>
-        <div class="taskText">${escHtml(cleanText)}</div>
-        ${task.tags ? `<div class="taskMeta">${escHtml(task.tags)}</div>` : ''}
-        ${dueLine}
-      </div>
-    `;
-    const check = el.querySelector('.taskCheck');
+    // Checkbox
+    const check = document.createElement('div');
+    check.className = 'taskCheck';
+    check.title = 'Mark done';
     check.addEventListener('click', async e => {
       e.stopPropagation();
-      // Animate out
-      el.style.opacity = '0';
-      el.style.transform = 'translateX(-8px)';
+      item.style.opacity = '0';
       setTimeout(() => {
-        el.style.maxHeight = '0';
-        el.style.padding = '0';
-        el.style.overflow = 'hidden';
-      }, 350);
-      setTimeout(() => el.remove(), 800);
-      // Write to file
+        item.style.maxHeight = '0';
+        item.style.padding = '0';
+        item.style.overflow = 'hidden';
+      }, 250);
+      setTimeout(() => item.remove(), 600);
       await apiPost('/task/complete', { path: task.path, raw: task.raw });
     });
 
-    // Click item body to open in Obsidian
-    el.addEventListener('click', () => {
+    // Body
+    const body = document.createElement('div');
+    body.className = 'taskBody';
+
+    const textEl = document.createElement('div');
+    textEl.className = 'taskText';
+    textEl.textContent = cleanText;
+    textEl.addEventListener('click', () => {
       const vault = encodeURIComponent('The Vault');
-      const file  = encodeURIComponent(task.relPath.split('\\').join('/'));
-      // Use Advanced URI plugin format for line navigation
-      // Falls back gracefully to just opening the file if plugin not installed
-      const line  = task.line ? `&line=${task.line}` : '';
-      window.location.href = `obsidian://adv-uri?vault=${vault}&filepath=${file}${line}`;
+      const file = encodeURIComponent(task.relPath.split('\\').join('/'));
+      const line = task.line ? `&line=${task.line}` : '';
+      fetch('/obsidian/open', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uri: `obsidian://adv-uri?vault=${vault}&filepath=${file}${line}` })
+      });
     });
-    list.appendChild(el);
+    body.appendChild(textEl);
+
+    const meta = document.createElement('div');
+    meta.className = 'taskMeta';
+    if (task.dueDate) {
+      const due = document.createElement('span');
+      due.className = 'taskDue' + (task.overdue ? ' overdue' : '');
+      due.textContent = (task.overdue ? '⚠ ' : '') + task.dueDate;
+      meta.appendChild(due);
+    }
+    if (priority) {
+      const pri = document.createElement('span');
+      pri.className = 'taskPriority';
+      pri.textContent = priority;
+      meta.appendChild(pri);
+    }
+    if (task.dueDate || priority) body.appendChild(meta);
+
+    item.appendChild(check);
+    item.appendChild(body);
+    list.appendChild(item);
   });
 }
 

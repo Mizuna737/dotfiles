@@ -10,13 +10,15 @@ PID_FILE="$HOME/.cache/dashboard-server.pid"
 
 # ── Start server (if not already running) ─────────────────────────────────
 if [ -f "$PID_FILE" ] && kill -0 "$(cat $PID_FILE)" 2>/dev/null; then
-  echo "Dashboard server already running."
-else
-  python3 "$SERVER_SCRIPT" >> "$LOG_FILE" 2>&1 &
-  echo $! > "$PID_FILE"
-  echo "Dashboard server started (PID $(cat $PID_FILE))."
+  echo "Stopping existing dashboard server..."
+  kill "$(cat $PID_FILE)"
   sleep 0.5
 fi
+
+python3 "$SERVER_SCRIPT" >>"$LOG_FILE" 2>&1 &
+echo $! >"$PID_FILE"
+echo "Dashboard server started (PID $(cat $PID_FILE))."
+sleep 0.5
 
 # ── Launch luakit only if not already running ──────────────────────────────
 if xdotool search --classname dashboard 2>/dev/null | grep -q .; then
