@@ -414,7 +414,7 @@ def mediaCommand(cmd):
 # Tasks with no date marker at all are included as undated (shown below dated ones).
 
 DATE_RE = re.compile(r"(?:[📅⏳🛫]\s*|\[\[)(\d{4}-\d{2}-\d{2})(?:\]\])?")
-TASK_RE = re.compile(r"^\s*-\s*\[\s*\]\s*(.+)$", re.MULTILINE)
+TASK_RE = re.compile(r"^\s*-\s*\[([\ /])\]\s*(.+)$", re.MULTILINE)
 TAG_RE = re.compile(r"(#\w+)")
 
 
@@ -435,7 +435,8 @@ def extractTasks():
             continue
 
         for match in TASK_RE.finditer(content):
-            raw = match.group(1)
+            marker = match.group(1)  # ' ' or '/'
+            raw = match.group(2)
             dateMatches = DATE_RE.findall(raw)
 
             if dateMatches:
@@ -459,8 +460,9 @@ def extractTasks():
             relPath = os.path.relpath(filepath, OBSIDIAN_VAULT)
             # Find line number for direct navigation in Obsidian
             lineNum = 0
+            checkboxStr = f"- [{'/' if marker == '/' else ' '}]"
             for i, line in enumerate(content.splitlines()):
-                if raw.strip() in line and "- [ ]" in line:
+                if raw.strip() in line and checkboxStr in line:
                     lineNum = i + 1  # 1-indexed
                     break
             bucket.append(
@@ -473,6 +475,7 @@ def extractTasks():
                     "line": lineNum,
                     "raw": raw.strip(),  # original line text for matching
                     "dated": bool(dateMatches),
+                    "status": "inProgress" if marker == "/" else "todo",
                 }
             )
 
@@ -710,23 +713,26 @@ def startSinkWatcher():
 # ── Task completion ───────────────────────────────────────────────────────
 
 
-def completeTask(filepath, rawText):
-    """Mark a task as complete by replacing '- [ ]' with '- [x]' in the file."""
+def setTaskStatus(filepath, rawText, marker):
+    """Set task checkbox to the given marker: 'x', '/', or '-'."""
     try:
         with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
             content = f.read()
-        # Match the exact task line and replace just the checkbox
-        # Use the raw text to find the right line
-        old = f"- [ ] {rawText}"
-        new = f"- [x] {rawText}"
-        if old not in content:
-            return False
-        content = content.replace(old, new, 1)
-        with open(filepath, "w", encoding="utf-8") as f:
-            f.write(content)
-        return True
-    except Exception as e:
+        new = f"- [{marker}] {rawText}"
+        for src in ("- [ ] ", "- [/] "):
+            old = f"{src}{rawText}"
+            if old in content:
+                content = content.replace(old, new, 1)
+                with open(filepath, "w", encoding="utf-8") as f:
+                    f.write(content)
+                return True
         return False
+    except Exception:
+        return False
+
+
+def completeTask(filepath, rawText):
+    return setTaskStatus(filepath, rawText, "x")
 
 
 # ── playerctl watcher ─────────────────────────────────────────────────────
@@ -1059,10 +1065,15 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
                     content = f.read()
-                if f"- [ ] {oldRaw}" not in content:
+                prefix = None
+                for p in ("- [ ] ", "- [/] "):
+                    if f"{p}{oldRaw}" in content:
+                        prefix = p
+                        break
+                if not prefix:
                     jsonResp(self, {"ok": False, "error": "Task not found"}, 404)
                     return
-                content = content.replace(f"- [ ] {oldRaw}", f"- [ ] {newRaw}", 1)
+                content = content.replace(f"{prefix}{oldRaw}", f"{prefix}{newRaw}", 1)
                 with open(filepath, "w", encoding="utf-8") as f:
                     f.write(content)
                 jsonResp(self, {"ok": True})
@@ -1072,6 +1083,16 @@ class Handler(BaseHTTPRequestHandler):
             length = int(self.headers.get("Content-Length", 0))
             body = json.loads(self.rfile.read(length)) if length else {}
             success = completeTask(body.get("path", ""), body.get("raw", ""))
+            jsonResp(self, {"ok": success})
+        elif path == "/task/setstatus":
+            length = int(self.headers.get("Content-Length", 0))
+            body = json.loads(self.rfile.read(length)) if length else {}
+            markerMap = {"complete": "x", "inProgress": "/", "cancelled": "-"}
+            marker = markerMap.get(body.get("status", ""))
+            if not marker:
+                jsonResp(self, {"ok": False, "error": "Invalid status"}, 400)
+                return
+            success = setTaskStatus(body.get("path", ""), body.get("raw", ""), marker)
             jsonResp(self, {"ok": success})
         elif path == "/obsidian/open":
             length = int(self.headers.get("Content-Length", 0))
