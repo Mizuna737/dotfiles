@@ -467,6 +467,30 @@
 }
 .taskCheck:hover { border-color: var(--accent); color: var(--accent); }
 .taskCheck:hover::after { content: '✓'; }
+.taskCheck.inProgress {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, var(--accent) 50%, transparent 50%);
+}
+.taskCheck.inProgress:hover::after { content: '✓'; color: var(--bg); }
+
+.statusMenu {
+  background: var(--bg);
+  border: 1px solid var(--fg-dim);
+  border-radius: 4px;
+  padding: 2px 0;
+  min-width: 130px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  z-index: 1000;
+  position: fixed;
+}
+.statusOption {
+  padding: 6px 12px;
+  font-size: 13px;
+  color: var(--fg);
+  cursor: pointer;
+  font-family: "IBM Plex Mono", monospace;
+}
+.statusOption:hover { background: var(--accent); color: var(--bg); }
 
 .taskBody {
   flex: 1;
@@ -926,6 +950,39 @@ async function togglePlay() {
 }
 
 // ── Tasks ──────────────────────────────────────────────────────────────────
+function showStatusMenu(task, btn, item) {
+  const existing = document.querySelector('.statusMenu');
+  if (existing) { existing.remove(); return; }
+  const menu = document.createElement('div');
+  menu.className = 'statusMenu';
+  const options = [
+    { label: '✓  Complete',    status: 'complete'   },
+    { label: '◑  In Progress', status: 'inProgress' },
+    { label: '✕  Cancelled',   status: 'cancelled'  },
+  ];
+  options.forEach(({ label, status }) => {
+    const opt = document.createElement('div');
+    opt.className = 'statusOption';
+    opt.textContent = label;
+    opt.addEventListener('click', async () => {
+      menu.remove();
+      item.style.opacity = '0';
+      setTimeout(() => { item.style.maxHeight = '0'; item.style.padding = '0'; item.style.overflow = 'hidden'; }, 250);
+      setTimeout(() => item.remove(), 600);
+      await apiPost('/task/setstatus', { path: task.path, raw: task.raw, status });
+    });
+    menu.appendChild(opt);
+  });
+  const rect = btn.getBoundingClientRect();
+  menu.style.top = rect.bottom + 4 + 'px';
+  menu.style.left = rect.left + 'px';
+  document.body.appendChild(menu);
+  const close = (e) => {
+    if (!menu.contains(e.target)) { menu.remove(); document.removeEventListener('mousedown', close); }
+  };
+  setTimeout(() => document.addEventListener('mousedown', close), 0);
+}
+
 function renderTasks(tasks) {
   const list = document.getElementById('taskList');
   if (!tasks || tasks.length === 0) {
@@ -944,7 +1001,7 @@ function renderTasks(tasks) {
 
     // Checkbox
     const check = document.createElement('div');
-    check.className = 'taskCheck';
+    check.className = 'taskCheck' + (task.status === 'inProgress' ? ' inProgress' : '');
     check.title = 'Mark done';
     check.addEventListener('click', async e => {
       e.stopPropagation();
@@ -956,6 +1013,11 @@ function renderTasks(tasks) {
       }, 250);
       setTimeout(() => item.remove(), 600);
       await apiPost('/task/complete', { path: task.path, raw: task.raw });
+    });
+    check.addEventListener('contextmenu', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      showStatusMenu(task, check, item);
     });
 
     // Body
