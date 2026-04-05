@@ -1,0 +1,231 @@
+.claude-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  font-family: var(--font-interface);
+  font-size: var(--font-ui-small);
+}
+
+/* ── Context bar ── */
+.claude-context-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  flex-shrink: 0;
+}
+.claude-context-icon { font-size: 12px; }
+.claude-context-name {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.claude-clear-btn {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--background-modifier-border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.claude-clear-btn:hover { background: var(--background-modifier-hover); }
+
+/* ── Messages ── */
+.claude-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.claude-message {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 100%;
+}
+
+.claude-message-role {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-faint);
+}
+
+.claude-user .claude-message-role  { color: var(--color-accent); }
+
+.claude-message-content {
+  background: var(--background-secondary);
+  border-radius: 6px;
+  padding: 8px 10px;
+  line-height: 1.5;
+  color: var(--text-normal);
+  word-break: break-word;
+  user-select: text;
+  cursor: text;
+}
+.claude-user .claude-message-content {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+/* Make markdown in assistant messages render cleanly */
+.claude-thinking { color: var(--text-faint) !important; font-style: italic; }
+
+.claude-usage {
+  font-size: 10px;
+  color: var(--text-faint);
+  margin-top: 3px;
+  letter-spacing: 0.3px;
+}
+
+.claude-assistant .claude-message-content p   { margin: 0 0 6px; }
+.claude-assistant .claude-message-content p:last-child { margin-bottom: 0; }
+.claude-assistant .claude-message-content ul,
+.claude-assistant .claude-message-content ol  { margin: 4px 0; padding-left: 20px; }
+.claude-assistant .claude-message-content code {
+  font-size: 12px;
+  background: var(--background-primary-alt);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+.claude-assistant .claude-message-content pre {
+  background: var(--background-primary-alt);
+  padding: 8px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 12px;
+}
+
+/* ── Tool confirmation area (fixed slot between messages and input) ── */
+.claude-confirm-area {
+  flex-shrink: 0;
+}
+.claude-confirm-area:not(:empty) {
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.claude-tool-confirm {
+  overflow: hidden;
+}
+.claude-tool-confirm-label {
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  background: var(--background-secondary);
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+.claude-tool-list { padding: 4px 0; }
+.claude-tool-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  font-size: 12px;
+  color: var(--text-normal);
+  transition: opacity 0.3s;
+}
+.claude-tool-item.applied { opacity: 0.4; }
+.claude-tool-icon { font-size: 13px; flex-shrink: 0; }
+.claude-tool-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.claude-tool-btn-row {
+  display: flex;
+  gap: 8px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+}
+.claude-apply-btn,
+.claude-cancel-btn {
+  padding: 4px 14px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  border: none;
+}
+.claude-apply-btn {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+.claude-apply-btn:hover:not(:disabled) { filter: brightness(1.1); }
+.claude-apply-btn:disabled { opacity: 0.5; cursor: default; }
+.claude-cancel-btn {
+  background: var(--background-modifier-border);
+  color: var(--text-normal);
+}
+.claude-cancel-btn:hover:not(:disabled) { background: var(--background-modifier-hover); }
+.claude-cancel-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* ── Input area ── */
+.claude-input-area {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  flex-shrink: 0;
+}
+.claude-input {
+  width: 100%;
+  min-height: 64px;
+  max-height: 160px;
+  resize: vertical;
+  padding: 7px 9px;
+  border-radius: 5px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-family: var(--font-interface);
+  font-size: var(--font-ui-small);
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+.claude-input:focus {
+  outline: none;
+  border-color: var(--interactive-accent);
+}
+.claude-input:disabled { opacity: 0.5; }
+.claude-send-btn {
+  align-self: flex-end;
+  padding: 5px 16px;
+  border-radius: 4px;
+  border: none;
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  font-size: 13px;
+  cursor: pointer;
+}
+.claude-send-btn:hover:not(:disabled) { filter: brightness(1.1); }
+.claude-send-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* ── Run usage summary ── */
+.claude-run-usage {
+  font-size: 10px;
+  color: var(--text-faint);
+  padding: 2px 2px 0;
+  letter-spacing: 0.3px;
+  min-height: 14px;
+}
+.claude-run-usage-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

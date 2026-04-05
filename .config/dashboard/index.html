@@ -277,19 +277,20 @@
 
   .progressBar {
     flex: 1;
-    height: 2px;
-    background: var(--bg2);
-    border-radius: 1px;
+    height: 3px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 2px;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .progressFill {
     height: 100%;
     background: var(--accent);
-    border-radius: 1px;
+    border-radius: 2px;
     transition: width 1s linear;
     width: 0%;
+    filter: drop-shadow(0 0 4px var(--accent)) drop-shadow(0 0 2px var(--accent));
   }
 
   .progressTime {
@@ -375,9 +376,78 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     flex: 1;
+    padding: 16px 0 0;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  .idleClockWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 6px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .statGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0 8px;
+    width: 100%;
+  }
+
+  .statItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .statRing {
+    width: 88px;
+    height: 88px;
+    overflow: visible;
+  }
+
+  .ringTrack {
+    fill: none;
+    stroke: rgba(255,255,255,0.07);
+    stroke-width: 7;
+  }
+
+  .ringFill {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 7;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 44px 44px;
+    stroke-dasharray: 226.19;
+    stroke-dashoffset: 226.19;
+    transition: stroke-dashoffset 1s ease;
+    filter: drop-shadow(0 0 7px var(--accent)) drop-shadow(0 0 3px var(--accent));
+  }
+
+  .ringFill.gpu {
+    stroke: var(--accent2);
+    filter: drop-shadow(0 0 7px var(--accent2)) drop-shadow(0 0 3px var(--accent2));
+  }
+
+  .ringLabel {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    fill: var(--fg-dim);
+    text-anchor: middle;
+    letter-spacing: 2px;
+  }
+
+  .ringVal {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    fill: var(--fg);
+    text-anchor: middle;
+    letter-spacing: 1px;
   }
 
   .idleClock {
@@ -403,15 +473,113 @@
     margin-top: 2px;
   }
 
-  .mediaClockStrip {
+  .mediaMini {
     display: flex;
-    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    gap: 14px;
+    border-top: 1px solid var(--border);
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    padding: 0 8px;
+    margin-top: 0;
+    transition: max-height 0.45s ease, opacity 0.35s ease,
+                padding 0.45s ease, margin-top 0.45s ease;
+  }
+
+  .mediaIdle.drifted .mediaMini {
+    max-height: 80px;
+    opacity: 1;
+    padding: 14px 8px 18px;
+    margin-top: 14px;
+  }
+
+  .miniPlayBtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--fg-dim);
+    background: none;
+    color: var(--fg);
+    font-size: 15px;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    border-top: 1px solid var(--border);
-    flex: 1;
+    transition: border-color 0.2s, color 0.2s;
   }
+
+  .miniPlayBtn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .miniTrack {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .miniTitle {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--fg);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .miniArtist {
+    font-size: 11px;
+    color: var(--fg-dim);
+    letter-spacing: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mediaClockStrip {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding: 0 16px;
+    border-top: 1px solid var(--border);
+    flex: 0 0 90px;
+  }
+
+  .mediaClockLeft {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .statMiniRow {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .statMini {
+    width: 56px;
+    height: 56px;
+    overflow: visible;
+  }
+
+  .statMini .ringTrack { stroke-width: 4.5; }
+
+  .statMini .ringFill {
+    stroke-width: 4.5;
+    transform-origin: 28px 28px;
+    stroke-dasharray: 138.23;
+    stroke-dashoffset: 138.23;
+  }
+
+  .statMini .ringLabel { font-size: 7px; }
+  .statMini .ringVal   { font-size: 10px; }
 
   .mediaClockTime {
     font-family: var(--font-display);
@@ -724,6 +892,17 @@
           <button class="dcBtn" id="afCBtn" onclick="droidcamFocusMode(1)">AF-C</button>
           <button class="dcBtn" id="mfBtn"  onclick="droidcamFocusMode(2)">MF</button>
         </div>
+        <div class="dcControlRow">
+          <div class="dcLabel">BG</div>
+          <button class="dcBtn" id="bgOffBtn"   onclick="setBgMode('off')">Off</button>
+          <button class="dcBtn" id="bgBlurBtn"  onclick="setBgMode('blur')">Blur</button>
+          <button class="dcBtn" id="bgGreenBtn" onclick="setBgMode('green')">Green</button>
+          <button class="dcBtn" id="bgBlackBtn" onclick="setBgMode('black')">Black</button>
+        </div>
+        <div class="dcControlRow">
+          <div class="dcLabel"></div>
+          <button class="dcBtn" id="bgImgBtn" onclick="pickBgImage()" style="flex:1">🗁 Image</button>
+        </div>
       </div>
     </div>
 
@@ -734,11 +913,54 @@
     <div class="panelHeader">Now Playing</div>
     <div class="mediaBody" id="mediaBody">
       <div class="mediaIdle" id="mediaIdle">
-        <div class="idleClock" id="idleClock">00:00</div>
-        <div class="idleDate" id="idleDate">—</div>
-        <div class="idleDay" id="idleDay">—</div>
+        <div class="idleClockWrap">
+          <div class="idleClock" id="idleClock">00:00</div>
+          <div class="idleDate" id="idleDate">—</div>
+          <div class="idleDay" id="idleDay">—</div>
+        </div>
+        <div class="statGrid">
+          <div class="statItem">
+            <svg class="statRing" viewBox="0 0 88 88">
+              <circle class="ringTrack" cx="44" cy="44" r="36"/>
+              <circle class="ringFill" id="statCpuBar" cx="44" cy="44" r="36"/>
+              <text class="ringLabel" x="44" y="37">CPU</text>
+              <text class="ringVal" id="statCpuVal" x="44" y="53">—</text>
+            </svg>
+          </div>
+          <div class="statItem">
+            <svg class="statRing" viewBox="0 0 88 88">
+              <circle class="ringTrack" cx="44" cy="44" r="36"/>
+              <circle class="ringFill gpu" id="statGpuBar" cx="44" cy="44" r="36"/>
+              <text class="ringLabel" x="44" y="37">GPU</text>
+              <text class="ringVal" id="statGpuVal" x="44" y="53">—</text>
+            </svg>
+          </div>
+          <div class="statItem">
+            <svg class="statRing" viewBox="0 0 88 88">
+              <circle class="ringTrack" cx="44" cy="44" r="36"/>
+              <circle class="ringFill" id="statRamBar" cx="44" cy="44" r="36"/>
+              <text class="ringLabel" x="44" y="37">RAM</text>
+              <text class="ringVal" id="statRamVal" x="44" y="53">—</text>
+            </svg>
+          </div>
+          <div class="statItem">
+            <svg class="statRing" viewBox="0 0 88 88">
+              <circle class="ringTrack" cx="44" cy="44" r="36"/>
+              <circle class="ringFill gpu" id="statVramBar" cx="44" cy="44" r="36"/>
+              <text class="ringLabel" x="44" y="37">VRAM</text>
+              <text class="ringVal" id="statVramVal" x="44" y="53">—</text>
+            </svg>
+          </div>
+        </div>
+        <div class="mediaMini" id="mediaMini">
+          <button class="miniPlayBtn" id="miniPlayBtn" onclick="togglePlay()">▶</button>
+          <div class="miniTrack">
+            <div class="miniTitle" id="miniTitle">—</div>
+            <div class="miniArtist" id="miniArtist">—</div>
+          </div>
+        </div>
       </div>
-      <div id="mediaActive" style="display:none; flex-direction:column; gap:0; flex:1;">
+      <div id="mediaActive" style="display:none; flex-direction:column; gap:0; flex:1; transition: opacity 0.35s ease, transform 0.35s ease;">
         <div style="display:flex; flex-direction:column; justify-content:center; gap:8px; flex:2;">
         <div class="mediaTrack">
           <div class="mediaTitle" id="mediaTitle">—</div>
@@ -757,8 +979,36 @@
         </div>
         </div>
         <div class="mediaClockStrip">
-          <div class="mediaClockTime" id="mediaClockTime">00:00</div>
-          <div class="mediaClockDate" id="mediaClockDate">—</div>
+          <div class="mediaClockLeft">
+            <div class="mediaClockTime" id="mediaClockTime">00:00</div>
+            <div class="mediaClockDate" id="mediaClockDate">—</div>
+          </div>
+          <div class="statMiniRow">
+            <svg class="statMini" viewBox="0 0 56 56">
+              <circle class="ringTrack" cx="28" cy="28" r="22"/>
+              <circle class="ringFill" id="statCpuBar2" cx="28" cy="28" r="22" data-circ="138.23"/>
+              <text class="ringLabel" x="28" y="23">CPU</text>
+              <text class="ringVal" id="statCpuVal2" x="28" y="33">—</text>
+            </svg>
+            <svg class="statMini" viewBox="0 0 56 56">
+              <circle class="ringTrack" cx="28" cy="28" r="22"/>
+              <circle class="ringFill gpu" id="statGpuBar2" cx="28" cy="28" r="22" data-circ="138.23"/>
+              <text class="ringLabel" x="28" y="23">GPU</text>
+              <text class="ringVal" id="statGpuVal2" x="28" y="33">—</text>
+            </svg>
+            <svg class="statMini" viewBox="0 0 56 56">
+              <circle class="ringTrack" cx="28" cy="28" r="22"/>
+              <circle class="ringFill" id="statRamBar2" cx="28" cy="28" r="22" data-circ="138.23"/>
+              <text class="ringLabel" x="28" y="23">RAM</text>
+              <text class="ringVal" id="statRamVal2" x="28" y="33">—</text>
+            </svg>
+            <svg class="statMini" viewBox="0 0 56 56">
+              <circle class="ringTrack" cx="28" cy="28" r="22"/>
+              <circle class="ringFill gpu" id="statVramBar2" cx="28" cy="28" r="22" data-circ="138.23"/>
+              <text class="ringLabel" x="28" y="23">VRAM</text>
+              <text class="ringVal" id="statVramVal2" x="28" y="33">—</text>
+            </svg>
+          </div>
         </div>
       </div>
     </div>
@@ -866,7 +1116,10 @@ async function refreshToggles() {
 }
 
 // ── Media ──────────────────────────────────────────────────────────────────
-let isPlaying   = false;
+let isPlaying        = false;
+let mediaDisplayState = 'idle'; // 'idle' | 'active' | 'drifted'
+let mediaDriftTimer  = null;
+const DRIFT_DELAY    = 30_000;
 let mediaLength = 0;
 let mediaPos    = 0;
 let lastPosSyncTime = 0;
@@ -879,28 +1132,87 @@ function fmtSec(s) {
   return `${m}:${ss}`;
 }
 
+function swapPanels(showEl, hideEl, onSwap) {
+  const DUR = 320;
+  if (hideEl.style.display === 'none') {
+    showEl.style.opacity   = '0';
+    showEl.style.transform = 'translateY(5px)';
+    showEl.style.display   = 'flex';
+    if (onSwap) onSwap();
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      showEl.style.opacity   = '';
+      showEl.style.transform = '';
+    }));
+    return;
+  }
+  hideEl.style.opacity   = '0';
+  hideEl.style.transform = 'translateY(-5px)';
+  setTimeout(() => {
+    hideEl.style.display   = 'none';
+    hideEl.style.opacity   = '';
+    hideEl.style.transform = '';
+    showEl.style.opacity   = '0';
+    showEl.style.transform = 'translateY(5px)';
+    showEl.style.display   = 'flex';
+    if (onSwap) onSwap();
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      showEl.style.opacity   = '';
+      showEl.style.transform = '';
+    }));
+  }, DUR);
+}
+
 function applyMediaState(d) {
   const idle   = document.getElementById('mediaIdle');
   const active = document.getElementById('mediaActive');
+
   if (!d || !d.title) {
-    idle.style.display = 'flex';
-    active.style.display = 'none';
+    clearTimeout(mediaDriftTimer); mediaDriftTimer = null;
     cancelAnimationFrame(animFrame);
+    if (mediaDisplayState !== 'idle') {
+      const from = mediaDisplayState === 'active' ? active : idle;
+      swapPanels(idle, from, () => idle.classList.remove('drifted'));
+      mediaDisplayState = 'idle';
+    }
     return;
   }
-  idle.style.display = 'none';
-  active.style.display = 'flex';
+
+  // Update all media content (both active panel and mini strip)
   document.getElementById('mediaTitle').textContent  = d.title  || '—';
   document.getElementById('mediaArtist').textContent = d.artist || '—';
   document.getElementById('mediaAlbum').textContent  = d.album  || '';
+  document.getElementById('miniTitle').textContent   = d.title  || '—';
+  document.getElementById('miniArtist').textContent  = d.artist || '—';
   isPlaying = d.status === 'Playing';
-  document.getElementById('playBtn').textContent = isPlaying ? '⏸' : '▶';
+  document.getElementById('playBtn').textContent     = isPlaying ? '⏸' : '▶';
+  document.getElementById('miniPlayBtn').textContent = isPlaying ? '⏸' : '▶';
   if (d.length > 0) mediaLength = d.length;
   mediaPos = d.position || 0;
   lastPosSyncTime = performance.now() / 1000;
   updateProgress();
-  if (isPlaying) animateProgress();
-  else cancelAnimationFrame(animFrame);
+
+  if (isPlaying) {
+    clearTimeout(mediaDriftTimer); mediaDriftTimer = null;
+    if (mediaDisplayState !== 'active') {
+      swapPanels(active, idle, () => idle.classList.remove('drifted'));
+      mediaDisplayState = 'active';
+    }
+    animateProgress();
+  } else {
+    cancelAnimationFrame(animFrame);
+    if (mediaDisplayState === 'drifted') return; // already drifted, mini strip is visible
+    if (mediaDisplayState === 'idle') {
+      swapPanels(active, idle);
+      mediaDisplayState = 'active';
+    }
+    if (!mediaDriftTimer) {
+      mediaDriftTimer = setTimeout(() => {
+        swapPanels(idle, active, () => idle.classList.add('drifted'));
+        mediaDisplayState = 'drifted';
+        mediaDriftTimer   = null;
+      }, DRIFT_DELAY);
+    }
+  }
 }
 
 function updateProgress() {
@@ -1158,6 +1470,82 @@ async function refreshDroidcam() {
   } catch(e) {}
 }
 
+// ── System stats ──────────────────────────────────────────────────────────
+function fmtGiB(kb) {
+  const g = kb / (1024 * 1024);
+  return g >= 10 ? g.toFixed(1) + 'G' : g.toFixed(2) + 'G';
+}
+
+function fmtMiB(mib) {
+  return mib >= 1024 ? (mib / 1024).toFixed(1) + 'G' : mib + 'M';
+}
+
+function setBar(barId, valId, pct, label) {
+  const arc = document.getElementById(barId);
+  const val = document.getElementById(valId);
+  if (arc) {
+    const circ = parseFloat(arc.dataset.circ || 226.19);
+    arc.style.strokeDashoffset = circ * (1 - Math.min(pct, 100) / 100);
+  }
+  if (val) val.textContent = label;
+}
+
+async function refreshSysStats() {
+  try {
+    const s = await apiGet('/status/sysstat');
+    const ramPct = s.ram.total  ? s.ram.used  / s.ram.total  * 100 : 0;
+    const vrPct  = s.vram.total ? s.vram.used / s.vram.total * 100 : 0;
+    const cpuLbl = s.cpu.toFixed(1) + '%';
+    const gpuLbl = s.gpu + '%';
+    const ramLbl = fmtGiB(s.ram.used);
+    const vrLbl  = fmtMiB(s.vram.used);
+    setBar('statCpuBar',   'statCpuVal',   s.cpu,   cpuLbl);
+    setBar('statGpuBar',   'statGpuVal',   s.gpu,   gpuLbl);
+    setBar('statRamBar',   'statRamVal',   ramPct,  ramLbl);
+    setBar('statVramBar',  'statVramVal',  vrPct,   vrLbl);
+    setBar('statCpuBar2',  'statCpuVal2',  s.cpu,   cpuLbl);
+    setBar('statGpuBar2',  'statGpuVal2',  s.gpu,   gpuLbl);
+    setBar('statRamBar2',  'statRamVal2',  ramPct,  ramLbl);
+    setBar('statVramBar2', 'statVramVal2', vrPct,   vrLbl);
+  } catch(e) {}
+}
+
+// ── bgremove ──────────────────────────────────────────────────────────────
+const bgBtnIds = { off: 'bgOffBtn', blur: 'bgBlurBtn', green: 'bgGreenBtn', black: 'bgBlackBtn' };
+
+function applyBgremoveState(s) {
+  const isImage = s.mode && s.mode.startsWith('/');
+  Object.entries(bgBtnIds).forEach(([mode, id]) => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('active', s.mode === mode);
+  });
+  const imgBtn = document.getElementById('bgImgBtn');
+  if (imgBtn) imgBtn.classList.toggle('active', isImage);
+}
+
+async function setBgMode(mode) {
+  const result = await apiPost('/bgremove/mode', { mode });
+  if (result && result.ok) applyBgremoveState({ mode });
+}
+
+async function pickBgImage() {
+  const imgBtn = document.getElementById('bgImgBtn');
+  if (imgBtn) imgBtn.textContent = '…';
+  try {
+    const result = await apiPost('/bgremove/pickimage');
+    if (result && result.ok) applyBgremoveState({ mode: result.mode });
+  } finally {
+    if (imgBtn) imgBtn.textContent = '🗁';
+  }
+}
+
+async function refreshBgremove() {
+  try {
+    const s = await apiGet('/status/bgremove');
+    applyBgremoveState(s);
+  } catch(e) {}
+}
+
 // ── SSE: instant push for sink + VPN changes ──────────────────────────────
 function connectSSE() {
   const es = new EventSource(API + '/events');
@@ -1195,12 +1583,16 @@ connectSSE();
 refreshToggles();
 refreshMedia();
 refreshTasks();
+refreshSysStats();
 refreshDroidcam();
+refreshBgremove();
 
-setInterval(refreshMedia,   10000);
-setInterval(refreshToggles,  5000);
-setInterval(refreshTasks,    30000);
-setInterval(refreshDroidcam, 5000);
+setInterval(refreshMedia,     10000);
+setInterval(refreshToggles,    5000);
+setInterval(refreshTasks,     30000);
+setInterval(refreshDroidcam,   5000);
+setInterval(refreshBgremove,  10000);
+setInterval(refreshSysStats,   3000);
 </script>
 </body>
 </html>

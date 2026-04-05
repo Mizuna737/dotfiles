@@ -2,3 +2,5 @@
 .config/tmux/plugins
 .config/dashboard/todoist.conf
 .config/dashboard/__pycache__/
+Documents/The Vault/.obsidian/plugins/claude-assistant/node_modules/
+Documents/The Vault/.obsidian/plugins/claude-assistant/data.json

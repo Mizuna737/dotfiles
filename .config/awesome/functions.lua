@@ -75,6 +75,12 @@ function M.viewWorkspace(index)
 	end
 end
 
+function M.viewWorkspaceExclusive(index)
+	local s = awful.screen.focused()
+	local t = s.tags[index]
+	if t then t:view_only() end
+end
+
 function M.moveWindowToWorkspace(index)
 	local c = client.focus
 	local s = awful.screen.focused()
@@ -184,6 +190,48 @@ function M.nextLayoutForTag()
 	else
 		local nextIndex = (currentIndex % #layouts) + 1
 		tag.layout = layouts[nextIndex]
+	end
+end
+
+local commsForTag = {
+	["Work"]          = { app = "teams-for-linux", cmd = "teams-for-linux" },
+	["Entertainment"] = { app = "discord",          cmd = "discord" },
+}
+
+-- scope "current" = look on current tag, spawn if missing
+-- scope "all"     = search across all tags, follow if found elsewhere
+function M.findComms(scope)
+	scope = scope or "current"
+	local tag     = awful.screen.focused().selected_tag
+	local tagName = tag and tag.name or ""
+	local info    = commsForTag[tagName] or { app = "signal", cmd = "signal-desktop" }
+	M.findExisting(info.app, info.cmd, scope)
+end
+
+function M.prevLayoutForTag()
+	local a = awful.layout.suit
+	local l = lain.layout
+
+	local tagLayouts = {
+		["Entertainment"] = { l.centerwork, a.tile, a.magnifier },
+		["Code"]          = { l.centerwork, a.fair, a.spiral.dwindle },
+		["Work"]          = { l.centerwork, a.spiral.dwindle, a.magnifier, l.cascade.tile },
+		["Obsidian"]      = { l.centerwork, l.cascade.tile },
+		["Misc"]          = { a.fair, a.floating },
+	}
+
+	local screen = awful.screen.focused()
+	local tag    = screen.selected_tag
+	if not tag then return end
+
+	local layouts = tagLayouts[tag.name]
+	if not layouts then return end
+
+	local currentIndex = gears.table.hasitem(layouts, tag.layout)
+	if not currentIndex then
+		tag.layout = layouts[#layouts]
+	else
+		tag.layout = layouts[((currentIndex - 2 + #layouts) % #layouts) + 1]
 	end
 end
 
@@ -778,6 +826,19 @@ function M.toggleEisenhower()
 	})
 end
 
+function M.toggleQuickNotes()
+	M.toggleDropdownApp({
+		class     = "Quick Notes",
+		spawn_cmd = {
+			"kitty", "--class", "Quick Notes",
+			"--override", "font_size=18.0",
+			"--override", "confirm_os_window_close=0",
+			"-e", "bash", os.getenv("HOME") .. "/Scripts/quickNotes.sh",
+		},
+		spawn_props = { floating = true, tag = awful.screen.focused().selected_tag },
+	})
+end
+
 --------------------------------
 -- Misc
 --------------------------------
@@ -849,4 +910,13 @@ end
 function M.startDroidCam()
 	awful.spawn.with_shell("droidcam-cli -size=3840x2160 192.168.0.156 4747")
 end
+
+function M.toggleVPN()
+	awful.spawn.with_shell("curl -s -X POST http://localhost:9876/toggle/vpn")
+end
+
+function M.cycleSink()
+	awful.spawn.with_shell("curl -s -X POST http://localhost:9876/toggle/sink")
+end
+
 return M

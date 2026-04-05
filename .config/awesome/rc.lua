@@ -53,7 +53,6 @@ runOnce({
 	"lxqt=policykit-agent",
 	"copyq",
 	"windscribe-cli connect",
-	"bash ~/.config/dashboard/dashboardLaunch.sh",
 })
 
 awful.spawn.with_shell(
@@ -114,16 +113,63 @@ awful.layout.primaryLayouts = {
 local primary_tags = awful.tag(awful.util.primaryTagnames, screen.primary, awful.layout.primaryLayouts)
 
 -- Dashboard screen: single locked tag
+-- Also handles late connection (HDMI-0 often not enumerated when rc.lua first runs)
 local dashboardScreen = nil
-for s in screen do
-	if s ~= screen.primary then
-		dashboardScreen = s
-		break
+
+local function setupDashboardScreen(s)
+	if s == screen.primary then return end
+	dashboardScreen = s
+	if #s.tags == 0 then
+		awful.tag({ "Dashboard" }, s, awful.layout.suit.max)
 	end
+	-- Reapply wallpaper so the newly-connected screen gets it
+	awful.spawn.with_shell("[ -f ~/.fehbg ] && ~/.fehbg")
+
+	-- Delay 1s to let AwesomeWM fully initialise the new screen before
+	-- attempting to place or launch the dashboard.
+	gears.timer.start_new(1, function()
+		local dashTag = awful.tag.find_by_name(s, "Dashboard")
+		if not dashTag then
+			dashTag = awful.tag({ "Dashboard" }, s, awful.layout.suit.max)[1]
+		end
+
+		local existingDash = nil
+		for _, c in ipairs(client.get()) do
+			if c.class == "dashboard" then
+				existingDash = c
+				break
+			end
+		end
+
+		if existingDash then
+			if existingDash.screen ~= s then
+				existingDash:move_to_tag(dashTag)
+			end
+		else
+			awful.spawn.with_shell("bash ~/.config/dashboard/dashboardLaunch.sh")
+		end
+		return false
+	end)
 end
-if dashboardScreen then
-	awful.tag({ "Dashboard" }, dashboardScreen, awful.layout.suit.max)
+
+for s in screen do
+	setupDashboardScreen(s)
 end
+
+screen.connect_signal("added", setupDashboardScreen)
+
+-- Retry DefaultLayout.sh every 3s (up to 5x) if HDMI-0 isn't detected at startup
+local screenRetries = 0
+gears.timer.start_new(3, function()
+	for s in screen do
+		if s ~= screen.primary then
+			return false -- secondary screen found, stop retrying
+		end
+	end
+	awful.spawn.with_shell("~/.screenlayout/DefaultLayout.sh")
+	screenRetries = screenRetries + 1
+	return screenRetries < 5
+end)
 
 --------------------------------
 -- Custom layout settings
@@ -195,14 +241,18 @@ awful.rules.rules = {
 		},
 	},
 	{
-		rule = { instance = "dashboard" },
+		rule = { class = "dashboard" },
 		properties = {
-			screen = function()
-				return dashboardScreen
-			end,
-			tag = "Dashboard",
 			border_width = 0,
 		},
+		callback = function(c)
+			if dashboardScreen and dashboardScreen.valid then
+				local dashTag = awful.tag.find_by_name(dashboardScreen, "Dashboard")
+				if dashTag then
+					c:move_to_tag(dashTag)
+				end
+			end
+		end,
 	},
 	{
 		rule_any = {
@@ -225,19 +275,18 @@ awful.rules.rules = {
 		},
 		properties = { floating = true },
 	},
-	-- Make nsxiv floating, centered, and large
+	-- Make nsxiv floating, centered, and large on the primary monitor
 	{
 		rule = { class = "Nsxiv" },
 		properties = {
 			floating = true,
 			ontop = true,
 			skip_taskbar = true,
+			screen = screen.primary,
+			focus = true,
 		},
 		callback = function(c)
-			awful.placement.centered(c, { honor_workarea = true, honor_padding = true })
-
-			-- Resize to 90% of screen
-			local g = c.screen.workarea
+			local g = screen.primary.workarea
 			local width = math.floor(g.width * 0.9)
 			local height = math.floor(g.height * 0.9)
 			c:geometry({

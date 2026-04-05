@@ -173,27 +173,28 @@ normalKeys.globalkeys = gears.table.join(
 	-- Stack extension
 
 	awful.key({ modkey, "Shift" }, "n", function()
-		local c = client.focus
-		if c then
-			stack.stackClients(c)
-		end
-	end, { description = "stack client with next", group = "Stacking" }),
+		stack.stackAll()
+	end, { description = "stack all windows on tag", group = "Stacking" }),
 
 	awful.key({ modkey, "Shift" }, "l", function()
-		stack.listStacks()
-	end, { description = "list all stacks", group = "Stacking" }),
+		stack.unstackCurrent()
+	end, { description = "unstack focused window", group = "Stacking" }),
 
 	awful.key({ modkey, "Shift" }, "c", function()
-		stack.clearStacks()
-	end, { description = "clear all stacks", group = "Stacking" }),
+		stack.unstackAll()
+	end, { description = "unstack all windows", group = "Stacking" }),
 
 	awful.key({ modkey, "Shift" }, "u", function()
-		stack.cycleStack()
-	end, { description = "cycle stack", group = "Stacking" }),
+		stack.cycleStackForward()
+	end, { description = "cycle stack forward", group = "Stacking" }),
+
+	awful.key({ modkey, "Shift" }, "i", function()
+		stack.cycleStackBackward()
+	end, { description = "cycle stack backward", group = "Stacking" }),
 
 	-- Reload / Quit Awesome
 
-	awful.key({ modkey, "Control" }, "r", function()
+	awful.key({ modkey, "Control", altkey, "Shift" }, "r", function()
 		myFuncs.saveAndRestart()
 	end, { description = "reload awesome", group = "awesome" }),
 

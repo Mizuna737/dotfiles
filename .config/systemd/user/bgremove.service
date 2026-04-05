@@ -1,0 +1,23 @@
+[Unit]
+Description=GPU background removal virtual camera (bgremove)
+After=network.target v4l2loopback-reload.service
+
+[Service]
+Type=simple
+Environment=LD_LIBRARY_PATH=/home/max/.local/share/bgremove/cuda_shims:/opt/cuda/lib64
+ExecStart=/home/max/.local/share/bgremove/venv/bin/python3 /home/max/dotfiles/Scripts/bgremove.py \
+    --input /dev/video20 \
+    --output /dev/video21 \
+    --width 1920 \
+    --height 1080 \
+    --fps 30 \
+    --background blur \
+    --downsample 0.5 \
+    --no-trt
+Restart=on-failure
+RestartSec=5
+StandardOutput=append:%h/.cache/bgremove.log
+StandardError=append:%h/.cache/bgremove.log
+
+[Install]
+WantedBy=default.target

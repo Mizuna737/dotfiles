@@ -1,0 +1,9 @@
+{
+  "id": "claude-assistant",
+  "name": "Claude Assistant",
+  "version": "1.0.0",
+  "minAppVersion": "0.15.0",
+  "description": "Chat with Claude in a side panel with your current note as context.",
+  "author": "Max",
+  "isDesktopOnly": true
+}

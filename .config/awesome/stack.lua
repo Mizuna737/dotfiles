@@ -1,131 +1,623 @@
 -- stack.lua
+-- Tabbed window stacking for AwesomeWM.
+--
+-- The active window is always the anchor: it holds the tiling slot and is
+-- the only visible frame member. All inactive members are hidden (hidden=true).
+-- Cycling promotes the new window to anchor via makeAnchor (swap + retile),
+-- which triggers picom's show/hide animations for a crossfade effect.
+-- Because the active window is always tiling in its slot, unstack* is safe.
+
 local awful = require("awful")
 local gears = require("gears")
+local wibox = require("wibox")
+local beautiful = require("beautiful")
 
 local M = {}
 
--- baseStacks[baseWindow] = { list of stacked floating windows }
-local baseStacks = setmetatable({}, { __mode = "k" })
+local _tempStackTimer = nil
+local TEMP_STACK_TIMEOUT = 0.75 -- seconds before auto-unstack
 
--- Move handler
-local function onBaseMove(base)
-    local stack = baseStacks[base]
-    if not stack then return end
-    local g = base:geometry()
-    for _, st in ipairs(stack) do
-        if st.valid then
-            st:geometry({ x=g.x, y=g.y, width=g.width, height=g.height })
-        end
-    end
+-- frame = {
+--   clients   = { c, ... },
+--   activeIdx = int,
+--   anchor    = client,   -- always the active window; holds the tiling slot
+-- }
+local clientFrame = setmetatable({}, { __mode = "k" })
+
+local TAB_H = 22
+
+-------------------------------------------------------------------------
+-- Forward declaration
+-------------------------------------------------------------------------
+local setActive
+
+-------------------------------------------------------------------------
+-- Tab bar — rebuilt on ALL frame members so hidden windows keep their
+-- titlebar rendered and don't re-render when cycled into focus.
+-------------------------------------------------------------------------
+
+local function rebuildTabbar(frame)
+	for _, c in ipairs(frame.clients) do
+		if not c.valid then
+			goto continue
+		end
+		local tabs = { layout = wibox.layout.flex.horizontal }
+		for i, fc in ipairs(frame.clients) do
+			local isActive = (i == frame.activeIdx)
+			local idx = i
+			local tab = wibox.widget({
+				{
+					text = fc.class or fc.name or "?",
+					align = "center",
+					valign = "center",
+					widget = wibox.widget.textbox,
+				},
+				bg = isActive and beautiful.bg_focus or beautiful.bg_normal,
+				fg = isActive and beautiful.fg_focus or beautiful.fg_normal,
+				widget = wibox.container.background,
+			})
+			tab:connect_signal("button::press", function(_, _, _, btn)
+				if btn == 1 then
+					setActive(frame, idx)
+				end
+			end)
+			table.insert(tabs, tab)
+		end
+		local tb = awful.titlebar(c, { size = TAB_H, position = "top" })
+		tb:setup(tabs)
+		awful.titlebar.show(c)
+		::continue::
+	end
 end
 
-local function bindBaseMovement(base)
-    base:disconnect_signal("property::geometry", onBaseMove(base))
-    base._stackMoveHandler = function(c) onBaseMove(c) end
-    base:connect_signal("property::geometry", base._stackMoveHandler)
+local function hideTabbar(c)
+	if c and c.valid then
+		awful.titlebar.hide(c)
+	end
 end
 
--- 1) Create or extend a stack by adding newClient on top of base
-function M.stackWindow(base, newClient)
-    if not baseStacks[base] then
-        baseStacks[base] = {}
-    end
+-------------------------------------------------------------------------
+-- Frame helpers
+-------------------------------------------------------------------------
 
-    newClient.floating = true
-    local g = base:geometry()
-    newClient:geometry({ x=g.x, y=g.y, width=g.width, height=g.height })
-    table.insert(baseStacks[base], newClient)
-    bindBaseMovement(base)
+-- Promote c to anchor by sliding it into the tiling slot.
+-- Order matters: hide old first so it leaves tiling invisibly, then swap
+-- list positions while both are excluded from tiling (no reflow), then tile c.
+local function makeAnchor(frame, c)
+	if c == frame.anchor then
+		return
+	end
+	local old = frame.anchor
+	old.hidden = true -- remove old from tiling layout invisibly
+	old.floating = true -- mark as float so it re-appears correctly later
+	c:swap(old) -- swap client-list positions (both excluded from tiling, no reflow)
+	c.floating = false -- c enters tiling at old's former list position
+	frame.anchor = c
 end
 
--- 2) cycleStack for a given base
-function M.cycleStack(base)
-    local stack = baseStacks[base]
-    if not stack or #stack == 0 then return end
-
-    -- build combined list
-    local combined = { base }
-    for _, st in ipairs(stack) do
-        table.insert(combined, st)
-    end
-
-    local fc = client.focus
-    local idx = 1
-    for i, c in ipairs(combined) do
-        if c == fc then idx = i; break end
-    end
-
-    local newIdx = idx + 1
-    if newIdx > #combined then
-        newIdx = 1
-    end
-
-    local target = combined[newIdx]
-    client.focus = target
-    target:raise()
+local function removeFromFrame(frame, c)
+	for i, cl in ipairs(frame.clients) do
+		if cl == c then
+			table.remove(frame.clients, i)
+			if frame.activeIdx > i then
+				frame.activeIdx = frame.activeIdx - 1
+			end
+			frame.activeIdx = math.max(1, math.min(frame.activeIdx, #frame.clients))
+			break
+		end
+	end
+	clientFrame[c] = nil
 end
 
--- 3) findBaseFor window
-function M.findBaseFor(c)
-    if baseStacks[c] then
-        return c
-    end
-    for b, list in pairs(baseStacks) do
-        for _, st in ipairs(list) do
-            if st == c then
-                return b
-            end
-        end
-    end
-    return nil
+local function dissolveFrame(frame)
+	for _, c in ipairs(frame.clients) do
+		clientFrame[c] = nil
+		if c.valid then
+			c.floating = false -- tiling before reveal so window enters layout directly
+			c.hidden = false
+			hideTabbar(c)
+		end
+	end
 end
 
--- 4) stackByDirection
-function M.stackByDirection(direction)
-    local c = client.focus
-    if not c then return end
-    local t = c.screen.selected_tag
-    if not t then return end
+-------------------------------------------------------------------------
+-- setActive: promote new window to anchor on every cycle.
+-- makeAnchor hides the old anchor (picom fade out) and tiles the new one.
+-- Revealing the new anchor (picom fade in) completes the crossfade.
+-- Because the active window is always the anchor, unstack* is trivially safe.
+-------------------------------------------------------------------------
 
-    local cl = t:clients()
-    if #cl < 2 then return end
+setActive = function(frame, newIdx)
+	if newIdx < 1 or newIdx > #frame.clients then
+		return
+	end
+	if newIdx == frame.activeIdx then
+		return
+	end
 
-    if direction == "left" or direction == "right" then
-        table.sort(cl, function(a,b) return a:geometry().x < b:geometry().x end)
-    else
-        table.sort(cl, function(a,b) return a:geometry().y < b:geometry().y end)
-    end
+	local newActive = frame.clients[newIdx]
+	if not newActive.valid then
+		return
+	end
 
-    local idx
-    for i, w in ipairs(cl) do
-        if w == c then idx = i; break end
-    end
-    if not idx then return end
+	makeAnchor(frame, newActive) -- old anchor: hidden=true (fade out); newActive: tiling
+	newActive.hidden = false -- reveal: picom fade in
+	newActive:raise()
 
-    local step = (direction == "left" or direction == "up") and -1 or 1
-    local newIdx = idx + step
-    -- clamp or wrap
-    if newIdx < 1 then newIdx = #cl
-    elseif newIdx > #cl then newIdx = 1
-    end
-
-    local base = cl[newIdx]
-    if base == c then return end
-
-    M.stackWindow(base, c)
+	frame.activeIdx = newIdx
+	client.focus = newActive
+	rebuildTabbar(frame)
 end
 
--- 5) override swap if user is focusing a stacked window
-function M.swapOrRedirect(direction)
-    local c = client.focus
-    local base = M.findBaseFor(c)
-    if base and base ~= c then
-        -- swap base instead
-        awful.client.swap.bydirection(direction, base)
-    else
-        -- normal swap
-        awful.client.swap.bydirection(direction, c)
-    end
+-------------------------------------------------------------------------
+-- Auto-cleanup when a framed client is closed
+-------------------------------------------------------------------------
+
+client.connect_signal("unmanage", function(c)
+	local frame = clientFrame[c]
+	if not frame then
+		return
+	end
+
+	local wasAnchor = (c == frame.anchor)
+	removeFromFrame(frame, c)
+
+	if #frame.clients == 0 then
+		return
+	elseif #frame.clients == 1 then
+		dissolveFrame(frame)
+		return
+	end
+
+	-- Active window is always the anchor; promote a replacement and reveal it.
+	local newActive = frame.clients[frame.activeIdx]
+	if newActive and newActive.valid then
+		newActive.floating = false
+		newActive.hidden = false
+		frame.anchor = newActive
+		newActive:raise()
+		client.focus = newActive
+		rebuildTabbar(frame)
+	end
+end)
+
+-------------------------------------------------------------------------
+-- Public API
+-------------------------------------------------------------------------
+
+-- Stack every eligible client on the current tag into one frame.
+-- "Eligible" = not floating, OR already in a frame (frame floats are ok).
+function M.stackAll()
+	local t = awful.screen.focused().selected_tag
+	if not t then
+		return
+	end
+	local cls = t:clients()
+	if #cls < 2 then
+		return
+	end
+
+	local allClients = {}
+	local seen = {}
+	local affectedFrames = {}
+
+	for _, c in ipairs(cls) do
+		local inFrame = clientFrame[c] ~= nil
+		if not seen[c] and (not c.floating or inFrame) then
+			seen[c] = true
+			local f = clientFrame[c]
+			if f then
+				affectedFrames[f] = true
+			end
+			clientFrame[c] = nil
+			table.insert(allClients, c)
+		end
+	end
+
+	for f in pairs(affectedFrames) do
+		for _, c in ipairs(f.clients) do
+			hideTabbar(c)
+		end
+	end
+
+	if #allClients < 2 then
+		return
+	end
+
+	local focusedIdx = 1
+	local fc = client.focus
+	for i, c in ipairs(allClients) do
+		if c == fc then
+			focusedIdx = i
+			break
+		end
+	end
+
+	local anchor = allClients[focusedIdx]
+	local frame = { clients = allClients, activeIdx = focusedIdx, anchor = anchor }
+
+	for _, c in ipairs(allClients) do
+		clientFrame[c] = frame
+	end
+
+	-- Anchor: ensure tiling and visible
+	anchor.hidden = false
+	anchor.floating = false
+
+	-- Others: mark as float and hide — makeAnchor tiles them when cycled to
+	for i, c in ipairs(allClients) do
+		if i ~= focusedIdx then
+			c.floating = true
+			c.hidden = true
+		end
+	end
+
+	anchor:raise()
+	client.focus = anchor
+	rebuildTabbar(frame)
+end
+
+-- Peel the focused client off its frame.
+-- For isRelated frames: sends all remaining clients back to their home tags.
+-- For isGlobal frames: moves the unstacked client to the origin tag.
+-- For normal frames: the rest of the frame continues as-is.
+function M.unstackCurrent()
+	local c = client.focus
+	if not c then
+		return
+	end
+	local frame = clientFrame[c]
+	if not frame then
+		return
+	end
+
+	makeAnchor(frame, c)
+	removeFromFrame(frame, c)
+	hideTabbar(c)
+
+	if frame.isRelated then
+		for _, cl in ipairs(frame.clients) do
+			clientFrame[cl] = nil
+			if cl.valid then
+				cl.floating = false
+				cl.hidden = false
+				hideTabbar(cl)
+				local ht = frame.homeTags[cl]
+				if ht and ht.valid then
+					cl:move_to_tag(ht)
+				end
+			end
+		end
+		client.focus = c
+		c:raise()
+		return
+	end
+
+	if frame.isGlobal then
+		if frame.originTag and frame.originTag.valid then
+			c:move_to_tag(frame.originTag)
+		end
+		if #frame.clients == 0 then
+			-- nothing
+		elseif #frame.clients == 1 then
+			dissolveFrame(frame)
+		else
+			local newActive = frame.clients[frame.activeIdx]
+			if newActive and newActive.valid then
+				newActive.floating = false
+				newActive.hidden = false
+				frame.anchor = newActive
+				newActive:raise()
+				rebuildTabbar(frame)
+			end
+		end
+		client.focus = c
+		c:raise()
+		return
+	end
+
+	-- Normal frame: the rest continues
+	if #frame.clients == 0 then
+		return
+	elseif #frame.clients == 1 then
+		dissolveFrame(frame)
+	else
+		local newActive = frame.clients[frame.activeIdx]
+		if newActive and newActive.valid then
+			newActive.floating = false
+			newActive.hidden = false
+			frame.anchor = newActive
+			newActive:raise()
+			rebuildTabbar(frame)
+		end
+	end
+
+	client.focus = c
+	c:raise()
+end
+
+-- Dissolve the frame entirely.
+-- For isRelated/isGlobal frames: sends all clients back to their home tags.
+-- For normal frames: returns all clients to the tiling layout on the current tag.
+function M.unstackAll()
+	local c = client.focus
+	if not c then
+		return
+	end
+	local frame = clientFrame[c]
+	if not frame then
+		return
+	end
+
+	makeAnchor(frame, c)
+
+	if frame.isRelated or frame.isGlobal then
+		local originTag = frame.originTag
+		for _, cl in ipairs(frame.clients) do
+			clientFrame[cl] = nil
+			if cl.valid then
+				cl.floating = false
+				cl.hidden = false
+				hideTabbar(cl)
+				local ht = frame.homeTags[cl]
+				if ht and ht.valid then
+					cl:move_to_tag(ht)
+				end
+			end
+		end
+		if frame.isGlobal and originTag and originTag.valid then
+			originTag:view_only()
+		else
+			client.focus = c
+			c:raise()
+		end
+		return
+	end
+
+	dissolveFrame(frame)
+	client.focus = c
+	c:raise()
+end
+
+-- Cycle forward through the frame containing the focused client.
+function M.cycleStackForward()
+	local c = client.focus
+	if not c then
+		return
+	end
+	local frame = clientFrame[c]
+	if not frame then
+		return
+	end
+	setActive(frame, (frame.activeIdx % #frame.clients) + 1)
+end
+
+-- Cycle backward through the frame containing the focused client.
+function M.cycleStackBackward()
+	local c = client.focus
+	if not c then
+		return
+	end
+	local frame = clientFrame[c]
+	if not frame then
+		return
+	end
+	setActive(frame, ((frame.activeIdx - 2 + #frame.clients) % #frame.clients) + 1)
+end
+
+-------------------------------------------------------------------------
+-- Temp stack: stack all on first press, cycle on repeat, auto-unstack
+-- after TEMP_STACK_TIMEOUT seconds of inactivity.
+-------------------------------------------------------------------------
+function M.tempStack()
+	if _tempStackTimer then
+		_tempStackTimer:stop()
+		_tempStackTimer = nil
+		M.cycleStackForward()
+	else
+		M.stackAll()
+	end
+
+	_tempStackTimer = gears.timer.start_new(TEMP_STACK_TIMEOUT, function()
+		M.unstackAll()
+		_tempStackTimer = nil
+		return false
+	end)
+end
+
+-------------------------------------------------------------------------
+-- Stack all clients with the same class as the focused window.
+-- Pulls them from any tag to the current tag. Unstacking sends them back.
+-------------------------------------------------------------------------
+function M.stackRelated()
+	local c = client.focus
+	if not c then
+		return
+	end
+	local targetClass = c.class
+	if not targetClass then
+		return
+	end
+	local currentTag = awful.screen.focused().selected_tag
+	if not currentTag then
+		return
+	end
+
+	local homeTags = {}
+	local toStack = {}
+	local seen = {}
+
+	for _, cl in ipairs(client.get()) do
+		if cl.valid and not seen[cl] and (cl.class or "") == targetClass then
+			seen[cl] = true
+			homeTags[cl] = cl.first_tag or currentTag
+			if cl.first_tag ~= currentTag then
+				cl:move_to_tag(currentTag)
+			end
+			table.insert(toStack, cl)
+		end
+	end
+
+	if #toStack < 2 then
+		for cl, ht in pairs(homeTags) do
+			if ht ~= currentTag then
+				cl:move_to_tag(ht)
+			end
+		end
+		return
+	end
+
+	local seenFrames = {}
+	for _, cl in ipairs(toStack) do
+		local f = clientFrame[cl]
+		if f and not seenFrames[f] then
+			seenFrames[f] = true
+			for _, fc in ipairs(f.clients) do
+				hideTabbar(fc)
+			end
+		end
+		clientFrame[cl] = nil
+	end
+
+	local focusedIdx = 1
+	for i, cl in ipairs(toStack) do
+		if cl == c then
+			focusedIdx = i
+			break
+		end
+	end
+
+	local anchor = toStack[focusedIdx]
+	local frame = {
+		clients = toStack,
+		activeIdx = focusedIdx,
+		anchor = anchor,
+		isRelated = true,
+		homeTags = homeTags,
+	}
+	for _, cl in ipairs(toStack) do
+		clientFrame[cl] = frame
+	end
+
+	anchor.hidden = false
+	anchor.floating = false
+	for i, cl in ipairs(toStack) do
+		if i ~= focusedIdx then
+			cl.floating = true
+			cl.hidden = true
+		end
+	end
+
+	anchor:raise()
+	client.focus = anchor
+	rebuildTabbar(frame)
+end
+
+-------------------------------------------------------------------------
+-- Stack all clients across all tags into one frame on the current tag.
+-- Second call restores each client to its original tag and focuses origin.
+-- unstackCurrent during a global stack moves the window to the origin tag.
+-------------------------------------------------------------------------
+function M.stackAllGlobal()
+	local c = client.focus
+	local frame = c and clientFrame[c]
+
+	-- Toggle off: restore everything
+	if frame and frame.isGlobal then
+		local originTag = frame.originTag
+		for _, cl in ipairs(frame.clients) do
+			clientFrame[cl] = nil
+			if cl.valid then
+				cl.floating = false
+				cl.hidden = false
+				hideTabbar(cl)
+				local ht = frame.homeTags[cl]
+				if ht and ht.valid then
+					cl:move_to_tag(ht)
+				end
+			end
+		end
+		if originTag and originTag.valid then
+			originTag:view_only()
+		end
+		return
+	end
+
+	-- Toggle on: pull everything to current tag and stack
+	local currentTag = awful.screen.focused().selected_tag
+	if not currentTag then
+		return
+	end
+
+	local homeTags = {}
+	local toStack = {}
+	local seen = {}
+
+	for _, cl in ipairs(client.get()) do
+		if cl.valid and not cl.hidden and not cl.floating and cl.screen == screen.primary and not seen[cl] then
+			seen[cl] = true
+			homeTags[cl] = cl.first_tag or currentTag
+			if cl.first_tag ~= currentTag then
+				cl:move_to_tag(currentTag)
+			end
+			table.insert(toStack, cl)
+		end
+	end
+
+	if #toStack < 2 then
+		for cl, ht in pairs(homeTags) do
+			if ht ~= currentTag then
+				cl:move_to_tag(ht)
+			end
+		end
+		return
+	end
+
+	local seenFrames = {}
+	for _, cl in ipairs(toStack) do
+		local f = clientFrame[cl]
+		if f and not seenFrames[f] then
+			seenFrames[f] = true
+			for _, fc in ipairs(f.clients) do
+				hideTabbar(fc)
+			end
+		end
+		clientFrame[cl] = nil
+	end
+
+	local focusedIdx = 1
+	for i, cl in ipairs(toStack) do
+		if cl == c then
+			focusedIdx = i
+			break
+		end
+	end
+
+	local anchor = toStack[focusedIdx]
+	local newFrame = {
+		clients = toStack,
+		activeIdx = focusedIdx,
+		anchor = anchor,
+		isGlobal = true,
+		homeTags = homeTags,
+		originTag = currentTag,
+	}
+	for _, cl in ipairs(toStack) do
+		clientFrame[cl] = newFrame
+	end
+
+	anchor.hidden = false
+	anchor.floating = false
+	for i, cl in ipairs(toStack) do
+		if i ~= focusedIdx then
+			cl.floating = true
+			cl.hidden = true
+		end
+	end
+
+	anchor:raise()
+	client.focus = anchor
+	rebuildTabbar(newFrame)
 end
 
 return M

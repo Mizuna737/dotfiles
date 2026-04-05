@@ -14,6 +14,7 @@ if [ $# -ge 1 ]; then
   "normal") PRIORITY="skip" ;;
   "low") PRIORITY="🔽" ;;
   "lowest") PRIORITY="⏬" ;;
+  "nicole") PRIORITY="nicole" ;;
   esac
 else
   TASK=$(rofi -dmenu -p "Capture Task" -l 0)
@@ -21,13 +22,14 @@ else
 
   DUE=$(rofi -dmenu -p "Due date (e.g. 'friday', 'shopping', leave blank to skip)" -l 0) || true
 
-  PRIORITY=$(printf "⏫ Highest\n🔼 High\n➡ Normal\n🔽 Low\n⏬ Lowest\nskip" | rofi -dmenu -p "Priority" -l 6) || true
+  PRIORITY=$(printf "⏫ Highest\n🔼 High\n➡ Normal\n🔽 Low\n⏬ Lowest\n♥ Nicole's List\nskip" | rofi -dmenu -p "Priority" -l 7) || true
   case "$PRIORITY" in
   "⏫ Highest") PRIORITY="⏫" ;;
   "🔼 High") PRIORITY="🔼" ;;
   "➡ Normal") PRIORITY="skip" ;;
   "🔽 Low") PRIORITY="🔽" ;;
   "⏬ Lowest") PRIORITY="⏬" ;;
+  "♥ Nicole's List") PRIORITY="nicole" ;;
   *) PRIORITY="skip" ;;
   esac
 fi
@@ -39,6 +41,18 @@ if [ "$DUE" = "shopping" ]; then
   curl -s -X POST http://localhost:9876/shopping/add \
     -H "Content-Type: application/json" \
     -d "{\"text\": \"$(echo "$TASK" | sed 's/"/\\"/g')\"}"
+  exit 0
+fi
+
+# Route to Nicole's priorities if selected
+if [ "$PRIORITY" = "nicole" ]; then
+  DUE_FIELD=""
+  if [ -n "$DUE" ] && [ "$DUE" != "skip" ]; then
+    DUE_FIELD=",\"due\":\"$(echo "$DUE" | sed 's/"/\\"/g')\""
+  fi
+  curl -s -X POST http://localhost:9876/nicole/add \
+    -H "Content-Type: application/json" \
+    -d "{\"text\":\"$(echo "$TASK" | sed 's/"/\\"/g')\"${DUE_FIELD}}"
   exit 0
 fi
 
