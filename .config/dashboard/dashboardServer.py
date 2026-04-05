@@ -47,6 +47,8 @@ TODOIST_CLIENT_ID = todoistConf.get("TODOIST_CLIENT_ID", "")
 TODOIST_CLIENT_SECRET = todoistConf.get("TODOIST_CLIENT_SECRET", "")
 TODOIST_PROJECT_NAME = "Shopping List"
 SHOPPING_LIST_FILE = os.path.join(OBSIDIAN_VAULT, "Notes/Shopping List.md")
+NICOLE_PROJECT_NAME = "Household priorities"
+NICOLE_PRIORITIES_FILE = os.path.join(OBSIDIAN_VAULT, "Notes/Nicole's Priorities.md")
 
 PORT = 9876
 
@@ -81,6 +83,8 @@ def getEndOfWeek():
 PRIORITY_ORDER = {"⏫": 0, "🔼": 1, "": 2, "🔽": 3, "⏬": 4}
 PRIORITY_RE = re.compile(r"[⏫🔼🔽⏬]")
 PONDER_RE = re.compile(r"#ponder")
+TODOIST_ID_RE = re.compile(r"\s*\[todoist::\s*[\w]+\]")
+DESC_RE = re.compile(r"\s*\[desc::\s*(.+?)\]")
 
 
 def getPriority(text):
@@ -124,6 +128,12 @@ def buildMatrix():
         else:
             q2.append(t)
 
+    # Nicole's priorities float to the top of this week's quadrant
+    q1.sort(key=lambda t: (
+        0 if "#nicole" in t.get("tags", "") else 1,
+        t.get("dueDate") or "9999",
+        PRIORITY_ORDER.get(getPriority(t["raw"]), 2),
+    ))
     return {"q1": q1, "q2": q2, "q3": q3, "ponder": ponder}
 
 
@@ -136,6 +146,10 @@ def todoistPollLoop():
             syncShoppingListFromTodoist()
         except Exception as e:
             print(f"Todoist poll error: {e}")
+        try:
+            syncNicolePrioritiesFromTodoist()
+        except Exception as e:
+            print(f"Nicole priorities poll error: {e}")
         time.sleep(60)
 
 
@@ -154,11 +168,13 @@ def todoistRequest(method, path, body=None):
         return {"error": str(e)}
 
 
-def getTodoistProjectId():
+def getTodoistProjectId(projectName=None):
+    if projectName is None:
+        projectName = TODOIST_PROJECT_NAME
     resp = todoistRequest("GET", "/projects")
     projects = resp.get("results", resp) if isinstance(resp, dict) else resp
     for p in projects:
-        if p["name"] == TODOIST_PROJECT_NAME:
+        if p["name"] == projectName:
             return p["id"]
     return None
 
@@ -269,6 +285,68 @@ def syncShoppingListFromTodoist():
     for task in tasks:
         newLines.append(f"- [ ] {task['content']} [todoist:: {task['id']}]\n")
     writeShoppingList(newLines)
+
+
+# ── Nicole's Priorities ──────────────────────────────────────────────────────
+
+
+def syncNicolePrioritiesFromTodoist():
+    """Full sync — rebuild Nicole's priorities note from Todoist state."""
+    projectId = getTodoistProjectId(NICOLE_PROJECT_NAME)
+    if not projectId:
+        return
+    tasks = getTodoistTasks(projectId)
+    if isinstance(tasks, dict) and "error" in tasks:
+        return
+    try:
+        with open(NICOLE_PRIORITIES_FILE, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+    except Exception:
+        lines = []
+    headerEnd = next((i for i, l in enumerate(lines) if l.strip() == "## Tasks"), None)
+    if headerEnd is not None:
+        newLines = lines[: headerEnd + 1] + ["\n"]
+    else:
+        newLines = [
+            "# Nicole's Priorities\n",
+            "\n",
+            'Synced from Todoist "This week\'s priorities". Do not edit manually.\n',
+            "\n",
+            "## Tasks\n",
+            "\n",
+        ]
+    for task in tasks:
+        due = task.get("due") or {}
+        dueDate = due.get("date", "")
+        dateStr = f" [[{dueDate}]]" if dueDate else ""
+        desc = (task.get("description") or "").strip()
+        descStr = f" [desc:: {desc}]" if desc else ""
+        newLines.append(f"- [ ] {task['content']} #nicole{dateStr}{descStr} [todoist:: {task['id']}]\n")
+    with open(NICOLE_PRIORITIES_FILE, "w", encoding="utf-8") as f:
+        f.writelines(newLines)
+
+
+def updateTodoistTaskDue(taskId, newRaw):
+    """Push due date from newRaw [[YYYY-MM-DD]] to Todoist. Clears due if no date found."""
+    dateMatch = re.search(r"\[\[(\d{4}-\d{2}-\d{2})\]\]", newRaw)
+    body = {"due_date": dateMatch.group(1)} if dateMatch else {"due_date": None}
+    result = todoistRequest("POST", f"/tasks/{taskId}", body)
+    print(f"updateTodoistTaskDue {taskId} body={body} result={result}")
+
+
+def syncCompletedNicoleTasks():
+    """Close any completed Nicole priority tasks in Todoist."""
+    try:
+        with open(NICOLE_PRIORITIES_FILE, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+    except Exception:
+        return
+    for line in lines:
+        m = re.match(r"^\s*-\s*\[x\]\s*(.+)$", line)
+        if m:
+            idMatch = re.search(r"\[todoist::\s*([\w]+)\]", m.group(1))
+            if idMatch:
+                closeTodoistTask(idMatch.group(1))
 
 
 # ── VPN ───────────────────────────────────────────────────────────────────
@@ -451,6 +529,10 @@ def extractTasks():
             displayText = DATE_RE.sub("", raw).strip()
             tags = TAG_RE.findall(displayText)
             displayText = TAG_RE.sub("", displayText).strip()
+            displayText = TODOIST_ID_RE.sub("", displayText).strip()
+            descMatch = DESC_RE.search(displayText)
+            description = descMatch.group(1).strip() if descMatch else ""
+            displayText = DESC_RE.sub("", displayText).strip()
             displayText = displayText.rstrip("|").strip()
 
             if not displayText:
@@ -469,6 +551,7 @@ def extractTasks():
                 {
                     "text": displayText,
                     "tags": " ".join(tags) if tags else "",
+                    "description": description,
                     "file": os.path.basename(filepath),
                     "path": filepath,
                     "relPath": relPath,
@@ -593,9 +676,10 @@ def startVaultWatcher():
         )
         for line in proc.stdout:
             eisenhowerBroadcast(buildMatrix())
-            # Check if Shopping List was modified
             if "Shopping List.md" in line:
                 syncCompletedShoppingItems()
+            if "Nicole's Priorities.md" in line:
+                syncCompletedNicoleTasks()
 
     t = threading.Thread(target=watch, daemon=True)
     t.start()
@@ -678,6 +762,147 @@ def toggleDroidcam():
             start_new_session=True,
         )
     return {"ok": True}
+
+
+# ── bgremove ─────────────────────────────────────────────────────────────────
+
+import signal as _signal
+
+BG_CACHE_FILE = os.path.expanduser("~/.cache/bgremove.bg")
+_BG_VALID_MODES = {"off", "blur", "green", "black"}
+WALLPAPER_DIR = os.path.expanduser("~/wallpapers")
+
+
+def getBgremoveState():
+    out, code = run(["pgrep", "-f", "bgremove.py"])
+    bgRunning = code == 0
+
+    if os.path.exists(BG_CACHE_FILE):
+        with open(BG_CACHE_FILE) as f:
+            mode = f.read().strip() or "blur"
+    else:
+        mode = "blur"
+
+    return {"running": bgRunning, "mode": mode}
+
+
+def _signalBgremove():
+    out, code = run(["pgrep", "-f", "bgremove.py"])
+    if code != 0:
+        run(["systemctl", "--user", "start", "bgremove"])
+    else:
+        for pid in out.strip().split():
+            try:
+                os.kill(int(pid), _signal.SIGUSR1)
+            except Exception:
+                pass
+
+
+def setBgremoveMode(mode):
+    if mode not in _BG_VALID_MODES:
+        return {"error": f"Invalid mode: {mode}"}
+
+    with open(BG_CACHE_FILE, "w") as f:
+        f.write(mode)
+
+    _signalBgremove()
+    return {"ok": True, "mode": mode}
+
+
+
+_bgPickerLock = threading.Lock()
+
+
+def pickBgremoveImage():
+    if not _bgPickerLock.acquire(blocking=False):
+        return {"error": "Image picker already open"}
+    try:
+        return _pickBgremoveImageInner()
+    finally:
+        _bgPickerLock.release()
+
+
+def _pickBgremoveImageInner():
+    exts = ("*.jpg", "*.jpeg", "*.png", "*.webp")
+    images = sorted(
+        p for pat in exts
+        for p in glob.glob(os.path.join(WALLPAPER_DIR, pat))
+    )
+    if not images:
+        return {"error": "No images found in wallpapers directory"}
+
+    env = {**os.environ, "DISPLAY": os.environ.get("DISPLAY", ":0")}
+
+    proc = subprocess.Popen(
+        ["nsxiv", "-ot"] + images,
+        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+        text=True, env=env
+    )
+
+    stdout, _ = proc.communicate()
+    selected = stdout.strip()
+    if not selected:
+        return {"cancelled": True}
+
+    imagePath = selected.splitlines()[0]
+    with open(BG_CACHE_FILE, "w") as f:
+        f.write(imagePath)
+
+    _signalBgremove()
+    return {"ok": True, "mode": imagePath}
+
+
+# ── System stats ─────────────────────────────────────────────────────────────
+
+_lastCpuStat = None
+
+
+def getCpuPercent():
+    global _lastCpuStat
+    with open("/proc/stat") as f:
+        fields = list(map(int, f.readline().split()[1:]))
+    idle, total = fields[3], sum(fields)
+    if _lastCpuStat is None:
+        _lastCpuStat = (idle, total)
+        return 0.0
+    prevIdle, prevTotal = _lastCpuStat
+    _lastCpuStat = (idle, total)
+    diffTotal = total - prevTotal
+    return round(100.0 * (1.0 - (idle - prevIdle) / diffTotal), 1) if diffTotal else 0.0
+
+
+def getSysStats():
+    cpu = getCpuPercent()
+
+    memInfo = {}
+    with open("/proc/meminfo") as f:
+        for line in f:
+            key, val = line.split(":", 1)
+            memInfo[key.strip()] = int(val.split()[0])  # kB
+    ramTotal = memInfo.get("MemTotal", 1)
+    ramUsed  = ramTotal - memInfo.get("MemAvailable", 0)
+
+    gpuUtil = vramUsed = vramTotal = 0
+    try:
+        r = subprocess.run(
+            ["nvidia-smi", "--query-gpu=utilization.gpu,memory.used,memory.total",
+             "--format=csv,noheader,nounits"],
+            capture_output=True, text=True, timeout=2
+        )
+        if r.returncode == 0:
+            parts = r.stdout.strip().split(",")
+            gpuUtil   = int(parts[0].strip())
+            vramUsed  = int(parts[1].strip())
+            vramTotal = int(parts[2].strip())
+    except Exception:
+        pass
+
+    return {
+        "cpu":  cpu,
+        "ram":  {"used": ramUsed,  "total": ramTotal},   # kB
+        "gpu":  gpuUtil,
+        "vram": {"used": vramUsed, "total": vramTotal},  # MiB
+    }
 
 
 # ── pactl subscribe watcher ───────────────────────────────────────────────
@@ -848,6 +1073,10 @@ class Handler(BaseHTTPRequestHandler):
             jsonResp(self, extractTasks())
         elif path == "/status/droidcam":
             jsonResp(self, getDroidcamState())
+        elif path == "/status/bgremove":
+            jsonResp(self, getBgremoveState())
+        elif path == "/status/sysstat":
+            jsonResp(self, getSysStats())
         elif path == "/colors.css":
             try:
                 cssPath = os.path.expanduser("~/.cache/wal/colors.css")
@@ -1056,6 +1285,30 @@ class Handler(BaseHTTPRequestHandler):
         elif path == "/shopping/sync":
             syncShoppingListFromTodoist()
             jsonResp(self, {"ok": True})
+        elif path == "/nicole/add":
+            length = int(self.headers.get("Content-Length", 0))
+            body = json.loads(self.rfile.read(length)) if length else {}
+            text = body.get("text", "").strip()
+            if not text:
+                jsonResp(self, {"ok": False, "error": "No text"}, 400)
+                return
+            projectId = getTodoistProjectId(NICOLE_PROJECT_NAME)
+            if not projectId:
+                jsonResp(self, {"ok": False, "error": "Project not found"}, 500)
+                return
+            taskBody = {"content": text, "project_id": projectId}
+            due = body.get("due", "").strip()
+            if due:
+                if re.match(r"^\d{4}-\d{2}-\d{2}$", due):
+                    taskBody["due_date"] = due
+                else:
+                    taskBody["due_string"] = due
+            task = todoistRequest("POST", "/tasks", taskBody)
+            if "error" in task:
+                jsonResp(self, {"ok": False, "error": task["error"]}, 500)
+                return
+            syncNicolePrioritiesFromTodoist()
+            jsonResp(self, {"ok": True, "id": task["id"]})
         elif path == "/task/modify":
             length = int(self.headers.get("Content-Length", 0))
             body = json.loads(self.rfile.read(length)) if length else {}
@@ -1076,6 +1329,10 @@ class Handler(BaseHTTPRequestHandler):
                 content = content.replace(f"{prefix}{oldRaw}", f"{prefix}{newRaw}", 1)
                 with open(filepath, "w", encoding="utf-8") as f:
                     f.write(content)
+                # Sync due date back to Todoist for Nicole tasks
+                idMatch = re.search(r"\[todoist::\s*([\w]+)\]", newRaw)
+                if idMatch:
+                    updateTodoistTaskDue(idMatch.group(1), newRaw)
                 jsonResp(self, {"ok": True})
             except Exception as e:
                 jsonResp(self, {"ok": False, "error": str(e)}, 500)
@@ -1121,6 +1378,13 @@ class Handler(BaseHTTPRequestHandler):
             mode = path.split("/")[-1]
             droidcamPut(f"/v1/camera/autofocus_mode/{mode}")
             jsonResp(self, {"ok": True})
+        elif path == "/bgremove/mode":
+            length = int(self.headers.get("Content-Length", 0))
+            body = json.loads(self.rfile.read(length)) if length else {}
+            mode = body.get("mode", "")
+            jsonResp(self, setBgremoveMode(mode))
+        elif path == "/bgremove/pickimage":
+            jsonResp(self, pickBgremoveImage())
         elif path == "/webhook":
             length = int(self.headers.get("Content-Length", 0))
             body = json.loads(self.rfile.read(length)) if length else {}
@@ -1168,6 +1432,11 @@ if __name__ == "__main__":
         print("Todoist initial sync complete")
     except Exception as e:
         print(f"Todoist initial sync error: {e}")
+    try:
+        syncNicolePrioritiesFromTodoist()
+        print("Nicole priorities initial sync complete")
+    except Exception as e:
+        print(f"Nicole priorities initial sync error: {e}")
 
     todoistThread = threading.Thread(target=todoistPollLoop, daemon=True)
     todoistThread.start()

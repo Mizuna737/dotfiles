@@ -62,6 +62,8 @@ The Vault/
 - `chooseWallpaper.sh` — wallpaper picker (pass `true` for random), triggers pywal
 - `pasteFromHistory.sh` — CopyQ clipboard history via rofi
 - `droidCamDaemon.sh` — DroidCam background daemon helper
+- `bgremove.py` — GPU background removal virtual camera (RVM ONNX model, CUDA EP)
+- `bgremove-setup.sh` — one-time setup: installs v4l2loopback, downloads RVM model, creates venv
 
 ---
 
@@ -218,6 +220,102 @@ end)
 
 ---
 
+## Background Removal Virtual Camera (bgremove)
+
+GPU-accelerated background removal pipeline for video calls (Teams, etc.).
+
+### Pipeline
+
+`/dev/video20` (DroidCam) → `bgremove.py` (RVM ONNX, CUDA EP) → `/dev/video21` (VirtualCam-BG)
+
+### Key Files
+
+- `~/Scripts/bgremove.py` — main loop: reads v4l2 input, runs RVM inference, composites, writes to v4l2loopback output. Stays alive when DroidCam is off (outputs black placeholder so apps keep enumerating the device).
+- `~/Scripts/bgremove-setup.sh` — one-time setup: installs v4l2loopback-dkms, downloads RVM MobileNetV3 ONNX model, creates Python venv at `~/.local/share/bgremove/venv`, patches pyfakewebcam for NumPy 2.x.
+- `~/.config/systemd/user/bgremove.service` — user service; sets `LD_LIBRARY_PATH` for CUDA shims.
+- `/etc/modprobe.d/v4l2loopback.conf` — `devices=2 video_nr=20,21 card_label="DroidCam,VirtualCam-BG" exclusive_caps=1,1` — both devices persistent on boot.
+
+### Runtime Config
+
+- Resolution: 1920×1080 @ 30fps, `--downsample 0.5` (model infers at 960×540)
+- Background: `blur` (default); hot-reload via `echo 'green' > ~/.cache/bgremove.bg && kill -USR1 $(pgrep -f bgremove.py)`
+- Mode `off` = raw passthrough (no inference)
+- Dashboard controls: `GET /status/bgremove`, `POST /bgremove/mode`
+
+### CUDA Shims (`~/.local/share/bgremove/cuda_shims/`)
+
+onnxruntime-gpu pip wheel links against CUDA 12; system has CUDA 13. Shims bridge the gap:
+
+- `libcufft.so.11` — compiled C shim (`cufft11_shim.c`) using `.symver` + version script to export `cufftCreate@@libcufft.so.11` etc., forwarding to real `libcufft.so.12` via dlopen
+- `libcudart.so.12` → symlink to `/usr/local/lib/ollama/cuda_v12/libcudart.so.12.8.90` (Ollama ships real CUDA 12 cudart)
+- `libcublas.so.12`, `libcublasLt.so.12` → symlinks to `/opt/cuda/lib64/` (already CUDA 12-compatible)
+- `libcudnn.so.9` → symlink to `/usr/lib/libcudnn.so.9.20.0`
+- `libcurand.so.10` — patchelf-patched copy of system lib (VERDEF already says `libcurand.so.10` ✓)
+
+### Performance
+
+- CUDA EP active, GPU util 56–83% during inference
+- 1080p: ~22ms/frame (45fps inference headroom)
+- Re-run `bgremove-setup.sh` after `paru -Syu` updates the venv's onnxruntime or pyfakewebcam
+
+### Troubleshooting: DroidCam "Connection reset" after reboot
+
+`droidcam-cli` errors with `Error: Connection reset! Is the app running?` even when the phone app is running. Caused by v4l2loopback module state going stale on boot.
+
+**Prevention:** `/etc/systemd/system/v4l2loopback-reload.service` (enabled, WantedBy=multi-user.target) reloads the module fresh after `systemd-modules-load.service` and before the graphical session. bgremove.service declares `After=v4l2loopback-reload.service` to enforce ordering.
+
+**Manual fix** (if it still occurs — bgremove must stop first so the module can unload):
+
+```sh
+systemctl --user stop bgremove.service
+sudo modprobe -r v4l2loopback
+sudo modprobe v4l2loopback
+systemctl --user start bgremove.service
+# then run droidcam-cli as normal
+```
+
+`modprobe v4l2loopback` picks up options from `/etc/modprobe.d/v4l2loopback.conf` automatically (`devices=2 video_nr=20,21 card_label="DroidCam,VirtualCam-BG" exclusive_caps=1,1`).
+
+---
+
+## Claude Assistant Plugin
+
+Obsidian side-panel plugin for chatting with Claude or local models. Source: `The Vault/.obsidian/plugins/claude-assistant/main.ts`.
+
+### Backends
+- **Anthropic API** — Claude models (Sonnet, Opus, Haiku) with native tool_use and prompt caching
+- **Ollama** — local models via `/api/chat`; tool calling via XML (`<tool_call>` tags parsed with regex, since qwen models don't support native tool_use reliably)
+
+### Model switching — slash commands
+Type in the input box before sending:
+- `/sonnet` → claude-sonnet-4-6
+- `/opus` → claude-opus-4-6
+- `/haiku` → claude-haiku-4-5-20251001
+- `/local` → ollama (default model)
+- `/7b` → ollama + qwen2.5:7b
+- `/14b` → ollama + qwen2.5:14b
+
+### Tools available to the model
+- `readNote` — read full note content by path
+- `createNote` — create new note
+- `appendToNote` — append text to existing note
+- `modifyNote` — replace full note content
+- `patchFrontmatter` — patch only YAML frontmatter, body untouched (batched, one confirmation for multiple files)
+
+All write tools require user confirmation (Apply/Cancel UI).
+
+### Key implementation details
+- **resolveFile()** — 3-tier path fallback: exact path → metadataCache link resolver → basename-only. Handles model outputting bare filenames.
+- **runId cancellation** — Clear increments runId; stale async chains detect mismatch and exit. Input never left disabled.
+- **Prompt injection mitigation** — `<note>` XML wrapper with DATA ONLY label, note path stamped in system prompt and prepended to every user API message.
+- **Scroll** — triple setTimeout (0ms, 80ms, 250ms) after DOM mutations; needed because MarkdownRenderer layout is async.
+- **Ollama history flattening** — `tool_use` blocks serialized back to XML in history so the model sees prior tool calls and doesn't loop.
+
+### Known limitations
+- **Local model transcript labeling fails** — qwen2.5:7b and 14b get prompt-injected by long transcript content despite XML DATA wrapping. Workaround: use `/haiku` (~1 cent/transcript). Potential alternatives to test: phi4:14b, llama3.1:8b.
+
+---
+
 ## Known Issues / Pending Work
 
 - **luakit insert mode** — date input field in Eisenhower matrix doesn't auto-focus in luakit (normal mode). Deferred.
@@ -242,7 +340,7 @@ end)
 - **Theming:** pywal
 - **Dotfiles:** GNU Stow → `~/dotfiles` → GitHub
 - **Dashboard:** Python stdlib HTTPServer, SSE, inotifywait vault watcher
-- **Camera:** DroidCam CLI + HTTP API
+- **Camera:** DroidCam CLI + HTTP API; GPU background removal via bgremove virtual camera
 - **VPN:** Windscribe CLI
 - **Clipboard:** CopyQ
 - **Nginx:** TLS termination on 443 for external webhook + iOS shortcut access

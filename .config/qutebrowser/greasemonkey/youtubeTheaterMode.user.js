@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Full Width Theater
 // @namespace    https://github.com/max/dotfiles
-// @version      1.8
+// @version      1.9
 // @description  Makes YouTube theater mode use full screen width and height, enabled by default
 // @match        https://www.youtube.com/*
 // @run-at       document-idle
@@ -19,15 +19,18 @@
         ytd-watch-flexy[theater] #player-container {
             z-index: 2021 !important;
             position: relative !important;
-            max-width: 100% !important;
+            max-width: 100vw !important;
             width: 100% !important;
             padding: 0 !important;
             margin: 0 !important;
+            overflow: hidden !important;
         }
 
         ytd-watch-flexy[theater] #full-bleed-container {
             z-index: 2021 !important;
             position: relative !important;
+            max-width: 100vw !important;
+            overflow: hidden !important;
         }
 
         /* Remove top offset YouTube adds for the header */
@@ -51,6 +54,27 @@
         ytd-watch-flexy[theater] video {
             height: 100vh !important;
             max-height: 100vh !important;
+        }
+
+        /* Constrain player width to viewport — clip on the player container only, not the page */
+        ytd-watch-flexy[theater] #full-bleed-container,
+        ytd-watch-flexy[theater] #player-container,
+        ytd-watch-flexy[theater] #ytd-player,
+        ytd-watch-flexy[theater] #movie_player,
+        ytd-watch-flexy[theater] .html5-video-container {
+            width: 100vw !important;
+            max-width: 100vw !important;
+        }
+
+        ytd-watch-flexy[theater] video {
+            width: 100vw !important;
+            max-width: 100vw !important;
+            object-fit: contain !important;
+        }
+
+        /* Clip overflow only on the player container, not the full page */
+        ytd-watch-flexy[theater] #full-bleed-container {
+            overflow: hidden !important;
         }
     `;
   document.head.appendChild(style);

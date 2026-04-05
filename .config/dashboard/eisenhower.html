@@ -25,6 +25,7 @@
         --accent2: var(--color3, #cfb97e);
         --accent3: var(--color4, #7eaecf);
         --danger: var(--color1, #cf7e7e);
+        --nicole: var(--color5, #ff69b4);
         --border: color-mix(in srgb, var(--accent) 20%, transparent);
         --font-display: "Bebas Neue", sans-serif;
         --font-mono: "IBM Plex Mono", monospace;
@@ -441,6 +442,24 @@
       }
       .taskDue.overdue {
         color: var(--danger);
+      }
+      .taskItem.nicole .taskText {
+        color: var(--nicole);
+      }
+      .taskItem.nicole .taskText:hover {
+        color: color-mix(in srgb, var(--nicole) 70%, white);
+      }
+      .taskDesc {
+        font-size: 14px;
+        color: var(--fg-dim);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 1px;
+        font-style: italic;
+      }
+      .taskItem.nicole .taskDesc {
+        color: color-mix(in srgb, var(--nicole) 55%, var(--fg-dim));
       }
       .taskPriority {
         font-size: 14px;
@@ -889,7 +908,7 @@
           const hasMeta = task.dueDate || priority;
 
           const item = document.createElement("div");
-          item.className = "taskItem";
+          item.className = "taskItem" + (task.tags && task.tags.includes("#nicole") ? " nicole" : "");
 
           const check = document.createElement("div");
           check.className = "taskCheck" + (task.status === "inProgress" ? " inProgress" : "");
@@ -926,7 +945,14 @@
             pri.textContent = priority;
             meta.appendChild(pri);
           }
-          if (hasMeta) body.appendChild(meta);
+          body.appendChild(meta);
+
+          if (task.description) {
+            const descEl = document.createElement("div");
+            descEl.className = "taskDesc";
+            descEl.textContent = task.description;
+            body.appendChild(descEl);
+          }
 
           const actions = document.createElement("div");
           actions.className = "taskActions";

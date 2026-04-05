@@ -37,7 +37,7 @@ end
 -- and physically pressing T21 maps to "Shift" in keyd.
 --------------------------------
 --[[
-  Tartarus Key Assignments (6-column table)
+  Tartarus Key Assignments
   
   Columns:
     1) Key # (1–20)
@@ -47,28 +47,28 @@ end
     5) Modified Tap (short press + T21 modifier)
     6) Modified Tap+Hold (long press + T21 modifier)
   
-  | #  | Default | Tap              | Tap+Hold               | Mod Tap                 | Mod Tap+Hold                |
-  |----|---------|------------------|------------------------|-------------------------|-----------------------------|
-  | 1  | 1       | Find Terminal    | Open Terminal          | View Tag 1              | Move Focused Window to 1    |
-  | 2  | 2       | Find Browser     | Open Browser           | View Tag 2              | Move Focused Window to 2    |
-  | 3  | 3       | Find Editor      | Open Editor            | View Tag 3              | Move Focused Window to 3    |
-  | 4  | 4       | Find File Browser| Open File Browser      | View Tag 4              | Move Focused Window to 4    |                            |
-  | 5  | 5       |                  |                        |                         |                             |
-  | 6  | tab     |                  |                        |                         |                             |
-  | 7  | q       |                  |                        |                         |                             |
-  | 8  | w       |                  |                        |                         |                             |
-  | 9  | e       |                  |                        |                         |                             |
-  | 10 | r       |                  |                        |                         |                             |
-  | 11 | caps    |                  |                        |                         |                             |
-  | 12 | a       |                  |                        |                         |                             |
-  | 13 | s       |                  |                        |                         |                             |
-  | 14 | d       |                  |                        |                         |                             |
-  | 15 | f       |                  |                        |                         |                             |
-  | 16 | shift   |                  |                        |                         |                             |
-  | 17 | z       |                  |                        |                         |                             |
-  | 18 | x       |                  |                        |                         |                             |
-  | 19 | c       |                  |                        |                         |                             |
-  | 20 | space   |                  |                        |                         |                             |
+  | #  | Default | Tap               | Tap+Hold               | Mod Tap                 | Mod Tap+Hold                |
+  |----|---------|-------------------|------------------------|-------------------------|-----------------------------|
+  | 1  | 1       | Find Terminal     | Find Global/Open       | View Tag 1              | View Tag 1 (Exclusive)      |
+  | 2  | 2       | Find Browser      | Find Global/Open       | View Tag 2              | View Tag 2 (Exclusive)      |
+  | 3  | 3       | Find Editor       | Find Global/Open       | View Tag 3              | View Tag 3 (Exclusive)      |
+  | 4  | 4       | Find File Browser | Find Global/Open       | View Tag 4              | View Tag 4 (Exclusive)      |
+  | 5  | 5       | Find Comms        | Find Global/Open       | View Tag 5              | View Tag 5 (Exclusive)      |
+  | 6  | tab     | Stack All On Tag  | Stack Related          | Temp Stack (Alt+Tab)    | Stack All Global            |
+  | 7  | q       | Cycle Stack Left  | Cycle Layout Left      | Previous Populated Tag  | Previous Tag                |
+  | 8  | w       | Unstack Current   |                        | Focus Up                | Swap Up                     |
+  | 9  | e       | Cycle Stack Right | Cycle Layout Right     | Next Populated Tag      | Next Tag                    |
+  | 10 | r       | Unstack All       | Show Cheatsheet        |                         |                             |
+  | 11 | caps    |                   |                        |                         |                             |
+  | 12 | a       |                   |                        | Focus Left              | Swap Left                   |
+  | 13 | s       | Eisenhower        | Quick Notes            | Focus Down              | Swap Down                   |
+  | 14 | d       |                   |                        | Focus Right             | Swap Right                  |
+  | 15 | f       | Audio Sink        | VPN                    |                         |                             |
+  | 16 | shift   |                   |                        |                         |                             |
+  | 17 | z       |                   |                        |                         |                             |
+  | 18 | x       |                   |                        |                         |                             |
+  | 19 | c       |                   |                        |                         |                             |
+  | 20 | space   | Capture Task      | File Tasks             |                         |                             |
 ]]
 tartarus.globalkeys = gears.table.join(
 
@@ -87,8 +87,8 @@ tartarus.globalkeys = gears.table.join(
 		myFuncs.viewWorkspace(1)
 	end, "T1 mod tap => switch to tag 1"),
 	tk({ modkey, ctrl, altkey, shft }, "1", function()
-		myFuncs.moveWindowToWorkspace(1)
-	end, "T1 mod hold => move focused window to tag 1"),
+		myFuncs.viewWorkspaceExclusive(1)
+	end, "T1 mod hold => view tag 1 exclusive"),
 
 	-- Key 2
 	tk({ modkey, ctrl }, "2", function()
@@ -101,8 +101,8 @@ tartarus.globalkeys = gears.table.join(
 		myFuncs.viewWorkspace(2)
 	end, "T2 mod tap => viewWorkspace(2)"),
 	tk({ modkey, ctrl, altkey, shft }, "2", function()
-		myFuncs.moveWindowToWorkspace(2)
-	end, "T2 mod hold => moveWindowToWorkspace(2)"),
+		myFuncs.viewWorkspaceExclusive(2)
+	end, "T2 mod hold => view tag 2 exclusive"),
 
 	-- Key 3
 	tk({ modkey, ctrl }, "3", function()
@@ -115,8 +115,8 @@ tartarus.globalkeys = gears.table.join(
 		myFuncs.viewWorkspace(3)
 	end, "T3 mod tap => viewWorkspace(3)"),
 	tk({ modkey, ctrl, altkey, shft }, "3", function()
-		myFuncs.moveWindowToWorkspace(3)
-	end, "T3 mod hold => moveWindowToWorkspace(3)"),
+		myFuncs.viewWorkspaceExclusive(3)
+	end, "T3 mod hold => view tag 3 exclusive"),
 
 	-- Key 4
 	tk({ modkey, ctrl }, "4", function()
@@ -129,22 +129,22 @@ tartarus.globalkeys = gears.table.join(
 		myFuncs.viewWorkspace(4)
 	end, "T4 mod tap => viewWorkspace(4)"),
 	tk({ modkey, ctrl, altkey, shft }, "4", function()
-		myFuncs.moveWindowToWorkspace(4)
-	end, "T4 mod hold => moveWindowToWorkspace(4)"),
+		myFuncs.viewWorkspaceExclusive(4)
+	end, "T4 mod hold => view tag 4 exclusive"),
 
 	-- Key 5
 	tk({ modkey, ctrl }, "5", function()
-		myFuncs.startDroidCam()
-	end, "T5 tap => launch DroidCam"),
+		myFuncs.findComms()
+	end, "T5 tap => find comms (current tag)"),
 	tk({ modkey, ctrl, altkey }, "5", function()
-		myFuncs.lockScreen()
-	end, "T5 hold => lock screen"),
+		myFuncs.findComms("all")
+	end, "T5 hold => find comms (global)"),
 	tk({ modkey, ctrl, shft }, "5", function()
 		myFuncs.viewWorkspace(5)
 	end, "T5 mod tap => viewWorkspace(5)"),
 	tk({ modkey, ctrl, altkey, shft }, "5", function()
-		myFuncs.moveWindowToWorkspace(5)
-	end, "T5 mod hold => moveWindowToWorkspace(5)"),
+		myFuncs.viewWorkspaceExclusive(5)
+	end, "T5 mod hold => view tag 5 exclusive"),
 
 	--------------------------------------------------
 	-- Row 2: tab, q, w, e, r
@@ -153,73 +153,88 @@ tartarus.globalkeys = gears.table.join(
 
 	-- Key tab
 	tk({ modkey, ctrl }, "Tab", function()
-		myFuncs.addToInbox()
-	end, "Tab tap => add to inbox"),
+		stack.stackAll()
+	end, "Tab tap => stack all"),
+
 	tk({ modkey, ctrl, altkey }, "Tab", function()
-		myFuncs.addToInbox()
-	end, "Tab hold => focusRight"), -- example
+		stack.stackRelated()
+	end, "Tab hold => stack related windows"),
+
 	tk({ modkey, ctrl, shft }, "Tab", function()
-		stack.clearStacks()
-	end, "Tab mod tap => clear stacks"),
+		stack.tempStack()
+	end, "Tab mod tap => temp stack"),
+
 	tk({ modkey, ctrl, altkey, shft }, "Tab", function()
-		myFuncs.moveWindowToWorkspace(6)
-	end, "Tab mod hold => moveWindowToWorkspace(6)"),
+		stack.stackAllGlobal()
+	end, "Tab mod hold => stack all global"),
 
 	-- Key q
 	tk({ modkey, ctrl }, "q", function()
-		myFuncs.viewPopulatedTag("previous")
-	end, "Q tap => previous populated tag"),
+		stack.cycleStackForward()
+	end, "Q tap => cycle stack forward"),
+
 	tk({ modkey, ctrl, altkey }, "q", function()
-		myFuncs.openBrowser("google-chrome")
-	end, "Q hold => open chrome"),
+		myFuncs.prevLayoutForTag()
+	end, "Q hold => cycle layout left"),
+
 	tk({ modkey, ctrl, shft }, "q", function()
-		stack.cycleStack()
-	end, "Q mod tap => cycle stack"),
+		myFuncs.viewPopulatedTag("previous")
+	end, "Q mod tap => previous populated tag"),
+
 	tk({ modkey, ctrl, altkey, shft }, "q", function()
-		myFuncs.moveWindowToWorkspace(7)
-	end, "Q mod hold => moveWindowToWorkspace(7)"),
+		awful.tag.viewprev()
+	end, "Q mod hold => previous tag"),
 
 	-- Key w
 	tk({ modkey, ctrl }, "w", function()
-		myFuncs.moveFocus("up")
-	end, "W tap => move focus up"),
+		stack.unstackCurrent()
+	end, "W tap => unstack current"),
+
 	tk({ modkey, ctrl, altkey }, "w", function()
-		myFuncs.swapWindow("up")
-	end, "W hold => swap window up"),
+		naughty.notify({ title = "T w", text = "tap+hold pressed" })
+	end, "W hold => (unassigned)"),
+
 	tk({ modkey, ctrl, shft }, "w", function()
-		stack.stackByDirection("up")
-	end, "W mod tap => workspace(8)"),
+		myFuncs.moveFocus("up")
+	end, "W mod tap => focus up"),
+
 	tk({ modkey, ctrl, altkey, shft }, "w", function()
-		myFuncs.moveWindowToWorkspace(8)
-	end, "W mod hold => moveWindowToWorkspace(8)"),
+		myFuncs.swapWindow("up")
+	end, "W mod hold => swap up"),
 
 	-- Key e
 	tk({ modkey, ctrl }, "e", function()
-		myFuncs.viewPopulatedTag("next")
-	end, "E tap => next populated tag"),
+		stack.cycleStackBackward()
+	end, "E tap => cycle stack backward"),
+
 	tk({ modkey, ctrl, altkey }, "e", function()
-		myFuncs.toggleFloating()
-	end, "E hold => toggleFloating"),
+		myFuncs.nextLayoutForTag()
+	end, "E hold => cycle layout right"),
+
 	tk({ modkey, ctrl, shft }, "e", function()
-		myFuncs.viewWorkspace(9)
-	end, "E mod tap => workspace(9)"),
+		myFuncs.viewPopulatedTag("next")
+	end, "E mod tap => next populated tag"),
+
 	tk({ modkey, ctrl, altkey, shft }, "e", function()
-		myFuncs.moveWindowToWorkspace(9)
-	end, "E mod hold => moveWindowToWorkspace(9)"),
+		awful.tag.viewnext()
+	end, "E mod hold => next tag"),
 
 	-- Key r
 	tk({ modkey, ctrl }, "r", function()
-		myFuncs.reloadAwesome()
-	end, "R tap => reload awesome"),
+		stack.unstackAll()
+	end, "R tap => unstack all"),
+
 	tk({ modkey, ctrl, altkey }, "r", function()
 		myFuncs.showCheatsheet()
 	end, "R hold => show cheatsheet"),
+
 	tk({ modkey, ctrl, shft }, "r", function()
-		myFuncs.viewWorkspace(10)
-	end, "R mod tap => workspace(10)"),
+		naughty.notify({ title = "T r", text = "mod tap pressed" })
+	end, "R mod tap => (unassigned)"),
+
 	tk({ modkey, ctrl, altkey, shft }, "r", function()
-		myFuncs.moveWindowToWorkspace(10)
-	end, "R mod hold => moveWindowToWorkspace(10)"),
+		naughty.notify({ title = "T r", text = "mod tap+hold pressed" })
+	end, "R mod hold => (unassigned)"),
 
 	--------------------------------------------------
 	-- Row 3: caps, a, s, d, f
@@ -242,59 +257,59 @@ tartarus.globalkeys = gears.table.join(
 
 	-- Key a
 	tk({ modkey, ctrl }, "a", function()
-		myFuncs.moveFocus("left")
-	end, "A tap => move focus left"),
+		naughty.notify({ title = "T a", text = "tap pressed" })
+	end, "A tap => (unassigned)"),
 	tk({ modkey, ctrl, altkey }, "a", function()
-		myFuncs.swapWindow("left")
-	end, "A hold => swap window left"),
+		naughty.notify({ title = "T a", text = "tap+hold pressed" })
+	end, "A hold => (unassigned)"),
 	tk({ modkey, ctrl, shft }, "a", function()
-		naughty.notify({ title = "T a", text = "mod tap pressed" })
-	end, "A mod tap => notify"),
+		myFuncs.moveFocus("left")
+	end, "A mod tap => focus left"),
 	tk({ modkey, ctrl, altkey, shft }, "a", function()
-		naughty.notify({ title = "T a", text = "mod tap+hold pressed" })
-	end, "A mod hold => notify"),
+		myFuncs.swapWindow("left")
+	end, "A mod hold => swap left"),
 
 	-- Key s
 	tk({ modkey, ctrl }, "s", function()
-		myFuncs.moveFocus("down")
-	end, "S tap => move focus down"),
+		myFuncs.toggleEisenhower()
+	end, "S tap => eisenhower matrix"),
 	tk({ modkey, ctrl, altkey }, "s", function()
-		myFuncs.swapWindow("down")
-	end, "S hold => swap window down"),
+		myFuncs.toggleQuickNotes()
+	end, "S hold => quick notes"),
 	tk({ modkey, ctrl, shft }, "s", function()
-		naughty.notify({ title = "T s", text = "mod tap pressed" })
-	end, "S mod tap => notify"),
+		myFuncs.moveFocus("down")
+	end, "S mod tap => focus down"),
 	tk({ modkey, ctrl, altkey, shft }, "s", function()
-		naughty.notify({ title = "T s", text = "mod tap+hold pressed" })
-	end, "S mod hold => notify"),
+		myFuncs.swapWindow("down")
+	end, "S mod hold => swap down"),
 
 	-- Key d
 	tk({ modkey, ctrl }, "d", function()
-		myFuncs.moveFocus("right")
-	end, "D tap => move focus right"),
+		naughty.notify({ title = "T d", text = "tap pressed" })
+	end, "D tap => (unassigned)"),
 	tk({ modkey, ctrl, altkey }, "d", function()
-		myFuncs.swapWindow("right")
-	end, "D hold => swap window right"),
+		naughty.notify({ title = "T d", text = "tap+hold pressed" })
+	end, "D hold => (unassigned)"),
 	tk({ modkey, ctrl, shft }, "d", function()
-		naughty.notify({ title = "T d", text = "mod tap pressed" })
-	end, "D mod tap => notify"),
+		myFuncs.moveFocus("right")
+	end, "D mod tap => focus right"),
 	tk({ modkey, ctrl, altkey, shft }, "d", function()
-		naughty.notify({ title = "T d", text = "mod tap+hold pressed" })
-	end, "D mod hold => notify"),
+		myFuncs.swapWindow("right")
+	end, "D mod hold => swap right"),
 
 	-- Key f
 	tk({ modkey, ctrl }, "f", function()
-		naughty.notify({ title = "T f", text = "tap pressed" })
-	end, "F tap => notify"),
+		myFuncs.cycleSink()
+	end, "F tap => cycle audio sink"),
 	tk({ modkey, ctrl, altkey }, "f", function()
-		naughty.notify({ title = "T f", text = "tap+hold pressed" })
-	end, "F hold => notify"),
+		myFuncs.toggleVPN()
+	end, "F hold => toggle VPN"),
 	tk({ modkey, ctrl, shft }, "f", function()
 		naughty.notify({ title = "T f", text = "mod tap pressed" })
-	end, "F mod tap => notify"),
+	end, "F mod tap => (unassigned)"),
 	tk({ modkey, ctrl, altkey, shft }, "f", function()
 		naughty.notify({ title = "T f", text = "mod tap+hold pressed" })
-	end, "F mod hold => notify"),
+	end, "F mod hold => (unassigned)"),
 
 	--------------------------------------------------
 	-- Row 4: shift, z, x, c, space

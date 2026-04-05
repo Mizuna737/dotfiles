@@ -1,0 +1,15 @@
+[Unit]
+Description=Auto-connect DroidCam when phone app is reachable
+After=network-online.target v4l2loopback-reload.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/home/max/Scripts/droidCamDaemon.sh
+Restart=always
+RestartSec=3
+StandardOutput=append:%h/.cache/droidcam-watch.log
+StandardError=append:%h/.cache/droidcam-watch.log
+
+[Install]
+WantedBy=default.target

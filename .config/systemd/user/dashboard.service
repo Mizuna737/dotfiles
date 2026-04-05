@@ -4,6 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
+Environment=PYTHONUNBUFFERED=1
 ExecStart=python3 /home/max/.config/dashboard/dashboardServer.py
 WorkingDirectory=/home/max/.config/dashboard
 Restart=on-failure
