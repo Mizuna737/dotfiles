@@ -1,0 +1,16 @@
+[Unit]
+Description=Gesture control action daemon — D-Bus signals to commands
+After=graphical-session.target gestureControl.service
+BindsTo=gestureControl.service
+
+[Service]
+Type=simple
+Environment=PYTHONUNBUFFERED=1
+ExecStart=%h/.local/share/gestureControl/venv/bin/python3 %h/Scripts/gestureControl-actions.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=append:%h/.cache/gestureControl-actions.log
+StandardError=append:%h/.cache/gestureControl-actions.log
+
+[Install]
+WantedBy=graphical-session.target

@@ -1,0 +1,49 @@
+# gestureControl — action bindings
+# Maps gesture signal names (from triggers.toml) to commands to execute.
+# This file is read by gestureControl-actions.py; the engine never sees it.
+#
+# Action types:
+#   exec         — run cmd as a subprocess (list, no shell interpolation)
+#   exec_scaled  — run template as a shell command; {value} is replaced with
+#                  the normalised float [0.0–1.0] from the continuous trigger
+#   key          — synthesize a keypress via xdotool
+#
+# on_end (optional) — extra action fired when a continuous trigger deactivates
+
+# ── Tag switching ──────────────────────────────────────────────────────────────
+
+[[bindings]]
+signal = "tag_1"
+action = { type = "exec", cmd = ["awesome-client", "local s=require('awful').screen.focused(); if s.tags[1] then s.tags[1]:view_only() end"] }
+
+[[bindings]]
+signal = "tag_2"
+action = { type = "exec", cmd = ["awesome-client", "local s=require('awful').screen.focused(); if s.tags[2] then s.tags[2]:view_only() end"] }
+
+[[bindings]]
+signal = "tag_3"
+action = { type = "exec", cmd = ["awesome-client", "local s=require('awful').screen.focused(); if s.tags[3] then s.tags[3]:view_only() end"] }
+
+[[bindings]]
+signal = "tag_4"
+action = { type = "exec", cmd = ["awesome-client", "local s=require('awful').screen.focused(); if s.tags[4] then s.tags[4]:view_only() end"] }
+
+[[bindings]]
+signal = "prev_tag"
+action = { type = "exec", cmd = ["awesome-client", "require('awful').tag.viewprev()"] }
+
+[[bindings]]
+signal = "next_tag"
+action = { type = "exec", cmd = ["awesome-client", "require('awful').tag.viewnext()"] }
+
+# ── Media ──────────────────────────────────────────────────────────────────────
+
+[[bindings]]
+signal = "play_pause"
+action = { type = "exec", cmd = ["playerctl", "play-pause"] }
+
+# ── Window stacking ────────────────────────────────────────────────────────────
+
+[[bindings]]
+signal = "stack_all"
+action = { type = "exec", cmd = ["awesome-client", "require('stack').stackAll()"] }

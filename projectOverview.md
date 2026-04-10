@@ -316,6 +316,89 @@ All write tools require user confirmation (Apply/Cancel UI).
 
 ---
 
+## Gesture Control System
+
+MediaPipe hand tracking → D-Bus signals → AwesomeWM/shell actions.
+
+### Architecture
+
+```
+gestureControl.py  →  D-Bus session bus  →  gestureControl-actions.py  (shell cmds)
+                   →                     →  signals.lua (AwesomeWM Lua)
+```
+
+### Key Files
+
+- `~/Scripts/gestureControl.py` — engine: reads webcam via OpenCV/MediaPipe, detects poses/swipes/sequences/continuous metrics, emits D-Bus signals on `org.gesturecontrol.Engine`
+- `~/Scripts/gestureControl-actions.py` — actions daemon: subscribes to D-Bus, dispatches shell commands per `actions.toml`
+- `~/.config/awesome/signals.lua` — AwesomeWM signal handler: subscribes to D-Bus, routes to Lua functions (volume, stack cycling)
+- `~/.config/gestureControl/triggers.toml` — gesture definitions: poses, bindings, cross-hand conditions
+- `~/.config/gestureControl/actions.toml` — shell action bindings for the actions daemon
+- `~/Scripts/gestureControl-setup.sh` — one-time setup script
+
+### Systemd Services
+
+Both run as systemd user services under `graphical-session.target`:
+
+- `gestureControl.service` — engine; `PartOf=graphical-session.target`
+- `gestureControl-actions.service` — daemon; `BindsTo=gestureControl.service`
+
+Venv: `~/.local/share/gestureControl/venv/` (mediapipe, opencv-python, dbus-python)
+
+Logs: `~/.cache/gestureControl.log`, `~/.cache/gestureControl-actions.log`
+
+### Camera
+
+- **IR (default):** `/dev/video2` — BRIO IR, GREY 340×340 @ 30fps
+- **RGB (alt):** `/dev/video0` — BRIO RGB, MJPG 1280×720 @ 60fps (max confirmed via v4l2-ctl; 90fps not available under Linux)
+- Switch via `camera = 0` / `camera = 2` in `triggers.toml`
+
+### Trigger Types
+
+| Type | Description |
+|------|-------------|
+| `pose` | Hand shape held for `dwell_ms` |
+| `swipe` | Directional motion (`left` / `right`) |
+| `sequence` | Ordered pose chain within `window_ms` |
+| `continuous` | Metric value streamed while pose is held; emits `ContinuousUpdate` + `ContinuousEnd` |
+| `chord` | Two poses held simultaneously |
+
+**Metrics for `continuous`:** `hand_height`, `pinch_distance`, `finger_spread`, `angle` (0.0 = pointing left, 1.0 = pointing right via wrist→middle-MCP cosine)
+
+**Cross-hand conditions:** `require_left = "POSE"` / `require_right = "POSE"` on any binding — opposite hand must hold that pose for trigger to activate. Both-hands-present suppresses single-hand triggers.
+
+### D-Bus Signals (`org.gesturecontrol.Engine`)
+
+- `GestureFired(name: str, hand: str)` — pose/swipe/sequence/chord triggered
+- `ContinuousUpdate(name: str, hand: str, value: float)` — metric value [0.0–1.0], fires each frame
+- `ContinuousEnd(name: str, hand: str)` — active_while pose released or condition dropped
+- `SequenceProgress(name: str, hand: str, step: int, total: int)` — optional progress notification
+
+### Config Hot-Reload
+
+Both engine and actions daemon watch their config files via mtime polling (1s interval). On change: reload config, mutate state in-place. On error: keep old config, `notify-send` critical alert.
+
+### Key Implementation Notes
+
+- **V4L2 backend required:** `cv2.CAP_V4L2` must be passed for IR camera — GStreamer backend silently fails
+- **Dark frame filter:** IR camera (Windows Hello BRIO) alternates illuminated and calibration frames at ~15fps effective. Filter: `if frame.mean() < 5.0: return` in `processFrame()`
+- **Greyscale auto-detect:** `if frame.ndim == 2: frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)` before MediaPipe — IR delivers single-channel frames
+- **Buffer size:** Do NOT set `CAP_PROP_BUFFERSIZE=1` on IR camera — V4L2 needs ≥2 buffers; `=1` causes near-black frames
+- **`cv2.waitKey(1)`** called unconditionally every frame (required to flush OpenCV event queue even in headless mode)
+
+### Active Bindings
+
+| Binding | Gesture | Handler |
+|---------|---------|---------|
+| `tag_1`–`tag_4` | ONE–FOUR (either hand) | awesome-client tag switch |
+| `prev_tag` / `next_tag` | Swipe left / right | awesome-client |
+| `play_pause` | Left FIVE (300ms dwell) | playerctl play-pause |
+| `set_volume` | Left FIST + right L, pinch_distance → [0.05–0.35] | `signals.lua` → `volumeControl("set", ...)` |
+| `stack_cycle` | Left FIST + right ONE, angle → [0.4–0.6] | `signals.lua` → `stack.stackAll()` + `stackCycleToIndex()` |
+| `stack_all` | Right FIST → THUMBS_UP sequence | awesome-client stack command |
+
+---
+
 ## Known Issues / Pending Work
 
 - **luakit insert mode** — date input field in Eisenhower matrix doesn't auto-focus in luakit (normal mode). Deferred.

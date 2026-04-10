@@ -1,0 +1,174 @@
+# gestureControl — trigger bindings
+# Defines what gestures to detect and what to name the resulting D-Bus signals.
+# Actions are configured separately in actions.toml.
+#
+# Pose matching: each [[poses]] entry lists finger states (true/false).
+# Omit a finger to mean "don't care". First match wins, so put more
+# specific patterns (more constraints) before more general ones.
+#
+# Trigger types:
+#   pose       — hand shape held for dwell_ms
+#   swipe      — directional motion (direction: "left" or "right")
+#   sequence   — ordered pose chain completed within window_ms
+#   continuous — metric value streamed while active_while pose is held (active_while optional)
+#   chord      — two specific poses held simultaneously
+#
+# Cross-hand conditions (optional, any binding type):
+#   require_left  = "POSE"  — left hand must hold this pose for the trigger to activate
+#   require_right = "POSE"  — right hand must hold this pose for the trigger to activate
+#
+# Example combination — right hand height controlled only while left hand holds FIST:
+#   [[bindings]]
+#   name = "volume_control"
+#   require_left = "FIST"
+#   trigger = { type = "continuous", hand = "right", metric = "hand_height", range = [0.2, 0.8] }
+
+[settings]
+camera = 2      # /dev/video2 — BRIO IR (GREY 340x340 @ 30fps, better low-light)
+# camera = 0   # /dev/video0 — BRIO RGB (MJPG 1280x720 @ 60fps)
+dwell_ms = 200  # default dwell for pose/chord triggers (can be overridden per binding)
+# width/height/fps only apply to the RGB camera; IR is fixed at 340x340 @ 30fps
+width = 1280
+height = 720
+fps = 60
+
+# ── Pose definitions ───────────────────────────────────────────────────────────
+# Standard set — edit, remove, or add your own.
+# Thumb direction is handedness-aware (handled by the engine).
+
+[[poses]]
+name = "FIST"
+thumb = false
+index = false
+middle = false
+ring = false
+pinky = false
+
+[[poses]]
+name = "FIVE"
+thumb = true
+index = true
+middle = true
+ring = true
+pinky = true
+
+[[poses]]
+name = "SIGN"
+thumb = true
+index = true
+middle = false
+ring = false
+pinky = true
+
+[[poses]]
+name = "THUMBS_UP"
+thumb = true
+index = false
+middle = false
+ring = false
+pinky = false
+
+[[poses]]
+name = "FOUR"
+thumb = false
+index = true
+middle = true
+ring = true
+pinky = true
+
+[[poses]]
+name = "THREE"
+thumb = true
+index = true
+middle = true
+ring = false
+pinky = false
+
+[[poses]]
+name = "TWO"
+thumb = false
+index = true
+middle = true
+ring = false
+pinky = false
+
+[[poses]]
+name = "ONE"
+thumb = false
+index = true
+middle = false
+ring = false
+pinky = false
+
+[[poses]]
+name = "L"
+thumb = true
+index = true
+middle = false
+ring = false
+pinky = false
+
+# ── Tag switching ──────────────────────────────────────────────────────────────
+
+[[bindings]]
+name = "tag_1"
+trigger = { type = "pose", hand = "either", shape = "ONE" }
+
+[[bindings]]
+name = "tag_2"
+trigger = { type = "pose", hand = "either", shape = "TWO" }
+
+[[bindings]]
+name = "tag_3"
+trigger = { type = "pose", hand = "either", shape = "THREE" }
+
+[[bindings]]
+name = "tag_4"
+trigger = { type = "pose", hand = "either", shape = "FOUR" }
+
+[[bindings]]
+name = "prev_tag"
+trigger = { type = "swipe", hand = "either", direction = "left" }
+
+[[bindings]]
+name = "next_tag"
+trigger = { type = "swipe", hand = "either", direction = "right" }
+
+# ── Media ──────────────────────────────────────────────────────────────────────
+
+[[bindings]]
+name = "play_pause"
+trigger = { type = "pose", hand = "left", shape = "FIVE", dwell_ms = 300 }
+
+# ── Volume — hold FIVE on right hand, raise/lower to set level ─────────────────
+# hand_height: 0.0 = bottom of frame, 1.0 = top; range clips to the useful zone.
+
+[[bindings]]
+name = "set_volume"
+require_left = "FIST"
+trigger = { type = "continuous", hand = "right", metric = "pinch_distance", active_while = "L", range = [
+  0.05,
+  0.35,
+] }
+
+# ── Stack cycling — left THREE + right FIVE, spread fingers to scrub windows ──
+# finger_spread: 0.0 = fingertips bunched, higher = spread wide; tune range to taste.
+
+[[bindings]]
+name = "stack_cycle"
+require_left = "FIST"
+trigger = { type = "continuous", hand = "right", metric = "angle", active_while = "ONE", range = [
+  0.4,
+  0.6,
+] }
+
+# ── Window stacking — FIST then THUMBS_UP within 1.5 s ────────────────────────
+# step_dwell_ms is intentionally shorter than the default pose dwell so that
+# sequence steps register faster while holding a full pose still fires normally.
+
+[[bindings]]
+name = "stack_all"
+trigger = { type = "sequence", hand = "right", steps = [
+  "FIST",
+  "THUMBS_UP",
+], window_ms = 1500, step_dwell_ms = 150 }
