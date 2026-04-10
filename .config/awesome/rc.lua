@@ -183,6 +183,7 @@ primary_tags[1].master_width_factor = 0.694
 
 local myFuncs = require("functions") -- custom functions
 local stack = require("stack") -- your separate stacking module
+require("signals")              -- gesture D-Bus signal handlers
 local normalKeys = require("devices.normalKeys") -- normal (keyboard) hotkeys
 
 -- Device-specific keymaps

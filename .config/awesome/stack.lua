@@ -405,6 +405,17 @@ function M.cycleStackBackward()
 	setActive(frame, ((frame.activeIdx - 2 + #frame.clients) % #frame.clients) + 1)
 end
 
+-- Map a normalised [0,1] value to a specific frame slot and make it active.
+-- Used by the gesture continuous trigger to scrub through stacked windows.
+function M.stackCycleToIndex(value)
+	local c = client.focus
+	if not c then return end
+	local frame = clientFrame[c]
+	if not frame or #frame.clients < 2 then return end
+	local idx = math.max(1, math.min(#frame.clients, math.floor(value * #frame.clients) + 1))
+	setActive(frame, idx)
+end
+
 -------------------------------------------------------------------------
 -- Temp stack: stack all on first press, cycle on repeat, auto-unstack
 -- after TEMP_STACK_TIMEOUT seconds of inactivity.

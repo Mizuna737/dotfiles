@@ -15,7 +15,13 @@ naughty.notify("functions loaded")
 
 local M = {}
 
---------------------------------
+---------------------------------
+-- Helpers
+---------------------------------
+function M.roundToNearest(nearest, n)
+	return math.floor(n / nearest + 0.5) * nearest
+end
+---------------------------------
 -- Tag Navigation
 --------------------------------
 
@@ -78,7 +84,9 @@ end
 function M.viewWorkspaceExclusive(index)
 	local s = awful.screen.focused()
 	local t = s.tags[index]
-	if t then t:view_only() end
+	if t then
+		t:view_only()
+	end
 end
 
 function M.moveWindowToWorkspace(index)
@@ -152,6 +160,8 @@ function M.volumeControl(action, percentage)
 		awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ -" .. percentage .. "%", false)
 	elseif action == "mute" then
 		awful.spawn("playerctl play-pause", false)
+	elseif action == "set" then
+		awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ " .. percentage .. "%", false)
 	end
 	bar.updateVolumeWidget()
 end
@@ -194,17 +204,17 @@ function M.nextLayoutForTag()
 end
 
 local commsForTag = {
-	["Work"]          = { app = "teams-for-linux", cmd = "teams-for-linux" },
-	["Entertainment"] = { app = "discord",          cmd = "discord" },
+	["Work"] = { app = "teams-for-linux", cmd = "teams-for-linux" },
+	["Entertainment"] = { app = "discord", cmd = "discord" },
 }
 
 -- scope "current" = look on current tag, spawn if missing
 -- scope "all"     = search across all tags, follow if found elsewhere
 function M.findComms(scope)
 	scope = scope or "current"
-	local tag     = awful.screen.focused().selected_tag
+	local tag = awful.screen.focused().selected_tag
 	local tagName = tag and tag.name or ""
-	local info    = commsForTag[tagName] or { app = "signal", cmd = "signal-desktop" }
+	local info = commsForTag[tagName] or { app = "signal", cmd = "signal-desktop" }
 	M.findExisting(info.app, info.cmd, scope)
 end
 
@@ -214,18 +224,22 @@ function M.prevLayoutForTag()
 
 	local tagLayouts = {
 		["Entertainment"] = { l.centerwork, a.tile, a.magnifier },
-		["Code"]          = { l.centerwork, a.fair, a.spiral.dwindle },
-		["Work"]          = { l.centerwork, a.spiral.dwindle, a.magnifier, l.cascade.tile },
-		["Obsidian"]      = { l.centerwork, l.cascade.tile },
-		["Misc"]          = { a.fair, a.floating },
+		["Code"] = { l.centerwork, a.fair, a.spiral.dwindle },
+		["Work"] = { l.centerwork, a.spiral.dwindle, a.magnifier, l.cascade.tile },
+		["Obsidian"] = { l.centerwork, l.cascade.tile },
+		["Misc"] = { a.fair, a.floating },
 	}
 
 	local screen = awful.screen.focused()
-	local tag    = screen.selected_tag
-	if not tag then return end
+	local tag = screen.selected_tag
+	if not tag then
+		return
+	end
 
 	local layouts = tagLayouts[tag.name]
-	if not layouts then return end
+	if not layouts then
+		return
+	end
 
 	local currentIndex = gears.table.hasitem(layouts, tag.layout)
 	if not currentIndex then
@@ -828,12 +842,18 @@ end
 
 function M.toggleQuickNotes()
 	M.toggleDropdownApp({
-		class     = "Quick Notes",
+		class = "Quick Notes",
 		spawn_cmd = {
-			"kitty", "--class", "Quick Notes",
-			"--override", "font_size=18.0",
-			"--override", "confirm_os_window_close=0",
-			"-e", "bash", os.getenv("HOME") .. "/Scripts/quickNotes.sh",
+			"kitty",
+			"--class",
+			"Quick Notes",
+			"--override",
+			"font_size=18.0",
+			"--override",
+			"confirm_os_window_close=0",
+			"-e",
+			"bash",
+			os.getenv("HOME") .. "/Scripts/quickNotes.sh",
 		},
 		spawn_props = { floating = true, tag = awful.screen.focused().selected_tag },
 	})
