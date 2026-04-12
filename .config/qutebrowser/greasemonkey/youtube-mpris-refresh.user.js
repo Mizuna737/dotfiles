@@ -36,9 +36,9 @@
         // Step 4: resume if it was playing
         setTimeout(() => {
           if (wasPlaying) video.play();
-        }, 25);
-      }, 25);
-    }, 25);
+        }, 5);
+      }, 5);
+    }, 5);
   }
 
   const titleEl = document.querySelector("title");
@@ -60,6 +60,6 @@
 
   window.addEventListener("yt-navigate-finish", () => {
     clearTimeout(refreshTimeout);
-    refreshTimeout = setTimeout(forceMetadataRefresh, 300);
+    refreshTimeout = setTimeout(forceMetadataRefresh, 100);
   });
 })();

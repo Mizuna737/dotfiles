@@ -29,7 +29,7 @@ const DEFAULT_SETTINGS: ClaudeSettings = {
   apiKey: "",
   model: "claude-sonnet-4-6",
   ollamaUrl: "http://localhost:11434",
-  ollamaModel: "qwen2.5:7b",
+  ollamaModel: "qwen3:latest",
   claudeCliPath: "/home/max/.nvm/versions/node/v22.16.0/bin/claude",
   sessionResetAnchor: "",
   weeklyResetAnchor: "",
@@ -647,7 +647,9 @@ async function callNemoRetrieval(
   });
 
   if (response.status !== 200) {
-    throw new Error(`Nemo retrieval error ${response.status}: ${response.text}`);
+    throw new Error(
+      `Nemo retrieval error ${response.status}: ${response.text}`,
+    );
   }
 
   try {
@@ -700,19 +702,45 @@ function buildSystemPrompt(
 
 // ── API cost estimation ───────────────────────────────────────────────────────
 
-const MODEL_PRICING: Record<string, { inPer1M: number; outPer1M: number; cacheReadPer1M: number; cacheWritePer1M: number }> = {
-  "claude-opus-4-6":           { inPer1M: 15,   outPer1M: 75,  cacheReadPer1M: 1.5,  cacheWritePer1M: 18.75 },
-  "claude-sonnet-4-6":         { inPer1M: 3,    outPer1M: 15,  cacheReadPer1M: 0.30, cacheWritePer1M: 3.75  },
-  "claude-haiku-4-5-20251001": { inPer1M: 0.80, outPer1M: 4,   cacheReadPer1M: 0.08, cacheWritePer1M: 1.0   },
+const MODEL_PRICING: Record<
+  string,
+  {
+    inPer1M: number;
+    outPer1M: number;
+    cacheReadPer1M: number;
+    cacheWritePer1M: number;
+  }
+> = {
+  "claude-opus-4-6": {
+    inPer1M: 15,
+    outPer1M: 75,
+    cacheReadPer1M: 1.5,
+    cacheWritePer1M: 18.75,
+  },
+  "claude-sonnet-4-6": {
+    inPer1M: 3,
+    outPer1M: 15,
+    cacheReadPer1M: 0.3,
+    cacheWritePer1M: 3.75,
+  },
+  "claude-haiku-4-5-20251001": {
+    inPer1M: 0.8,
+    outPer1M: 4,
+    cacheReadPer1M: 0.08,
+    cacheWritePer1M: 1.0,
+  },
 };
 
 function computeApiCost(usage: Usage, model: string): number | null {
   const p = MODEL_PRICING[model];
   if (!p) return null;
-  return (usage.inputTokens * p.inPer1M
-        + usage.outputTokens * p.outPer1M
-        + usage.cacheReadTokens * p.cacheReadPer1M
-        + usage.cacheWriteTokens * p.cacheWritePer1M) / 1_000_000;
+  return (
+    (usage.inputTokens * p.inPer1M +
+      usage.outputTokens * p.outPer1M +
+      usage.cacheReadTokens * p.cacheReadPer1M +
+      usage.cacheWriteTokens * p.cacheWritePer1M) /
+    1_000_000
+  );
 }
 
 // ── View ──────────────────────────────────────────────────────────────────────
@@ -728,8 +756,18 @@ export class ClaudeAssistantView extends ItemView {
   private apiMessages: ApiMessage[] = [];
   private runId = 0;
   private nemoUserRequest = "";
-  private runUsage: Usage = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
-  private nemoLog: Array<{ phase: string; notePath: string; raw: string; filtered: string }> = [];
+  private runUsage: Usage = {
+    inputTokens: 0,
+    outputTokens: 0,
+    cacheReadTokens: 0,
+    cacheWriteTokens: 0,
+  };
+  private nemoLog: Array<{
+    phase: string;
+    notePath: string;
+    raw: string;
+    filtered: string;
+  }> = [];
 
   constructor(leaf: WorkspaceLeaf, plugin: ClaudeAssistantPlugin) {
     super(leaf);
@@ -816,11 +854,21 @@ export class ClaudeAssistantView extends ItemView {
         for (const entry of this.nemoLog) {
           lines.push(`\n── Nemo ${entry.phase}: ${entry.notePath} ──`);
           lines.push("  RAW →");
-          lines.push(entry.raw.split("\n").map(l => "    " + l).join("\n"));
+          lines.push(
+            entry.raw
+              .split("\n")
+              .map((l) => "    " + l)
+              .join("\n"),
+          );
           lines.push("  FILTERED →");
-          lines.push(entry.filtered
-            ? entry.filtered.split("\n").map(l => "    " + l).join("\n")
-            : "    (empty — fell back to raw)");
+          lines.push(
+            entry.filtered
+              ? entry.filtered
+                  .split("\n")
+                  .map((l) => "    " + l)
+                  .join("\n")
+              : "    (empty — fell back to raw)",
+          );
         }
         lines.push("\n╔═══════════════════════════════╗");
         lines.push("║        CLAUDE CONVERSATION    ║");
@@ -859,7 +907,12 @@ export class ClaudeAssistantView extends ItemView {
       this.runId++; // invalidate any in-flight runTurn
       this.apiMessages = [];
       this.messagesEl.empty();
-      this.runUsage = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
+      this.runUsage = {
+        inputTokens: 0,
+        outputTokens: 0,
+        cacheReadTokens: 0,
+        cacheWriteTokens: 0,
+      };
       this.runUsageEl.empty();
       this.nemoLog = [];
       this.setSending(false);
@@ -949,24 +1002,19 @@ export class ClaudeAssistantView extends ItemView {
         model: "ollama",
         label: `${this.plugin.settings.ollamaModel} (local)`,
       },
-      "/7b": {
+      "/deepseek": {
         model: "ollama",
-        ollamaModel: "qwen2.5:7b",
-        label: "qwen2.5:7b (local)",
+        ollamaModel: "deepseek-r1:14b",
+        label: "deepseek-r1:14b (local)",
       },
-      "/14b": {
+      "/gemma": {
         model: "ollama",
-        ollamaModel: "qwen2.5:14b",
-        label: "qwen2.5:14b (local)",
+        ollamaModel: "gemma4:e4b",
+        label: "gemma4:e4b (local)",
       },
       "/nemo": {
         model: "nemo-cc",
         label: "Nemo → Claude CLI",
-      },
-      "/instruct": {
-        model: "ollama",
-        ollamaModel: "mistral:7b-instruct",
-        label: "mistral-instruct (local)",
       },
       "/cc": { model: "claude-cli", label: "Claude (subscription)" },
     };
@@ -989,7 +1037,12 @@ export class ClaudeAssistantView extends ItemView {
     }
     this.inputEl.value = "";
     this.setSending(true);
-    this.runUsage = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
+    this.runUsage = {
+      inputTokens: 0,
+      outputTokens: 0,
+      cacheReadTokens: 0,
+      cacheWriteTokens: 0,
+    };
     this.runUsageEl.empty();
     this.nemoLog = [];
     this.appendUserMessage(text);
@@ -1012,7 +1065,10 @@ export class ClaudeAssistantView extends ItemView {
             raw: noteContent,
             filtered: relevantSections,
           });
-          systemPrompt = buildSystemPrompt(file.path, relevantSections || noteContent);
+          systemPrompt = buildSystemPrompt(
+            file.path,
+            relevantSections || noteContent,
+          );
         } catch {
           systemPrompt = buildSystemPrompt(file.path, noteContent);
         }
@@ -1037,21 +1093,27 @@ export class ClaudeAssistantView extends ItemView {
   private updateRunUsageDisplay() {
     const u = this.runUsage;
     if (u.inputTokens === 0 && u.outputTokens === 0) return;
-    const model = this.plugin.settings.model === "nemo-cc"
-      ? "claude-haiku-4-5-20251001"
-      : this.plugin.settings.model === "claude-cli"
-      ? "claude-sonnet-4-6"
-      : this.plugin.settings.model;
+    const model =
+      this.plugin.settings.model === "nemo-cc"
+        ? "claude-haiku-4-5-20251001"
+        : this.plugin.settings.model === "claude-cli"
+          ? "claude-sonnet-4-6"
+          : this.plugin.settings.model;
     const parts = [
       `${u.inputTokens.toLocaleString()} in`,
       `${u.outputTokens.toLocaleString()} out`,
     ];
-    if (u.cacheReadTokens) parts.push(`${u.cacheReadTokens.toLocaleString()} cached`);
-    if (u.cacheWriteTokens) parts.push(`${u.cacheWriteTokens.toLocaleString()} written`);
+    if (u.cacheReadTokens)
+      parts.push(`${u.cacheReadTokens.toLocaleString()} cached`);
+    if (u.cacheWriteTokens)
+      parts.push(`${u.cacheWriteTokens.toLocaleString()} written`);
     const cost = computeApiCost(u, model);
     if (cost != null) parts.push(`≈$${cost.toFixed(4)}`);
     this.runUsageEl.empty();
-    this.runUsageEl.createSpan({ cls: "claude-run-usage-label", text: "Run total: " });
+    this.runUsageEl.createSpan({
+      cls: "claude-run-usage-label",
+      text: "Run total: ",
+    });
     this.runUsageEl.createSpan({ text: parts.join(" · ") });
   }
 
@@ -1171,8 +1233,10 @@ export class ClaudeAssistantView extends ItemView {
         if (usingNemoCc && tc.name === "readNote" && this.nemoUserRequest) {
           // result format: "=== path ===\ncontent…" — strip header before filtering
           const newlineIdx = result.indexOf("\n");
-          const pathHeader = newlineIdx >= 0 ? result.slice(0, newlineIdx) : result;
-          const rawContent = newlineIdx >= 0 ? result.slice(newlineIdx + 1) : "";
+          const pathHeader =
+            newlineIdx >= 0 ? result.slice(0, newlineIdx) : result;
+          const rawContent =
+            newlineIdx >= 0 ? result.slice(newlineIdx + 1) : "";
           if (rawContent) {
             try {
               const { relevantSections } = await callNemoRetrieval(

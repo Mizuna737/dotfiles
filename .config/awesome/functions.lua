@@ -103,6 +103,15 @@ end
 -- Window Focus / Mouse Centering
 --------------------------------
 
+function M.focusMaster()
+	local master = awful.client.getmaster()
+	if master then
+		client.focus = master
+		master:raise()
+		gears.timer.delayed_call(M.centerMouseOnFocusedClient)
+	end
+end
+
 function M.centerMouseOnFocusedClient()
 	local c = client.focus
 	if c then
