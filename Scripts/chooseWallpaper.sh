@@ -22,6 +22,19 @@ if [[ ${#IMAGES[@]} -eq 0 ]]; then
   exit 1
 fi
 
+BACKENDS=("colorthief" "colorz" "haishoku" "wal")
+
+# Determine backend: $2 arg, or prompt user
+if [[ -n "$2" ]]; then
+  BACKEND="$2"
+else
+  BACKEND=$(printf '%s\n' "${BACKENDS[@]}" | rofi -dmenu -p "Backend:")
+  if [[ -z "$BACKEND" ]]; then
+    echo "No backend selected."
+    exit 1
+  fi
+fi
+
 # Determine selection mode
 if [[ "$1" == "true" ]]; then
   SELECTED_IMAGE="${IMAGES[RANDOM % ${#IMAGES[@]}]}"
@@ -36,7 +49,7 @@ if [[ -z "$SELECTED_IMAGE" ]]; then
 fi
 
 # Set wallpaper and color scheme with pywal
-wal -i "$SELECTED_IMAGE" --backend colorz --saturate 0.3
+wal -i "$SELECTED_IMAGE" --backend "$BACKEND" --saturate 0.3
 echo "$SELECTED_IMAGE" >"$HOME/.cache/last-wallpaper"
 echo "Wallpaper set to: $SELECTED_IMAGE"
 

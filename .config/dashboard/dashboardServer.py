@@ -494,6 +494,7 @@ def mediaCommand(cmd):
 DATE_RE = re.compile(r"(?:[📅⏳🛫]\s*|\[\[)(\d{4}-\d{2}-\d{2})(?:\]\])?")
 TASK_RE = re.compile(r"^\s*-\s*\[([\ /])\]\s*(.+)$", re.MULTILINE)
 TAG_RE = re.compile(r"(#\w+)")
+DOMAIN_TAGS = {"#work", "#household", "#personal"}
 
 
 def extractTasks():
@@ -528,6 +529,7 @@ def extractTasks():
             # Clean display text
             displayText = DATE_RE.sub("", raw).strip()
             tags = TAG_RE.findall(displayText)
+            domain = next((t for t in tags if t in DOMAIN_TAGS), "")
             displayText = TAG_RE.sub("", displayText).strip()
             displayText = TODOIST_ID_RE.sub("", displayText).strip()
             descMatch = DESC_RE.search(displayText)
@@ -551,6 +553,7 @@ def extractTasks():
                 {
                     "text": displayText,
                     "tags": " ".join(tags) if tags else "",
+                    "domain": domain,
                     "description": description,
                     "file": os.path.basename(filepath),
                     "path": filepath,
@@ -1356,7 +1359,12 @@ class Handler(BaseHTTPRequestHandler):
             body = json.loads(self.rfile.read(length)) if length else {}
             uri = body.get("uri", "")
             if uri.startswith("obsidian://"):
-                subprocess.Popen(["xdg-open", uri])
+                env = os.environ.copy()
+                env["DISPLAY"] = ":0"
+                env["XAUTHORITY"] = "/home/max/.Xauthority"
+                env["XDG_RUNTIME_DIR"] = "/run/user/1000"
+                env["HOME"] = "/home/max"
+                subprocess.Popen(["xdg-open", uri], env=env)
                 jsonResp(self, {"ok": True})
             else:
                 jsonResp(self, {"ok": False, "error": "Invalid URI"}, 400)

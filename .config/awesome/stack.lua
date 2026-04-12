@@ -7,10 +7,11 @@
 -- which triggers picom's show/hide animations for a crossfade effect.
 -- Because the active window is always tiling in its slot, unstack* is safe.
 
-local awful = require("awful")
-local gears = require("gears")
-local wibox = require("wibox")
+local awful    = require("awful")
+local gears    = require("gears")
+local wibox    = require("wibox")
 local beautiful = require("beautiful")
+local myFuncs  = require("functions")
 
 local M = {}
 
@@ -188,6 +189,7 @@ end)
 -- Stack every eligible client on the current tag into one frame.
 -- "Eligible" = not floating, OR already in a frame (frame floats are ok).
 function M.stackAll()
+	myFuncs.focusMaster()
 	local t = awful.screen.focused().selected_tag
 	if not t then
 		return
@@ -405,14 +407,21 @@ function M.cycleStackBackward()
 	setActive(frame, ((frame.activeIdx - 2 + #frame.clients) % #frame.clients) + 1)
 end
 
--- Map a normalised [0,1] value to a specific frame slot and make it active.
--- Used by the gesture continuous trigger to scrub through stacked windows.
-function M.stackCycleToIndex(value)
+-- Return the number of clients in the frame containing the focused window, or 0.
+function M.stackFrameSize()
+	local c = client.focus
+	if not c then return 0 end
+	local frame = clientFrame[c]
+	if not frame then return 0 end
+	return #frame.clients
+end
+
+-- Activate a specific 1-based slot index in the frame containing the focused window.
+function M.stackActivate(idx)
 	local c = client.focus
 	if not c then return end
 	local frame = clientFrame[c]
-	if not frame or #frame.clients < 2 then return end
-	local idx = math.max(1, math.min(#frame.clients, math.floor(value * #frame.clients) + 1))
+	if not frame then return end
 	setActive(frame, idx)
 end
 

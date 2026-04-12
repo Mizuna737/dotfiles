@@ -29,7 +29,7 @@ var DEFAULT_SETTINGS = {
   apiKey: "",
   model: "claude-sonnet-4-6",
   ollamaUrl: "http://localhost:11434",
-  ollamaModel: "qwen2.5:7b",
+  ollamaModel: "qwen3:latest",
   claudeCliPath: "/home/max/.nvm/versions/node/v22.16.0/bin/claude",
   sessionResetAnchor: "",
   weeklyResetAnchor: ""
@@ -498,7 +498,9 @@ ${noteContent}`
     throw: false
   });
   if (response.status !== 200) {
-    throw new Error(`Nemo retrieval error ${response.status}: ${response.text}`);
+    throw new Error(
+      `Nemo retrieval error ${response.status}: ${response.text}`
+    );
   }
   try {
     const raw = (_c = (_b = (_a = response.json) == null ? void 0 : _a.message) == null ? void 0 : _b.content) != null ? _c : "{}";
@@ -538,9 +540,24 @@ ${noteContent}
   return prompt;
 }
 var MODEL_PRICING = {
-  "claude-opus-4-6": { inPer1M: 15, outPer1M: 75, cacheReadPer1M: 1.5, cacheWritePer1M: 18.75 },
-  "claude-sonnet-4-6": { inPer1M: 3, outPer1M: 15, cacheReadPer1M: 0.3, cacheWritePer1M: 3.75 },
-  "claude-haiku-4-5-20251001": { inPer1M: 0.8, outPer1M: 4, cacheReadPer1M: 0.08, cacheWritePer1M: 1 }
+  "claude-opus-4-6": {
+    inPer1M: 15,
+    outPer1M: 75,
+    cacheReadPer1M: 1.5,
+    cacheWritePer1M: 18.75
+  },
+  "claude-sonnet-4-6": {
+    inPer1M: 3,
+    outPer1M: 15,
+    cacheReadPer1M: 0.3,
+    cacheWritePer1M: 3.75
+  },
+  "claude-haiku-4-5-20251001": {
+    inPer1M: 0.8,
+    outPer1M: 4,
+    cacheReadPer1M: 0.08,
+    cacheWritePer1M: 1
+  }
 };
 function computeApiCost(usage, model) {
   const p = MODEL_PRICING[model];
@@ -553,7 +570,12 @@ var ClaudeAssistantView = class extends import_obsidian.ItemView {
     this.apiMessages = [];
     this.runId = 0;
     this.nemoUserRequest = "";
-    this.runUsage = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
+    this.runUsage = {
+      inputTokens: 0,
+      outputTokens: 0,
+      cacheReadTokens: 0,
+      cacheWriteTokens: 0
+    };
     this.nemoLog = [];
     this.plugin = plugin;
   }
@@ -629,9 +651,13 @@ var ClaudeAssistantView = class extends import_obsidian.ItemView {
           lines.push(`
 \u2500\u2500 Nemo ${entry.phase}: ${entry.notePath} \u2500\u2500`);
           lines.push("  RAW \u2192");
-          lines.push(entry.raw.split("\n").map((l) => "    " + l).join("\n"));
+          lines.push(
+            entry.raw.split("\n").map((l) => "    " + l).join("\n")
+          );
           lines.push("  FILTERED \u2192");
-          lines.push(entry.filtered ? entry.filtered.split("\n").map((l) => "    " + l).join("\n") : "    (empty \u2014 fell back to raw)");
+          lines.push(
+            entry.filtered ? entry.filtered.split("\n").map((l) => "    " + l).join("\n") : "    (empty \u2014 fell back to raw)"
+          );
         }
         lines.push("\n\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557");
         lines.push("\u2551        CLAUDE CONVERSATION    \u2551");
@@ -671,7 +697,12 @@ ${b.content}`);
       this.runId++;
       this.apiMessages = [];
       this.messagesEl.empty();
-      this.runUsage = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
+      this.runUsage = {
+        inputTokens: 0,
+        outputTokens: 0,
+        cacheReadTokens: 0,
+        cacheWriteTokens: 0
+      };
       this.runUsageEl.empty();
       this.nemoLog = [];
       this.setSending(false);
@@ -754,24 +785,19 @@ ${formatTokens(w)}`
         model: "ollama",
         label: `${this.plugin.settings.ollamaModel} (local)`
       },
-      "/7b": {
+      "/deepseek": {
         model: "ollama",
-        ollamaModel: "qwen2.5:7b",
-        label: "qwen2.5:7b (local)"
+        ollamaModel: "deepseek-r1:14b",
+        label: "deepseek-r1:14b (local)"
       },
-      "/14b": {
+      "/gemma": {
         model: "ollama",
-        ollamaModel: "qwen2.5:14b",
-        label: "qwen2.5:14b (local)"
+        ollamaModel: "gemma4:e4b",
+        label: "gemma4:e4b (local)"
       },
       "/nemo": {
         model: "nemo-cc",
         label: "Nemo \u2192 Claude CLI"
-      },
-      "/instruct": {
-        model: "ollama",
-        ollamaModel: "mistral:7b-instruct",
-        label: "mistral-instruct (local)"
       },
       "/cc": { model: "claude-cli", label: "Claude (subscription)" }
     };
@@ -793,7 +819,12 @@ ${formatTokens(w)}`
     }
     this.inputEl.value = "";
     this.setSending(true);
-    this.runUsage = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
+    this.runUsage = {
+      inputTokens: 0,
+      outputTokens: 0,
+      cacheReadTokens: 0,
+      cacheWriteTokens: 0
+    };
     this.runUsageEl.empty();
     this.nemoLog = [];
     this.appendUserMessage(text);
@@ -816,7 +847,10 @@ ${formatTokens(w)}`
             raw: noteContent,
             filtered: relevantSections
           });
-          systemPrompt = buildSystemPrompt(file.path, relevantSections || noteContent);
+          systemPrompt = buildSystemPrompt(
+            file.path,
+            relevantSections || noteContent
+          );
         } catch (e) {
           systemPrompt = buildSystemPrompt(file.path, noteContent);
         }
@@ -842,12 +876,17 @@ ${text}` : text;
       `${u.inputTokens.toLocaleString()} in`,
       `${u.outputTokens.toLocaleString()} out`
     ];
-    if (u.cacheReadTokens) parts.push(`${u.cacheReadTokens.toLocaleString()} cached`);
-    if (u.cacheWriteTokens) parts.push(`${u.cacheWriteTokens.toLocaleString()} written`);
+    if (u.cacheReadTokens)
+      parts.push(`${u.cacheReadTokens.toLocaleString()} cached`);
+    if (u.cacheWriteTokens)
+      parts.push(`${u.cacheWriteTokens.toLocaleString()} written`);
     const cost = computeApiCost(u, model);
     if (cost != null) parts.push(`\u2248$${cost.toFixed(4)}`);
     this.runUsageEl.empty();
-    this.runUsageEl.createSpan({ cls: "claude-run-usage-label", text: "Run total: " });
+    this.runUsageEl.createSpan({
+      cls: "claude-run-usage-label",
+      text: "Run total: "
+    });
     this.runUsageEl.createSpan({ text: parts.join(" \xB7 ") });
   }
   async runTurn(systemPrompt) {

@@ -132,6 +132,32 @@
         color: var(--accent);
       }
 
+      /* ── Domain filters ── */
+      #domainFilters {
+        display: flex;
+        gap: 4px;
+      }
+      .domainBtn {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--fg-dim);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 1px;
+        padding: 3px 8px;
+        border-radius: var(--panel-radius);
+        cursor: pointer;
+        transition: border-color 0.15s, color 0.15s;
+      }
+      .domainBtn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .domainBtn.active {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
       /* ── Matrix view ── */
       #grid {
         display: grid;
@@ -542,6 +568,12 @@
         <div id="statusDot"></div>
         <div id="headerTitle">Eisenhower Matrix</div>
       </div>
+      <div id="domainFilters">
+        <button class="domainBtn active" data-domain="all">ALL</button>
+        <button class="domainBtn" data-domain="#work">WORK</button>
+        <button class="domainBtn" data-domain="#household">HOME</button>
+        <button class="domainBtn" data-domain="#personal">PERSONAL</button>
+      </div>
       <div id="headerButtons">
         <button class="dashBtn" id="shoppingBtn" title="Shopping List">
           🛒
@@ -736,6 +768,25 @@
           .replace(/\s+/g, " ")
           .trim();
       }
+
+      // ── Domain filter ─────────────────────────────────────────────────────────
+
+      let activeDomain = "all";
+      let lastMatrixData = null;
+
+      function applyDomainFilter(tasks) {
+        if (activeDomain === "all" || !tasks) return tasks || [];
+        return tasks.filter(t => t.domain === activeDomain);
+      }
+
+      document.querySelectorAll(".domainBtn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".domainBtn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          activeDomain = btn.dataset.domain;
+          if (lastMatrixData) renderMatrix(lastMatrixData);
+        });
+      });
 
       // ── Matrix ────────────────────────────────────────────────────────────────
 
@@ -1005,10 +1056,11 @@
       }
 
       function renderMatrix(data) {
-        renderQuadrant("list-q1", data.q1, true);
-        renderQuadrant("list-q2", data.q2, true);
-        renderQuadrant("list-q3", data.q3, true);
-        renderQuadrant("list-q4", data.ponder, false);
+        lastMatrixData = data;
+        renderQuadrant("list-q1", applyDomainFilter(data.q1), true);
+        renderQuadrant("list-q2", applyDomainFilter(data.q2), true);
+        renderQuadrant("list-q3", applyDomainFilter(data.q3), true);
+        renderQuadrant("list-q4", applyDomainFilter(data.ponder), false);
         setMainHeight();
       }
 
