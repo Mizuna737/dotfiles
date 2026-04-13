@@ -75,9 +75,16 @@ middle = false
 ring = false
 pinky = false
 
+[[poses]]
+name = "OK"
+index = false
+middle = true
+ring = true
+pinky = true
+
 [[bindings]]
 name = "tag_cycle"
-trigger = { type = "continuous", hand = "left", metric = "pinch_distance", active_while = "THREE", range = [0.15, 0.3] }
+trigger = { active_while = "THREE", hand = "left", metric = "pinch_distance", range = [0.15, 0.3], type = "continuous" }
 
 [[bindings]]
 name = "set_volume"
@@ -85,8 +92,16 @@ trigger = { active_while = "L", hand = "left", metric = "pinch_distance", range 
 
 [[bindings]]
 name = "stack_cycle"
-trigger = { type = "continuous", hand = "right", metric = "pinch_distance", active_while = "THREE", range = [0.15, 0.3] }
+trigger = { active_while = "THREE", hand = "right", metric = "pinch_distance", range = [0.15, 0.3], type = "continuous" }
 
 [[bindings]]
 name = "play_pause"
 trigger = { hand = "left", step_dwell_ms = 5, steps = ["FIVE", "FOUR"], type = "sequence", window_ms = 1500 }
+
+[[bindings]]
+name = "browser_back"
+trigger = { type = "swipe", direction = "left", min_displacement = 0.3, hand = "either" }
+
+[[bindings]]
+name = "browser_forward"
+trigger = { type = "swipe", direction = "right", min_displacement = 0.3, hand = "either" }
