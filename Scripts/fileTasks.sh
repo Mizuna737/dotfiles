@@ -165,7 +165,7 @@ EOF
     notify-send "File Task" "Updated in $(basename "${SOURCE_FILE%.md}")"
   else
     # Build destination list and move task from daily note
-    DEST_MENU="── Done ──\n📋 + New Project\n👤 + New Person"
+    DEST_MENU="── Done ──\n🛒 Shopping List\n🏠 Household priorities\n📋 + New Project\n👤 + New Person"
     declare -a DEST_FILES
     declare -a DEST_LABELS
 
@@ -186,6 +186,66 @@ EOF
     PICKED_DEST=$(printf "%b" "$DEST_MENU" | rofi -dmenu -p "File to" -l 10) || continue
     [ -z "$PICKED_DEST" ] && continue
     [ "$PICKED_DEST" = "── Done ──" ] && break
+
+    # Handle Todoist destinations
+    if [ "$PICKED_DEST" = "🛒 Shopping List" ] || [ "$PICKED_DEST" = "🏠 Household priorities" ]; then
+      if [ "$PICKED_DEST" = "🛒 Shopping List" ]; then
+        TODOIST_PROJECT="Shopping List"
+      else
+        TODOIST_PROJECT="Household priorities"
+      fi
+
+      # Strip Obsidian metadata to get clean text + optional due date
+      CLEAN_TEXT=$(FINAL_LINE="$FINAL_LINE" python3 - <<'EOF'
+import os, re
+line = os.environ["FINAL_LINE"]
+line = re.sub(r"^- \[ \] ", "", line)
+line = re.sub(r" [⏫🔼🔽⏬]", "", line)
+line = re.sub(r" \[\[\d{4}-\d{2}-\d{2}\]\]", "", line)
+line = re.sub(r" #\w+", "", line)
+line = re.sub(r" \[desc:: [^\]]*\]", "", line)
+line = re.sub(r" \[todoist:: \w+\]", "", line)
+print(line.strip())
+EOF
+      )
+      DUE_DATE=$(echo "$FINAL_LINE" | grep -oP '\[\[\K\d{4}-\d{2}-\d{2}(?=\]\])' || true)
+
+      if [ "$PICKED_DEST" = "🛒 Shopping List" ]; then
+        ENDPOINT="http://localhost:9876/shopping/add"
+        BODY=$(printf '{"text": %s}' "$(printf '%s' "$CLEAN_TEXT" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')")
+      else
+        ENDPOINT="http://localhost:9876/nicole/add"
+        if [ -n "$DUE_DATE" ]; then
+          BODY=$(python3 -c "import json,sys; print(json.dumps({'text': sys.argv[1], 'due': sys.argv[2]}))" "$CLEAN_TEXT" "$DUE_DATE")
+        else
+          BODY=$(python3 -c "import json,sys; print(json.dumps({'text': sys.argv[1]}))" "$CLEAN_TEXT")
+        fi
+      fi
+
+      TODOIST_RESULT=$(curl -s -o /dev/null -w "%{http_code}" \
+        -X POST -H "Content-Type: application/json" \
+        -d "$BODY" "$ENDPOINT")
+
+      if [ "$TODOIST_RESULT" = "200" ]; then
+        SOURCE_FILE="$SOURCE_FILE" SOURCE_LINE_IDX="$SOURCE_LINE_IDX" python3 - <<'EOF'
+import os
+source_file = os.environ["SOURCE_FILE"]
+source_line_idx = int(os.environ["SOURCE_LINE_IDX"])
+with open(source_file, "r") as f:
+    lines = f.readlines()
+del lines[source_line_idx]
+with open(source_file, "w") as f:
+    f.writelines(lines)
+EOF
+        notify-send "File Task" "Added to $TODOIST_PROJECT"
+      else
+        notify-send "File Task" "⚠️ Todoist error — task not removed from source."
+      fi
+
+      unset TASK_LINES TASK_FILES TASK_INDICES TASK_FILED TASK_LABELS DEST_FILES DEST_LABELS
+      declare -a TASK_LINES TASK_FILES TASK_INDICES TASK_FILED TASK_LABELS DEST_FILES DEST_LABELS
+      continue
+    fi
 
     # Resolve destination file
     DEST_FILE=""
