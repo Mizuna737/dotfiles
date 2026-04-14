@@ -1,0 +1,4 @@
+[lint]
+# F821: undefined name — too many false positives in runtime-injected contexts
+# (e.g. qutebrowser config.py injects `config` and `c` at runtime)
+ignore = ["F821", "E401", "E402"]
