@@ -1,0 +1,10 @@
+[Trigger]
+Operation = Install
+Operation = Remove
+Type = Package
+Target = *
+
+[Action]
+Description = Updating dotfiles package list...
+When = PostTransaction
+Exec = /home/max/dotfiles/Scripts/updatePkgList.sh
