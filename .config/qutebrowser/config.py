@@ -2,6 +2,13 @@
 
 config.load_autoconfig()
 import os, re
+
+from qutebrowser.misc import dbuscommands
+dbuscommands.gestures = {
+    "browser_back":    ":back",
+    "browser_forward": ":forward",
+    "youtube":         ":navigate up",
+}
 import pywalQute.draw
 
 # 1) Locate your quickmarks file (plaintext format)
