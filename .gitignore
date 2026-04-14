@@ -1,6 +1,20 @@
 .config/qutebrowser/pywalQute
+.config/qutebrowser/qsettings/
 .config/tmux/plugins
 .config/dashboard/todoist.conf
 .config/dashboard/__pycache__/
 Documents/The Vault/.obsidian/plugins/claude-assistant/node_modules/
 Documents/The Vault/.obsidian/plugins/claude-assistant/data.json
+
+# OBS runtime state
+.config/obs-studio/.sentinel/
+.config/obs-studio/logs/
+.config/obs-studio/profiler_data/
+.config/obs-studio/global.ini
+.config/obs-studio/user.ini
+.config/obs-studio/basic/scenes/
+.config/obs-studio/basic/profiles/
+.config/obs-studio/plugin_config/rtmp-services/
+
+# VLC window state
+.config/vlc/vlc-qt-interface.conf
