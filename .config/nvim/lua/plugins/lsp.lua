@@ -6,6 +6,19 @@ return {
 		opts = {
 			-- Ensure your language servers are listed here if you want them auto-installed
 			servers = {
+				pyright = {
+					settings = {
+						python = {
+							analysis = {
+								typeCheckingMode = "off",
+							diagnosticSeverityOverrides = {
+								reportUndefinedVariable = "none",
+								reportMissingModuleSource = "none",
+							},
+							},
+						},
+					},
+				},
 				lua_ls = {
 					settings = {
 						Lua = {
