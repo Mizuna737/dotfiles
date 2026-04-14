@@ -82,17 +82,28 @@ middle = true
 ring = true
 pinky = true
 
+[[poses]]
+name = "Y"
+thumb = true
+index = false
+middle = false
+ring = false
+pinky = true
+
 [[bindings]]
 name = "tag_cycle"
-trigger = { active_while = "THREE", hand = "left", metric = "pinch_distance", range = [0.15, 0.3], type = "continuous" }
+require = [{hand = "left", pose = "THREE"}]
+trigger = { hand = "left", metric = "pinch_distance", range = [0.15, 0.3], type = "continuous" }
 
 [[bindings]]
 name = "set_volume"
-trigger = { active_while = "L", hand = "left", metric = "pinch_distance", range = [0, 0.6], type = "continuous" }
+require = [{hand = "left", pose = "L"}]
+trigger = { hand = "left", metric = "pinch_distance", range = [0, 0.6], type = "continuous" }
 
 [[bindings]]
 name = "stack_cycle"
-trigger = { active_while = "THREE", hand = "right", metric = "pinch_distance", range = [0.15, 0.3], type = "continuous" }
+require = [{hand = "right", pose = "THREE"}]
+trigger = { hand = "right", metric = "pinch_distance", range = [0.15, 0.3], type = "continuous" }
 
 [[bindings]]
 name = "play_pause"
@@ -100,8 +111,14 @@ trigger = { hand = "left", step_dwell_ms = 5, steps = ["FIVE", "FOUR"], type = "
 
 [[bindings]]
 name = "browser_back"
-trigger = { type = "swipe", direction = "left", min_displacement = 0.3, hand = "either" }
+require = [{hand = "either", pose = "TWO"}]
+trigger = { type = "swipe", direction = "left", min_displacement = 0.1, hand = "either" }
 
 [[bindings]]
 name = "browser_forward"
-trigger = { type = "swipe", direction = "right", min_displacement = 0.3, hand = "either" }
+require = [{hand = "either", pose = "TWO"}]
+trigger = { direction = "right", hand = "either", min_displacement = 0.1, type = "swipe" }
+
+[[bindings]]
+name = "youtube"
+trigger = { dwell_ms = 200, hand = "either", shape = "Y", type = "pose" }
