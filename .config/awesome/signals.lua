@@ -7,7 +7,8 @@
 --
 -- Handler signatures:
 --   onFire(name,   function(hand) end)
---   onUpdate(name, function(hand, value) end)   value: normalised [0.0 – 1.0]
+--   onUpdate(name, function(hand, value) end)   value: slot index (1..N) if RegisterSlots called, else [0.0 – 1.0]
+--   onStart(name,  function(hand) end)
 --   onEnd(name,    function(hand) end)
 --   onProgress(name, function(hand, step, total) end)
 
@@ -16,46 +17,37 @@ local gears   = require("gears")
 local myFuncs = require("functions")
 local stack   = require("stack")
 
-local IFACE = "org.gesturecontrol.Engine"
-
--- ── Hysteresis helpers ────────────────────────────────────────────────────────
--- Shared by tag_cycle and stack_cycle.
--- snapIndex:       first-frame snap — immediately land on the natural slot.
--- hysteresisIndex: require overshooting past the next boundary by HYST before
---                  changing slots, preventing jitter at edges.
-
-local HYST = 0.04
-
-local function snapIndex(value, count)
-	return math.max(1, math.min(count, math.floor(value * count) + 1))
-end
-
-local function hysteresisIndex(current, value, count)
-	local lower = (current - 1) / count - HYST
-	local upper =  current      / count + HYST
-	if value < lower then return math.max(1, current - 1) end
-	if value > upper then return math.min(count, current + 1) end
-	return current
-end
+local IFACE     = "org.gesturecontrol.Engine"
+local DBUS_NAME = "org.gesturecontrol"
+local DBUS_PATH = "/org/gesturecontrol"
 
 -- ── Dispatch tables ───────────────────────────────────────────────────────────
 
-local firedHandlers = {}
-local updateHandlers = {}
-local endHandlers = {}
+local firedHandlers    = {}
+local startHandlers    = {}
+local updateHandlers   = {}
+local endHandlers      = {}
 local progressHandlers = {}
 
-local function onFire(name, fn)
-	firedHandlers[name] = fn
-end
-local function onUpdate(name, fn)
-	updateHandlers[name] = fn
-end
-local function onEnd(name, fn)
-	endHandlers[name] = fn
-end
-local function onProgress(name, fn)
-	progressHandlers[name] = fn
+local function onFire(name, fn)     firedHandlers[name]    = fn end
+local function onStart(name, fn)    startHandlers[name]    = fn end
+local function onUpdate(name, fn)   updateHandlers[name]   = fn end
+local function onEnd(name, fn)      endHandlers[name]      = fn end
+local function onProgress(name, fn) progressHandlers[name] = fn end
+
+-- ── Slot registration ─────────────────────────────────────────────────────────
+-- Call registerSlots(name, slots) to tell gestureControl.py to map the raw
+-- [0,1] continuous value for `name` to discrete 1..slots indices before
+-- emitting ContinuousUpdate.  Hysteresis deadzone is read from the binding's
+-- triggers.toml config.  Any subscriber (not just Lua) can call RegisterSlots
+-- via D-Bus directly.
+
+local function registerSlots(name, slots)
+	awful.spawn(string.format(
+		"dbus-send --session --type=method_call --dest=%s %s %s.RegisterSlots" ..
+		" string:%s int32:%d",
+		DBUS_NAME, DBUS_PATH, IFACE, name, slots
+	))
 end
 
 -- ── D-Bus intake ──────────────────────────────────────────────────────────────
@@ -63,29 +55,24 @@ end
 dbus.add_match("session", "type='signal',interface='" .. IFACE .. "'")
 
 dbus.connect_signal(IFACE, function(data, ...)
-	local args = { ... }
+	local args   = { ... }
 	local member = data.member
 
 	if member == "GestureFired" then
 		local fn = firedHandlers[args[1]]
-		if fn then
-			fn(args[2])
-		end
+		if fn then fn(args[2]) end
+	elseif member == "ContinuousStart" then
+		local fn = startHandlers[args[1]]
+		if fn then fn(args[2]) end
 	elseif member == "ContinuousUpdate" then
 		local fn = updateHandlers[args[1]]
-		if fn then
-			fn(args[2], args[3])
-		end
+		if fn then fn(args[2], args[3]) end
 	elseif member == "ContinuousEnd" then
 		local fn = endHandlers[args[1]]
-		if fn then
-			fn(args[2])
-		end
+		if fn then fn(args[2]) end
 	elseif member == "SequenceProgress" then
 		local fn = progressHandlers[args[1]]
-		if fn then
-			fn(args[2], args[3], args[4])
-		end
+		if fn then fn(args[2], args[3], args[4]) end
 	end
 end)
 
@@ -108,26 +95,11 @@ onFire("prev_tag", function() awful.tag.viewprev() end)
 onFire("next_tag", function() awful.tag.viewnext() end)
 
 -- Tag cycling — left FOUR, finger spread sweeps across tags 1–5.
-local tagCycleTag = nil
-local TAG_COUNT   = 5
-
+-- Slot mapping (snap + hysteresis) is handled by gestureControl.py after
+-- registerSlots() is called below.
 onUpdate("tag_cycle", function(hand, value)
-	if tagCycleTag == nil then
-		tagCycleTag = snapIndex(value, TAG_COUNT)
-		local s = awful.screen.focused()
-		if s.tags[tagCycleTag] then s.tags[tagCycleTag]:view_only() end
-		return
-	end
-	local newTag = hysteresisIndex(tagCycleTag, value, TAG_COUNT)
-	if newTag ~= tagCycleTag then
-		tagCycleTag = newTag
-		local s = awful.screen.focused()
-		if s.tags[tagCycleTag] then s.tags[tagCycleTag]:view_only() end
-	end
-end)
-
-onEnd("tag_cycle", function(hand)
-	tagCycleTag = nil  -- reset so next activation snaps cleanly
+	local tag = awful.screen.focused().tags[math.floor(value)]
+	if tag then tag:view_only() end
 end)
 
 -- Volume
@@ -138,27 +110,26 @@ end)
 -- Window stacking
 onFire("stack_all", function() stack.stackAll() end)
 
-local stackCycleIdx = nil
+-- stack_cycle uses a dynamic slot count (depends on how many windows are
+-- stacked), so it registers on each ContinuousStart after stacking.
+onStart("stack_cycle", function(hand)
+	stack.stackAll()
+	local count = stack.stackFrameSize()
+	if count >= 2 then
+		registerSlots("stack_cycle", count)
+	end
+end)
 
 onUpdate("stack_cycle", function(hand, value)
-	if stackCycleIdx == nil then
-		stack.stackAll()
-		local count = stack.stackFrameSize()
-		if count < 2 then return end
-		stackCycleIdx = snapIndex(value, count)
-		stack.stackActivate(stackCycleIdx)
-		return
-	end
-	local count = stack.stackFrameSize()
-	if count < 2 then return end
-	local newIdx = hysteresisIndex(stackCycleIdx, value, count)
-	if newIdx ~= stackCycleIdx then
-		stackCycleIdx = newIdx
-		stack.stackActivate(stackCycleIdx)
-	end
+	if stack.stackFrameSize() < 2 then return end
+	stack.stackActivate(math.floor(value))
 end)
 
 onEnd("stack_cycle", function(hand)
-	stackCycleIdx = nil
 	stack.unstackAll()
 end)
+
+-- ── Slot configuration ────────────────────────────────────────────────────────
+-- Fixed-slot bindings can be registered at startup; gestureControl.py will
+-- apply snap + hysteresis before emitting ContinuousUpdate.
+registerSlots("tag_cycle", 5)

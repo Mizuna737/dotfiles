@@ -93,7 +93,7 @@ pinky = true
 [[bindings]]
 name = "tag_cycle"
 require = [{hand = "left", pose = "THREE"}]
-trigger = { hand = "left", metric = "pinch_distance", range = [0.15, 0.3], type = "continuous" }
+trigger = { type = "continuous", metric = "pinch_distance", range = [0.15, 0.3], hysteresis = 0.3, hand = "left" }
 
 [[bindings]]
 name = "set_volume"
@@ -112,7 +112,7 @@ trigger = { hand = "left", step_dwell_ms = 5, steps = ["FIVE", "FOUR"], type = "
 [[bindings]]
 name = "browser_back"
 require = [{hand = "either", pose = "TWO"}]
-trigger = { type = "swipe", direction = "left", min_displacement = 0.1, hand = "either" }
+trigger = { direction = "left", hand = "either", min_displacement = 0.1, type = "swipe" }
 
 [[bindings]]
 name = "browser_forward"
