@@ -4,11 +4,18 @@ config.load_autoconfig()
 import os, re
 
 from qutebrowser.misc import dbuscommands
-dbuscommands.gestures = {
-    "browser_back":    ":back",
-    "browser_forward": ":forward",
-    "youtube":         ":navigate up",
-}
+dbuscommands.subscribe(
+    service="org.gesturecontrol",
+    path="/org/gesturecontrol",
+    interface="org.gesturecontrol.Engine",
+    signal="GestureFired",
+    signature="ss",
+    handler=lambda name, hand: {
+        "browser_back":    ":back",
+        "browser_forward": ":forward",
+        "youtube":         ":navigate up",
+    }.get(name),
+)
 import pywalQute.draw
 
 # 1) Locate your quickmarks file (plaintext format)
