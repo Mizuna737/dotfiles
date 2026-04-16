@@ -93,7 +93,7 @@ pinky = true
 [[bindings]]
 name = "tag_cycle"
 require = [{hand = "left", pose = "THREE"}]
-trigger = { type = "continuous", metric = "pinch_distance", range = [0.15, 0.3], hysteresis = 0.3, hand = "left" }
+trigger = { type = "continuous", metric = "pinch_distance", range = [0.1, 0.35], hysteresis = 0.15, hand = "left" }
 
 [[bindings]]
 name = "set_volume"
@@ -103,7 +103,7 @@ trigger = { hand = "left", metric = "pinch_distance", range = [0, 0.6], type = "
 [[bindings]]
 name = "stack_cycle"
 require = [{hand = "right", pose = "THREE"}]
-trigger = { hand = "right", metric = "pinch_distance", range = [0.15, 0.3], type = "continuous" }
+trigger = { type = "continuous", metric = "pinch_distance", range = [0.1, 0.35], hysteresis = 0.15, hand = "right" }
 
 [[bindings]]
 name = "play_pause"

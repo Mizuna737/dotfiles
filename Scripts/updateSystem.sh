@@ -122,16 +122,15 @@ checkReboot() {
 }
 
 # ── Step 1: Gather updates before doing anything ───────────────────────────────
-hdr "Checking for updates..."
+hdr "Syncing package databases..."
+paru -Sy 2>/dev/null
 
+hdr "Checking for updates..."
 REPO_LINES=$(paru -Qu --repo 2>/dev/null | grep -v '\[ignored\]') || true
 AUR_LINES=$(paru -Qu --aur  2>/dev/null | grep -v '\[ignored\]') || true
 
-REPO_COUNT=$(echo "$REPO_LINES" | grep -c '\S' 2>/dev/null || echo 0)
-AUR_COUNT=$(echo  "$AUR_LINES"  | grep -c '\S' 2>/dev/null || echo 0)
-# grep -c returns 1 (exit 1) when count is 0, so default to 0
-[[ "$REPO_LINES" == "" ]] && REPO_COUNT=0
-[[ "$AUR_LINES"  == "" ]] && AUR_COUNT=0
+REPO_COUNT=$(echo "$REPO_LINES" | grep -c '\S' || echo 0)
+AUR_COUNT=$(echo "$AUR_LINES"   | grep -c '\S' || echo 0)
 TOTAL=$((REPO_COUNT + AUR_COUNT))
 
 # Package names being updated — used by checkReboot after the update
@@ -217,7 +216,7 @@ hdr "Updating ${TOTAL} packages..."
 echo ""
 
 # --noconfirm is safe here — user already approved above
-paru -Syu --noconfirm 2>&1 | while IFS= read -r line; do
+paru -Su --noconfirm 2>&1 | while IFS= read -r line; do
     if [[ "$line" =~ ^\(([0-9]+)/([0-9]+)\) ]]; then
         draw_bar "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
     fi
