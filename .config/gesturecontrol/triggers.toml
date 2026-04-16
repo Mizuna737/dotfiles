@@ -2,6 +2,7 @@
 camera = 2
 dwell_ms = 200
 format = "GREY"
+spread_threshold = 0.4
 
 [[poses]]
 name = "FIST"
@@ -12,12 +13,35 @@ ring = false
 pinky = false
 
 [[poses]]
+name = "LLAP"
+index = true
+middle = true
+ring = true
+pinky = true
+spread_index_middle = "close"
+spread_middle_ring = "apart"
+spread_ring_pinky = "close"
+
+[[poses]]
+name = "OPEN_PALM"
+thumb = true
+index = true
+middle = true
+ring = true
+pinky = true
+spread_thumb_index = "apart"
+spread_index_middle = "apart"
+spread_middle_ring = "apart"
+spread_ring_pinky = "apart"
+
+[[poses]]
 name = "FIVE"
 thumb = true
 index = true
 middle = true
 ring = true
 pinky = true
+spread_middle_ring = "close"
 
 [[poses]]
 name = "SIGN"
@@ -42,6 +66,7 @@ index = true
 middle = true
 ring = true
 pinky = true
+spread_middle_ring = "close"
 
 [[poses]]
 name = "THREE"
