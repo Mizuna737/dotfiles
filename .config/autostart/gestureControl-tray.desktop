@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=gestureControl Tray
+Comment=Gesture control system tray icon
+Exec=/home/max/.local/share/gesturecontrol/venv/bin/python3 /home/max/gesturecontrol/gestureControl-tray.py
+Icon=camera-web
+Terminal=false
+Type=Application
+X-GNOME-Autostart-enabled=true
