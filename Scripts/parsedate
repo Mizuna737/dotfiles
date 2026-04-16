@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+"""
+parsedate — natural language date parser
+Usage: parsedate <string>
+Prints YYYY-MM-DD to stdout, exits 1 if unparseable.
+"""
+import sys
+import re
+import dateparser
+from datetime import date, timedelta
+import calendar
+
+WEEKDAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+
+def preprocess(raw):
+    """Normalise phrases dateparser doesn't handle natively."""
+    s = raw.lower().strip()
+
+    today = date.today()
+
+    # eow / end of week → coming Sunday
+    if s in ("eow", "end of week"):
+        diff = (6 - today.weekday()) % 7 or 7
+        return (today + timedelta(days=diff)).strftime("%Y-%m-%d")
+
+    # eom / end of month → last day of current month
+    if s in ("eom", "end of month"):
+        last = calendar.monthrange(today.year, today.month)[1]
+        return date(today.year, today.month, last).strftime("%Y-%m-%d")
+
+    # eoq / end of quarter → last day of current quarter
+    if s in ("eoq", "end of quarter"):
+        quarter_end_month = ((today.month - 1) // 3 + 1) * 3
+        last = calendar.monthrange(today.year, quarter_end_month)[1]
+        return date(today.year, quarter_end_month, last).strftime("%Y-%m-%d")
+
+    # eoy / end of year → Dec 31
+    if s in ("eoy", "end of year"):
+        return date(today.year, 12, 31).strftime("%Y-%m-%d")
+
+    # "next <weekday>": only shunt +7 if the weekday is still ahead within the
+    # current week — if it's already passed (or is today), the next natural
+    # occurrence is already "next week", so "next" adds nothing.
+    m = re.match(r"^next\s+(" + "|".join(WEEKDAYS) + r")$", s)
+    if m:
+        target = WEEKDAYS.index(m.group(1))
+        diff = (target - today.weekday() + 7) % 7 or 7
+        extra = 7 if target > today.weekday() else 0
+        return (today + timedelta(days=diff + extra)).strftime("%Y-%m-%d")
+
+    return raw
+
+def main():
+    if len(sys.argv) < 2:
+        sys.exit(1)
+
+    raw = " ".join(sys.argv[1:]).strip()
+    if not raw or raw.lower() == "skip":
+        sys.exit(1)
+
+    cooked = preprocess(raw)
+
+    # If preprocess returned an ISO date directly, just print it
+    if re.match(r"^\d{4}-\d{2}-\d{2}$", cooked):
+        print(cooked)
+        return
+
+    result = dateparser.parse(
+        cooked,
+        settings={
+            "PREFER_DATES_FROM": "future",
+            "PREFER_DAY_OF_MONTH": "first",
+            "RETURN_AS_TIMEZONE_AWARE": False,
+        },
+    )
+
+    if result is None:
+        sys.exit(1)
+
+    print(result.strftime("%Y-%m-%d"))
+
+if __name__ == "__main__":
+    main()

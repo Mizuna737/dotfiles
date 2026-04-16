@@ -15,6 +15,7 @@ import json
 import subprocess
 import re
 import os
+import sys
 import glob
 import time
 from datetime import date, timedelta
@@ -26,6 +27,9 @@ import threading
 import queue
 import gi
 import configparser
+
+sys.path.insert(0, os.path.dirname(__file__))
+from taskCreate import createTask, resolveDueDate
 
 gi.require_version("GLib", "2.0")
 
@@ -1354,6 +1358,25 @@ class Handler(BaseHTTPRequestHandler):
                 return
             success = setTaskStatus(body.get("path", ""), body.get("raw", ""), marker)
             jsonResp(self, {"ok": success})
+        elif path == "/task/create":
+            length = int(self.headers.get("Content-Length", 0))
+            body = json.loads(self.rfile.read(length)) if length else {}
+            try:
+                line = createTask(
+                    body.get("text", ""),
+                    due=body.get("due"),
+                    priority=body.get("priority"),
+                    domain=body.get("domain"),
+                    desc=body.get("desc"),
+                )
+                jsonResp(self, {"ok": True, "line": line})
+            except Exception as e:
+                jsonResp(self, {"ok": False, "error": str(e)}, 500)
+        elif path == "/parse/date":
+            length = int(self.headers.get("Content-Length", 0))
+            body = json.loads(self.rfile.read(length)) if length else {}
+            resolved = resolveDueDate(body.get("date", ""))
+            jsonResp(self, {"date": resolved or None})
         elif path == "/obsidian/open":
             length = int(self.headers.get("Content-Length", 0))
             body = json.loads(self.rfile.read(length)) if length else {}

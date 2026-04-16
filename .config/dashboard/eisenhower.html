@@ -560,6 +560,100 @@
       .priorityOpt:hover {
         background: color-mix(in srgb, var(--accent) 15%, transparent);
       }
+
+      /* ── Capture bar ── */
+      .qCapture {
+        flex-shrink: 0;
+        padding: 6px 12px 8px;
+        border-bottom: 1px solid color-mix(in srgb, var(--q-color) 20%, transparent);
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .captureText {
+        width: 100%;
+        background: var(--bg2);
+        border: 1px solid color-mix(in srgb, var(--q-color) 40%, transparent);
+        color: var(--fg);
+        font-family: var(--font-mono);
+        font-size: 16px;
+        padding: 5px 8px;
+        border-radius: var(--panel-radius);
+        outline: none;
+      }
+      .captureText:focus {
+        border-color: var(--q-color);
+      }
+      .captureRow {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+      }
+      .captureDate {
+        flex: 1;
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        color: var(--fg);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        padding: 3px 6px;
+        border-radius: var(--panel-radius);
+        outline: none;
+        min-width: 0;
+      }
+      .captureDate:focus {
+        border-color: var(--accent);
+      }
+      .captureDate.error {
+        border-color: var(--danger);
+      }
+      .captureSelect {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        color: var(--fg-dim);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        padding: 3px 5px;
+        border-radius: var(--panel-radius);
+        outline: none;
+        cursor: pointer;
+      }
+      .captureSelect:focus {
+        border-color: var(--accent);
+      }
+      .captureSubmit {
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--fg-dim);
+        font-family: var(--font-display);
+        font-size: 14px;
+        letter-spacing: 2px;
+        padding: 3px 10px;
+        border-radius: var(--panel-radius);
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: border-color 0.15s, color 0.15s;
+      }
+      .captureSubmit:hover {
+        border-color: var(--q-color);
+        color: var(--q-color);
+      }
+      .qAddBtn {
+        background: none;
+        border: none;
+        color: var(--fg-dim);
+        font-size: 18px;
+        line-height: 1;
+        padding: 0 2px;
+        cursor: pointer;
+        opacity: 0.5;
+        transition: opacity 0.15s, color 0.15s;
+        margin-left: auto;
+      }
+      .qAddBtn:hover {
+        opacity: 1;
+        color: var(--q-color);
+      }
     </style>
   </head>
   <body>
@@ -589,28 +683,36 @@
         <div class="qHeader">
           <div class="qTitle">🔴 Do First</div>
           <div class="qSub">Urgent &amp; Important</div>
+          <button class="qAddBtn" data-quadrant="q1" title="Add task">+</button>
         </div>
+        <div class="qCapture" id="capture-q1" style="display:none"></div>
         <div class="qList" id="list-q1"></div>
       </div>
       <div class="quadrant" id="q2" data-label="SCHEDULE">
         <div class="qHeader">
           <div class="qTitle">🟡 Schedule</div>
           <div class="qSub">Unscheduled Tasks</div>
+          <button class="qAddBtn" data-quadrant="q2" title="Add task">+</button>
         </div>
+        <div class="qCapture" id="capture-q2" style="display:none"></div>
         <div class="qList" id="list-q2"></div>
       </div>
       <div class="quadrant" id="q3" data-label="UPCOMING">
         <div class="qHeader">
           <div class="qTitle">🟠 Upcoming</div>
           <div class="qSub">Scheduled, Not This Week</div>
+          <button class="qAddBtn" data-quadrant="q3" title="Add task">+</button>
         </div>
+        <div class="qCapture" id="capture-q3" style="display:none"></div>
         <div class="qList" id="list-q3"></div>
       </div>
       <div class="quadrant" id="q4" data-label="PONDER">
         <div class="qHeader">
           <div class="qTitle">🔵 Ponder</div>
           <div class="qSub">Tagged #ponder</div>
+          <button class="qAddBtn" data-quadrant="q4" title="Add task">+</button>
         </div>
+        <div class="qCapture" id="capture-q4" style="display:none"></div>
         <div class="qList" id="list-q4"></div>
       </div>
     </div>
@@ -676,74 +778,15 @@
         return d;
       }
 
-      function parseNaturalDate(input) {
-        const s = input.toLowerCase().trim();
-        const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-        if (s === "today") return today;
-        if (s === "tomorrow") { const d = new Date(today); d.setDate(d.getDate() + 1); return d; }
-        if (s === "yesterday") { const d = new Date(today); d.setDate(d.getDate() - 1); return d; }
-        if (s === "next week") { const d = new Date(today); d.setDate(d.getDate() + 7); return d; }
-        if (s === "next month") { const d = new Date(today); d.setMonth(d.getMonth() + 1); return d; }
-        if (s === "end of month" || s === "eom") {
-          return new Date(today.getFullYear(), today.getMonth() + 1, 0);
-        }
-
-        // "in N days/weeks/months"
-        const inMatch = s.match(/^in (\d+) (day|days|week|weeks|month|months)$/);
-        if (inMatch) {
-          const n = parseInt(inMatch[1]);
-          const d = new Date(today);
-          if (inMatch[2].startsWith("day")) d.setDate(d.getDate() + n);
-          else if (inMatch[2].startsWith("week")) d.setDate(d.getDate() + n * 7);
-          else d.setMonth(d.getMonth() + n);
-          return d;
-        }
-
-        // weekday names — next occurrence
-        const days = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
-        const dayMatch = s.match(/^(?:next )?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)$/);
-        if (dayMatch) {
-          const di = days.indexOf(dayMatch[1]);
-          const d = new Date(today);
-          d.setDate(d.getDate() + ((di - d.getDay() + 7) % 7 || 7));
-          return d;
-        }
-
-        // YYYY-MM-DD
-        const isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-        if (isoMatch) return new Date(parseInt(isoMatch[1]), parseInt(isoMatch[2]) - 1, parseInt(isoMatch[3]));
-
-        // MM/DD or MM/DD/YYYY
-        const slashMatch = s.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?$/);
-        if (slashMatch) {
-          const yr = slashMatch[3] ? parseInt(slashMatch[3]) : today.getFullYear();
-          const d = new Date(yr, parseInt(slashMatch[1]) - 1, parseInt(slashMatch[2]));
-          if (!slashMatch[3] && d < today) d.setFullYear(d.getFullYear() + 1);
-          return isNaN(d) ? null : d;
-        }
-
-        // "month day" or "month day, year" e.g. "march 15", "mar 15", "march 15, 2027"
-        const months = ["january","february","march","april","may","june","july","august","september","october","november","december"];
-        const monthsShort = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
-        const mMatch = s.match(/^([a-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s*(\d{4}))?$/);
-        if (mMatch) {
-          let mi = months.indexOf(mMatch[1]);
-          if (mi === -1) mi = monthsShort.indexOf(mMatch[1]);
-          if (mi !== -1) {
-            const yr = mMatch[3] ? parseInt(mMatch[3]) : today.getFullYear();
-            const d = new Date(yr, mi, parseInt(mMatch[2]));
-            if (!mMatch[3] && d < today) d.setFullYear(d.getFullYear() + 1);
-            return isNaN(d) ? null : d;
-          }
-        }
-
-        return null;
-      }
-
-      function formatDateStr(d) {
-        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      async function parseDate(input) {
+        if (!input || !input.trim()) return null;
+        const resp = await fetch(API + "/parse/date", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ date: input.trim() }),
+        });
+        const data = await resp.json();
+        return data.date || null;
       }
 
       async function apiPost(path, body) {
@@ -883,7 +926,7 @@
             overlay.remove();
             return;
           }
-          const parsed = parseNaturalDate(val);
+          const parsed = await parseDate(val);
           if (!parsed) {
             input.classList.add("error");
             return;
@@ -891,7 +934,7 @@
           const newRaw =
             stripDate(task.raw)
               .replace(/#ponder/g, "")
-              .trimEnd() + ` [[${formatDateStr(parsed)}]]`;
+              .trimEnd() + ` [[${parsed}]]`;
           await apiPost("/task/modify", {
             path: task.path,
             oldRaw: task.raw,
@@ -1063,6 +1106,152 @@
         renderQuadrant("list-q4", applyDomainFilter(data.ponder), false);
         setMainHeight();
       }
+
+      // ── Capture ───────────────────────────────────────────────────────────────
+
+      const QUADRANT_DEFAULTS = {
+        q1: { due: "today",  ponder: false },
+        q2: { due: "",       ponder: false },
+        q3: { due: "",       ponder: false },
+        q4: { due: "",       ponder: true  },
+      };
+
+      const PRIORITY_OPTS = [
+        { label: "— priority",  value: "" },
+        { label: "⏫ Highest",  value: "⏫" },
+        { label: "🔼 High",     value: "🔼" },
+        { label: "➡ Normal",   value: "" },
+        { label: "🔽 Low",      value: "🔽" },
+        { label: "⏬ Lowest",   value: "⏬" },
+      ];
+
+      const DOMAIN_OPTS = [
+        { label: "— domain",    value: "" },
+        { label: "#work",       value: "#work" },
+        { label: "#household",  value: "#household" },
+        { label: "#personal",   value: "#personal" },
+      ];
+
+      function buildCaptureBar(quadrantId) {
+        const defaults = QUADRANT_DEFAULTS[quadrantId];
+        const bar = document.getElementById(`capture-${quadrantId}`);
+        bar.innerHTML = "";
+
+        const textInput = document.createElement("input");
+        textInput.className = "captureText";
+        textInput.placeholder = "New task...";
+        bar.appendChild(textInput);
+
+        const row = document.createElement("div");
+        row.className = "captureRow";
+
+        const dateInput = document.createElement("input");
+        dateInput.className = "captureDate";
+        dateInput.placeholder = defaults.ponder ? "#ponder (no date)" : "due date";
+        dateInput.value = defaults.due;
+        if (defaults.ponder) dateInput.disabled = true;
+
+        const priSelect = document.createElement("select");
+        priSelect.className = "captureSelect";
+        PRIORITY_OPTS.forEach(o => {
+          const opt = document.createElement("option");
+          opt.value = o.value;
+          opt.textContent = o.label;
+          priSelect.appendChild(opt);
+        });
+
+        const domSelect = document.createElement("select");
+        domSelect.className = "captureSelect";
+        DOMAIN_OPTS.forEach(o => {
+          const opt = document.createElement("option");
+          opt.value = o.value;
+          opt.textContent = o.label;
+          if (activeDomain !== "all" && o.value === activeDomain) opt.selected = true;
+          domSelect.appendChild(opt);
+        });
+
+        const submitBtn = document.createElement("button");
+        submitBtn.className = "captureSubmit";
+        submitBtn.textContent = "ADD";
+
+        row.appendChild(dateInput);
+        row.appendChild(priSelect);
+        row.appendChild(domSelect);
+        row.appendChild(submitBtn);
+        bar.appendChild(row);
+
+        const submit = async () => {
+          const text = textInput.value.trim();
+          if (!text) return;
+
+          if (!defaults.ponder && dateInput.value.trim()) {
+            const resolved = await parseDate(dateInput.value.trim());
+            if (!resolved) {
+              dateInput.classList.add("error");
+              return;
+            }
+            dateInput.classList.remove("error");
+          }
+
+          const payload = {
+            text,
+            due: defaults.ponder ? null : (dateInput.value.trim() || null),
+            priority: priSelect.value || null,
+            domain: domSelect.value || null,
+          };
+          if (defaults.ponder) {
+            payload.text = text + " #ponder";
+          }
+
+          await apiPost("/task/create", payload);
+          closeCapture(quadrantId);
+          setTimeout(loadMatrix, 800);
+        };
+
+        submitBtn.addEventListener("click", submit);
+        textInput.addEventListener("keydown", e => {
+          if (e.key === "Enter") submit();
+          if (e.key === "Escape") closeCapture(quadrantId);
+        });
+        dateInput.addEventListener("keydown", e => {
+          if (e.key === "Enter") submit();
+          if (e.key === "Escape") closeCapture(quadrantId);
+        });
+
+        textInput.focus();
+      }
+
+      function openCapture(quadrantId) {
+        // Close any other open capture bars first
+        ["q1","q2","q3","q4"].forEach(id => {
+          if (id !== quadrantId) closeCapture(id);
+        });
+        const bar = document.getElementById(`capture-${quadrantId}`);
+        bar.style.display = "flex";
+        buildCaptureBar(quadrantId);
+      }
+
+      function closeCapture(quadrantId) {
+        const bar = document.getElementById(`capture-${quadrantId}`);
+        bar.style.display = "none";
+        bar.innerHTML = "";
+      }
+
+      async function loadMatrix() {
+        try {
+          const data = await fetch(API + "/eisenhower/data").then(r => r.json());
+          renderMatrix(data);
+        } catch(e) {}
+      }
+
+      document.querySelectorAll(".qAddBtn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const qid = btn.dataset.quadrant;
+          const bar = document.getElementById(`capture-${qid}`);
+          if (bar.style.display === "none") openCapture(qid);
+          else closeCapture(qid);
+        });
+      });
 
       // ── Shopping ──────────────────────────────────────────────────────────────
 

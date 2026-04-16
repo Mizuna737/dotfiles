@@ -1076,10 +1076,10 @@ function renderToggles(states) {
 
     let active, sub, pill;
     if (def.id === 'sink') {
-      // Sink is always "active" — show current sink name and cycle label
-      active = true;
+      // OFF = headphones, ON = speakers
+      active = state.label === 'Speakers';
       sub  = state.label || '—';
-      pill = '⇄';
+      pill = active ? 'ON' : 'OFF';
     } else {
       active = !!state.active;
       sub    = state.label || '';
