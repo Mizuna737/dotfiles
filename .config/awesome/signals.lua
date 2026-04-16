@@ -94,11 +94,15 @@ onFire("tag_4", function() awful.screen.focused().tags[4]:view_only() end)
 onFire("prev_tag", function() awful.tag.viewprev() end)
 onFire("next_tag", function() awful.tag.viewnext() end)
 
--- Tag cycling — left FOUR, finger spread sweeps across tags 1–5.
--- Slot mapping (snap + hysteresis) is handled by gestureControl.py after
--- registerSlots() is called below.
+-- Tag cycling — left THREE, pinch distance sweeps across tags 1–5.
+-- Re-register slots on every activation so the engine always has fresh
+-- slot config (mirrors stack_cycle; avoids startup race with awful.spawn).
+onStart("tag_cycle", function(hand)
+	registerSlots("tag_cycle", 5)
+end)
+
 onUpdate("tag_cycle", function(hand, value)
-	local tag = awful.screen.focused().tags[math.floor(value)]
+	local tag = awful.screen.focused().tags[math.floor(value + 0.5)]
 	if tag then tag:view_only() end
 end)
 
@@ -129,7 +133,3 @@ onEnd("stack_cycle", function(hand)
 	stack.unstackAll()
 end)
 
--- ── Slot configuration ────────────────────────────────────────────────────────
--- Fixed-slot bindings can be registered at startup; gestureControl.py will
--- apply snap + hysteresis before emitting ContinuousUpdate.
-registerSlots("tag_cycle", 5)
