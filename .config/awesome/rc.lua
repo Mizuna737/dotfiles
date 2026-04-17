@@ -91,7 +91,7 @@ layoutMapping = {
 	{ func = awful.layout.suit.fair, name = "fair" },
 	{ func = awful.layout.suit.fair.horizontal, name = "fairhorizontal" },
 	{ func = awful.layout.suit.spiral, name = "spiral" },
-	{ func = awful.layout.suit.dwindle, name = "dwindle" },
+	{ func = awful.layout.suit.spiral.dwindle, name = "dwindle" },
 	{ func = awful.layout.suit.max, name = "max" },
 	{ func = awful.layout.suit.fullscreen, name = "fullscreen" },
 	{ func = awful.layout.suit.magnifier, name = "magnifier" },

@@ -534,6 +534,8 @@ def extractTasks():
             displayText = DATE_RE.sub("", raw).strip()
             tags = TAG_RE.findall(displayText)
             domain = next((t for t in tags if t in DOMAIN_TAGS), "")
+            if not domain and "#nicole" in tags:
+                domain = "#household"
             displayText = TAG_RE.sub("", displayText).strip()
             displayText = TODOIST_ID_RE.sub("", displayText).strip()
             descMatch = DESC_RE.search(displayText)

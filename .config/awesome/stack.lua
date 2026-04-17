@@ -186,6 +186,49 @@ end)
 -- Public API
 -------------------------------------------------------------------------
 
+-- Return the frame for a given client, or nil if not in a frame.
+function M.getFrameForClient(c)
+	return clientFrame[c]
+end
+
+-- Programmatically create a frame from an explicit client list.
+-- clients: ordered list of clients; activeIdx: 1-based index of the anchor.
+function M.createFrame(clients, activeIdx)
+	if not clients or #clients < 2 then return end
+	activeIdx = activeIdx or 1
+
+	-- Clear any existing frames these clients belong to
+	local seenFrames = {}
+	for _, c in ipairs(clients) do
+		local f = clientFrame[c]
+		if f and not seenFrames[f] then
+			seenFrames[f] = true
+			for _, fc in ipairs(f.clients) do
+				hideTabbar(fc)
+			end
+		end
+		clientFrame[c] = nil
+	end
+
+	local anchor = clients[activeIdx]
+	local frame = { clients = clients, activeIdx = activeIdx, anchor = anchor }
+
+	for i, c in ipairs(clients) do
+		clientFrame[c] = frame
+		if i ~= activeIdx then
+			c.floating = true
+			c.hidden = true
+		else
+			c.hidden = false
+			c.floating = false
+		end
+	end
+
+	anchor:raise()
+	client.focus = anchor
+	rebuildTabbar(frame)
+end
+
 -- Stack every eligible client on the current tag into one frame.
 -- "Eligible" = not floating, OR already in a frame (frame floats are ok).
 function M.stackAll()

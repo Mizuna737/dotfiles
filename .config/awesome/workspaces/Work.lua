@@ -1,19 +1,29 @@
 return {
+  ["workspace"] = "Work",
   ["master_width_factor"] = 0.5,
-  ["layoutName"] = "centerwork",
-  ["windowOrder"] = {
-    ["1"] = {
-      ["class"] = "teams-for-linux",
-      ["name"] = "(45) Calendar | Calendar | Microsoft Teams",
+  ["slots"] = {
+    {
+      ["stack"] = true,
+      ["members"] = {
+        {
+          ["class"] = "outlook-for-linux",
+          ["name"] = "Inbox - Max Hefley - Outlook",
+        },
+        {
+          ["class"] = "teams-for-linux",
+          ["name"] = "(44) Chat | The Brain Trust | Microsoft Teams",
+        },
+      },
+      ["activeIdx"] = 2,
     },
-    ["2"] = {
+    {
       ["class"] = "qutebrowser",
-      ["name"] = "ChatGPT - qutebrowser",
+      ["name"] = "Claude - qutebrowser",
     },
-    ["3"] = {
-      ["class"] = "outlook-for-linux",
-      ["name"] = "Mail - Max Hefley - Outlook",
+    {
+      ["class"] = "obsidian",
+      ["name"] = "TRS Touchpoints Flow April - The Vault - Obsidian 1.12.7",
     },
   },
-  ["workspace"] = "Work",
+  ["layoutName"] = "dwindle",
 }
