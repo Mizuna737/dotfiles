@@ -1,19 +1,19 @@
 return {
   ["workspace"] = "Code",
-  ["layoutName"] = "centerwork",
-  ["windowOrder"] = {
-    ["1"] = {
-      ["name"] = "tmux",
-      ["class"] = "neovim",
-    },
-    ["2"] = {
-      ["name"] = "ChatGPT - qutebrowser",
-      ["class"] = "qutebrowser",
-    },
-    ["3"] = {
-      ["name"] = "tmux",
+  ["master_width_factor"] = 0.5,
+  ["slots"] = {
+    {
       ["class"] = "kitty",
+      ["name"] = "tmux",
+    },
+    {
+      ["class"] = "neovim",
+      ["name"] = "tmux",
+    },
+    {
+      ["class"] = "qutebrowser",
+      ["name"] = "Understanding sub-agent usage and optimization - Claude - qutebrowser",
     },
   },
-  ["master_width_factor"] = 0.5,
+  ["layoutName"] = "fair",
 }

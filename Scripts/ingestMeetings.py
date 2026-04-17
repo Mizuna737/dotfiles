@@ -303,15 +303,8 @@ def sanitizeFilename(name):
     return re.sub(r'[<>:"/\\|?*]', '', name).strip()
 
 
-def deriveMonth(dateStr):
-    months = ["January","February","March","April","May","June",
-              "July","August","September","October","November","December"]
-    return months[int(dateStr.split("-")[1]) - 1]
-
-
 def createNote(meeting, agenda, existingPeople):
-    month = deriveMonth(meeting["date"])
-    filename = sanitizeFilename(f"{meeting['title']} {month}.md")
+    filename = sanitizeFilename(f"{meeting['title']} {meeting['date']}.md")
     filepath = os.path.join(MEETINGS_DIR, filename)
 
     if os.path.exists(filepath):

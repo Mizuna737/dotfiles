@@ -819,6 +819,12 @@
 
       function applyDomainFilter(tasks) {
         if (activeDomain === "all" || !tasks) return tasks || [];
+        if (activeDomain === "#household") {
+          return tasks.filter(t =>
+            t.domain === "#household" ||
+            (t.path && t.path.includes("Household Priorities"))
+          );
+        }
         return tasks.filter(t => t.domain === activeDomain);
       }
 
@@ -1090,6 +1096,30 @@
             showDateInput(task, meta, item),
           );
           actions.appendChild(calBtn);
+
+          const householdBtn = document.createElement("button");
+          householdBtn.className = "actionBtn";
+          householdBtn.textContent = "🏠";
+          householdBtn.title = "Move to Household Priorities";
+          householdBtn.addEventListener("click", async () => {
+            const payload = { text: cleanText };
+            if (task.dueDate) payload.due = task.dueDate;
+            await apiPost("/nicole/add", payload);
+            await apiPost("/task/complete", { path: task.path, raw: task.raw });
+            fadeOut(item);
+          });
+          actions.appendChild(householdBtn);
+
+          const shoppingBtn = document.createElement("button");
+          shoppingBtn.className = "actionBtn";
+          shoppingBtn.textContent = "🛒";
+          shoppingBtn.title = "Move to Shopping List";
+          shoppingBtn.addEventListener("click", async () => {
+            await apiPost("/shopping/add", { text: cleanText });
+            await apiPost("/task/complete", { path: task.path, raw: task.raw });
+            fadeOut(item);
+          });
+          actions.appendChild(shoppingBtn);
 
           item.appendChild(check);
           item.appendChild(body);
