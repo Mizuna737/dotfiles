@@ -535,6 +535,57 @@
       .dateInput.error {
         border-color: var(--danger);
       }
+      .dateDropdown {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--panel-radius);
+        padding: 6px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 186px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+      }
+      .dateDropdown .dateInput {
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .calGrid {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .calRow {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+      }
+      .calCell {
+        text-align: center;
+        padding: 3px 1px;
+        border-radius: 3px;
+        font-size: 12px;
+        cursor: pointer;
+        color: var(--fg);
+        user-select: none;
+      }
+      .calCell:hover:not(.calPast):not(.calHeaderCell) {
+        background: var(--accent);
+        color: var(--bg);
+      }
+      .calHeaderCell {
+        font-size: 11px;
+        color: var(--fg-dim, #888);
+        cursor: default;
+        font-weight: 600;
+      }
+      .calToday {
+        border: 1px solid var(--accent);
+      }
+      .calPast {
+        opacity: 0.3;
+        cursor: default;
+      }
 
       .priorityOverlay {
         background: var(--bg2);
@@ -911,51 +962,106 @@
         setTimeout(() => document.addEventListener("mousedown", closeOverlay), 0);
       }
 
-      function showDateInput(task, meta, item) {
-        const existing = item.querySelector(".dateOverlay");
-        if (existing) {
-          existing.remove();
-          return;
-        }
-        const overlay = document.createElement("div");
-        overlay.className = "dateOverlay";
+      function fmtIso(d) {
+        return d.toISOString().slice(0, 10);
+      }
+
+      function getWeekStart() {
+        const d = new Date();
+        d.setHours(0, 0, 0, 0);
+        const dow = d.getDay();
+        d.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1));
+        return d;
+      }
+
+      async function scheduleTaskDate(task, item, isoDate) {
+        const newRaw = stripDate(task.raw).replace(/#ponder/g, "").trimEnd() + ` [[${isoDate}]]`;
+        await apiPost("/task/modify", { path: task.path, oldRaw: task.raw, newRaw });
+        fadeOut(item);
+      }
+
+      function showDatePicker(task, btn, item) {
+        const existing = document.querySelector(".dateDropdown");
+        if (existing) { existing.remove(); return; }
+
+        const dropdown = document.createElement("div");
+        dropdown.className = "dateDropdown";
+
+        const rect = btn.getBoundingClientRect();
+        dropdown.style.position = "fixed";
+        dropdown.style.top = rect.bottom + 4 + "px";
+        dropdown.style.left = rect.left + "px";
+        dropdown.style.zIndex = "1000";
+
         const input = document.createElement("input");
         input.className = "dateInput";
         input.type = "text";
         input.placeholder = "e.g. friday";
-        overlay.appendChild(input);
-        meta.appendChild(overlay);
+        dropdown.appendChild(input);
+
+        const cal = document.createElement("div");
+        cal.className = "calGrid";
+
+        const header = document.createElement("div");
+        header.className = "calRow";
+        ["Mo","Tu","We","Th","Fr","Sa","Su"].forEach(label => {
+          const cell = document.createElement("div");
+          cell.className = "calCell calHeaderCell";
+          cell.textContent = label;
+          header.appendChild(cell);
+        });
+        cal.appendChild(header);
+
+        const weekStart = getWeekStart();
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+
+        for (let w = 0; w < 4; w++) {
+          const row = document.createElement("div");
+          row.className = "calRow";
+          for (let d = 0; d < 7; d++) {
+            const date = new Date(weekStart);
+            date.setDate(weekStart.getDate() + w * 7 + d);
+            const iso = fmtIso(date);
+            const cell = document.createElement("div");
+            cell.className = "calCell";
+            cell.textContent = date.getDate();
+            if (date.getTime() === today.getTime()) cell.classList.add("calToday");
+            if (date < today) cell.classList.add("calPast");
+            cell.addEventListener("mousedown", async (e) => {
+              e.preventDefault();
+              dropdown.remove();
+              await scheduleTaskDate(task, item, iso);
+            });
+            row.appendChild(cell);
+          }
+          cal.appendChild(row);
+        }
+
+        dropdown.appendChild(cal);
+        document.body.appendChild(dropdown);
         input.focus();
+
         const confirm = async () => {
           const val = input.value.trim();
-          if (!val) {
-            overlay.remove();
-            return;
-          }
+          if (!val) { dropdown.remove(); return; }
           const parsed = await parseDate(val);
-          if (!parsed) {
-            input.classList.add("error");
-            return;
-          }
-          const newRaw =
-            stripDate(task.raw)
-              .replace(/#ponder/g, "")
-              .trimEnd() + ` [[${parsed}]]`;
-          await apiPost("/task/modify", {
-            path: task.path,
-            oldRaw: task.raw,
-            newRaw,
-          });
-          overlay.remove();
-          fadeOut(item);
+          if (!parsed) { input.classList.add("error"); return; }
+          dropdown.remove();
+          await scheduleTaskDate(task, item, parsed);
         };
+
         input.addEventListener("keydown", async (e) => {
           if (e.key === "Enter") await confirm();
-          if (e.key === "Escape") overlay.remove();
+          if (e.key === "Escape") dropdown.remove();
         });
-        input.addEventListener("blur", () =>
-          setTimeout(() => overlay.remove(), 150),
-        );
+
+        const closePicker = (e) => {
+          if (!dropdown.contains(e.target) && e.target !== btn) {
+            dropdown.remove();
+            document.removeEventListener("mousedown", closePicker);
+          }
+        };
+        setTimeout(() => document.addEventListener("mousedown", closePicker), 0);
       }
 
       function showStatusMenu(task, btn, item) {
@@ -1091,10 +1197,17 @@
           const calBtn = document.createElement("button");
           calBtn.className = "actionBtn";
           calBtn.textContent = "📅";
-          calBtn.title = "Schedule task";
-          calBtn.addEventListener("click", () =>
-            showDateInput(task, meta, item),
-          );
+          calBtn.title = "Schedule task (shift+click = tomorrow)";
+          calBtn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            if (e.shiftKey) {
+              const tomorrow = new Date();
+              tomorrow.setDate(tomorrow.getDate() + 1);
+              await scheduleTaskDate(task, item, fmtIso(tomorrow));
+            } else {
+              showDatePicker(task, calBtn, item);
+            }
+          });
           actions.appendChild(calBtn);
 
           const householdBtn = document.createElement("button");

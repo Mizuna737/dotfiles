@@ -64,11 +64,4 @@ fi
 
 [ -z "$DUE" ] && DUE="skip"
 
-if pgrep -x obsidian > /dev/null 2>&1; then
-  # Obsidian is running — hand off via URI protocol handler
-  urlencode() { printf '%s' "$1" | python3 -c "import sys,urllib.parse; print(urllib.parse.quote(sys.stdin.read(), safe=''))"; }
-  xdg-open "obsidian://quickadd?choice=$(urlencode 'Capture Task')&value-taskText=$(urlencode "$TASK")&value-dueDate=$(urlencode "$DUE")&value-priority=$(urlencode "$PRIORITY")&value-domain=$(urlencode "$DOMAIN")&value-desc=$(urlencode "$DESC")"
-else
-  # Obsidian is closed — write directly to the daily note via createtask
-  createtask "$TASK" "$DUE" "$PRIORITY" "$DOMAIN" "$DESC"
-fi
+"$HOME/Scripts/createtask" "$TASK" "$DUE" "$PRIORITY" "$DOMAIN" "$DESC"

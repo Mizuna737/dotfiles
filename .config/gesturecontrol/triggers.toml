@@ -118,21 +118,21 @@ pinky = true
 [[bindings]]
 name = "tag_cycle"
 require = [{hand = "left", pose = "THREE"}]
-trigger = { type = "continuous", metric = "pinch_distance", range = [0.1, 0.35], hysteresis = 0.15, hand = "left" }
+trigger = { hand = "left", hysteresis = 0.15, metric = "pinch_distance", range = [0.1, 0.35], type = "continuous" }
 
 [[bindings]]
 name = "set_volume"
-require = [{hand = "left", pose = "L"}]
+require = [{hand = "left", pose = "LLAP"}]
 trigger = { hand = "left", metric = "pinch_distance", range = [0, 0.6], type = "continuous" }
 
 [[bindings]]
-name = "stack_cycle"
+name = "window_cycle"
 require = [{hand = "right", pose = "THREE"}]
-trigger = { type = "continuous", metric = "pinch_distance", range = [0.1, 0.35], hysteresis = 0.15, hand = "right" }
+trigger = { type = "continuous", metric = "pinch_distance", range = [0.1, 0.25], hysteresis = 0.1, hand = "right" }
 
 [[bindings]]
 name = "play_pause"
-trigger = { hand = "left", step_dwell_ms = 5, steps = ["FIVE", "FOUR"], type = "sequence", window_ms = 1500 }
+trigger = { hand = "left", step_dwell_ms = 5, steps = ["FIVE", "OPEN_PALM", "FIST"], type = "sequence", window_ms = 1500 }
 
 [[bindings]]
 name = "browser_back"

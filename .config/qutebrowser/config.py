@@ -57,6 +57,9 @@ config.bind("gY", "open -t https://www.youtube.com/")
 # toggle between always  ↔  switching
 config.bind(",t", ":config-cycle tabs.show always switching")
 
+config.bind(',p', 'spawn --userscript qute-bitwarden')
+config.bind(',P', 'spawn --userscript qute-bitwarden --password-only')
+
 pywalQute.draw.color(c, {"spacing": {"vertical": 6, "horizontal": 8}})
 
 # ---- Zenful qutebrowser tweaks ----
