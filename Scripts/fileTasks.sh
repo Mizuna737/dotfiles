@@ -6,23 +6,6 @@ DAILY_DIR="$VAULT/Daily Notes"
 PROJECTS_DIR="$VAULT/Projects"
 PEOPLE_DIR="$VAULT/People"
 
-parse_date() {
-  local input="${1,,}"
-  case "$input" in
-  ponder) echo "ponder" ;;
-  today) date +%Y-%m-%d ;;
-  tomorrow) date -d "+1 day" +%Y-%m-%d ;;
-  "next week") date -d "+7 days" +%Y-%m-%d ;;
-  monday) date -d "next monday" +%Y-%m-%d ;;
-  tuesday) date -d "next tuesday" +%Y-%m-%d ;;
-  wednesday) date -d "next wednesday" +%Y-%m-%d ;;
-  thursday) date -d "next thursday" +%Y-%m-%d ;;
-  friday) date -d "next friday" +%Y-%m-%d ;;
-  saturday) date -d "next saturday" +%Y-%m-%d ;;
-  sunday) date -d "next sunday" +%Y-%m-%d ;;
-  *) date -d "$input" +%Y-%m-%d 2>/dev/null || echo "" ;;
-  esac
-}
 
 while true; do
   # Collect all incomplete tasks from daily notes + meetings
@@ -100,10 +83,9 @@ while true; do
   if [ "$IS_FILED" = "false" ] && [[ ! "$TASK_LINE" =~ \[\[ ]]; then
     DUE_INPUT=$(rofi -dmenu -p "Due date (e.g. 'friday', 'ponder', blank to skip)" -l 0) || true
     if [ -n "$DUE_INPUT" ] && [ "$DUE_INPUT" != "skip" ]; then
-      PARSED_DATE=$(parse_date "$DUE_INPUT")
-      if [ "$PARSED_DATE" = "ponder" ]; then
+      if [ "$DUE_INPUT" = "ponder" ]; then
         DUE_STR=" #ponder"
-      elif [ -n "$PARSED_DATE" ]; then
+      elif PARSED_DATE=$("$HOME/Scripts/parsedate" "$DUE_INPUT" 2>/dev/null); then
         DUE_STR=" [[$PARSED_DATE]]"
       else
         notify-send "File Task" "Couldn't parse date — filing without due date."

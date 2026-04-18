@@ -14,8 +14,9 @@
 
 local awful   = require("awful")
 local gears   = require("gears")
-local myFuncs = require("functions")
-local stack   = require("stack")
+local myFuncs     = require("functions")
+local stack       = require("stack")
+local windowCycle = require("windowCycle")
 
 local IFACE     = "org.gesturecontrol.Engine"
 local DBUS_NAME = "org.gesturecontrol"
@@ -114,22 +115,20 @@ end)
 -- Window stacking
 onFire("stack_all", function() stack.stackAll() end)
 
--- stack_cycle uses a dynamic slot count (depends on how many windows are
--- stacked), so it registers on each ContinuousStart after stacking.
-onStart("stack_cycle", function(hand)
-	stack.stackAll()
-	local count = stack.stackFrameSize()
+-- window_cycle: sweep right THREE across tiling clients on current tag;
+-- releases promotes the selected client to master.
+onStart("window_cycle", function(hand)
+	local count = windowCycle.start()
 	if count >= 2 then
-		registerSlots("stack_cycle", count)
+		registerSlots("window_cycle", count)
 	end
 end)
 
-onUpdate("stack_cycle", function(hand, value)
-	if stack.stackFrameSize() < 2 then return end
-	stack.stackActivate(math.floor(value))
+onUpdate("window_cycle", function(hand, value)
+	windowCycle.activate(math.floor(value))
 end)
 
-onEnd("stack_cycle", function(hand)
-	stack.unstackAll()
+onEnd("window_cycle", function(hand)
+	windowCycle.commit()
 end)
 

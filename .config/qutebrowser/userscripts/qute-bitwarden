@@ -1,0 +1,247 @@
+#!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: Chris Braun (cryzed) <cryzed@googlemail.com>
+# Adapted for rbw (Rust Bitwarden client)
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+"""
+Insert login information using rbw (Rust Bitwarden client) and a dmenu-compatible application
+(e.g. dmenu, rofi -dmenu, ...).
+"""
+
+USAGE = """The domain of the site has to be in the URI or name of the Bitwarden entry.
+Login information is inserted via qutebrowser's fake-key command:
+[USERNAME]<Tab>[PASSWORD], compatible with almost all login forms.
+
+rbw must be unlocked (`rbw unlock` once per session, or daemon handles it automatically).
+
+To use in qutebrowser, run: `spawn --userscript qute-bitwarden`
+"""
+
+EPILOG = """Dependencies: tldextract (Python 3 module), pyperclip (optional, for TOTP),
+rbw (Rust Bitwarden client - https://github.com/doy/rbw)
+
+WARNING: Login details are viewable as plaintext in qutebrowser's debug log (qute://log)."""
+
+import argparse
+import enum
+import functools
+import os
+import shlex
+import subprocess
+import sys
+import tldextract
+
+argument_parser = argparse.ArgumentParser(
+    description=__doc__,
+    usage=USAGE,
+    epilog=EPILOG,
+)
+argument_parser.add_argument('url', nargs='?', default=os.getenv('QUTE_URL'))
+argument_parser.add_argument('--dmenu-invocation', '-d', default='rofi -dmenu -i -p Bitwarden',
+                             help='Invocation used to execute a dmenu-provider')
+argument_parser.add_argument('--no-insert-mode', '-n', dest='insert_mode', action='store_false',
+                             help="Don't automatically enter insert mode")
+argument_parser.add_argument('--totp', '-t', action='store_true',
+                             help='Copy TOTP code to clipboard after filling')
+argument_parser.add_argument('--io-encoding', '-i', default='UTF-8',
+                             help='Encoding used to communicate with subprocesses')
+argument_parser.add_argument('--merge-candidates', '-m', action='store_true',
+                             help='Merge candidates for fully-qualified and registered domain name')
+argument_parser.add_argument('--tab-fill', action='store_true',
+                             help='Fill via Tab key navigation instead of JS field detection')
+group = argument_parser.add_mutually_exclusive_group()
+group.add_argument('--username-only', '-e', action='store_true', help='Only insert username')
+group.add_argument('--password-only', '-w', action='store_true', help='Only insert password')
+group.add_argument('--totp-only', '-T', action='store_true', help='Only insert TOTP code')
+
+stderr = functools.partial(print, file=sys.stderr)
+
+
+class ExitCodes(enum.IntEnum):
+    SUCCESS = 0
+    FAILURE = 1
+    NO_PASS_CANDIDATES = 2
+
+
+def qute_command(command):
+    with open(os.environ['QUTE_FIFO'], 'w') as fifo:
+        fifo.write(command + '\n')
+        fifo.flush()
+
+
+def search_entries(domain):
+    process = subprocess.run(
+        ['rbw', 'list', '--fields', 'folder,name,user'],
+        capture_output=True, text=True,
+    )
+    if process.returncode:
+        stderr('rbw list failed: ' + process.stderr.strip())
+        return []
+
+    candidates = []
+    for line in process.stdout.strip().splitlines():
+        parts = line.split('\t')
+        if len(parts) < 3:
+            continue
+        folder, name, user = parts[0], parts[1], parts[2]
+        if domain.lower() in name.lower():
+            candidates.append({'name': name, 'folder': folder, 'username': user})
+    return candidates
+
+
+def get_password(name, folder, username=None):
+    cmd = ['rbw', 'get']
+    if folder:
+        cmd += ['--folder', folder]
+    cmd.append(name)
+    if username:
+        cmd.append(username)
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode:
+        stderr(f'rbw get failed for {name}: ' + result.stderr.strip())
+        return ''
+    return result.stdout.strip()
+
+
+def get_totp_code(name, folder, username=None):
+    cmd = ['rbw', 'code']
+    if folder:
+        cmd += ['--folder', folder]
+    cmd.append(name)
+    if username:
+        cmd.append(username)
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode:
+        stderr(f'rbw code failed for {name}: ' + result.stderr.strip())
+        return ''
+    return result.stdout.strip()
+
+
+def dmenu(items, invocation, encoding):
+    command = shlex.split(invocation)
+    process = subprocess.run(command, input='\n'.join(items).encode(encoding), stdout=subprocess.PIPE)
+    return process.stdout.decode(encoding).strip()
+
+
+def js_escape(s):
+    return (s.replace('\\', '\\\\')
+             .replace("'", "\\'")
+             .replace('\n', '\\n')
+             .replace('\r', '\\r')
+             .replace('\0', ''))
+
+
+def js_fill(username, password):
+    u, p = js_escape(username), js_escape(password)
+    js = (
+        "(function(){"
+        "function fill(el,v){"
+        "var s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;"
+        "s.call(el,v);"
+        "el.dispatchEvent(new Event('input',{bubbles:true}));"
+        "el.dispatchEvent(new Event('change',{bubbles:true}));}"
+        "var pw=document.querySelector('input[type=password]');"
+        "if(!pw)return;"
+        "var all=Array.from(document.querySelectorAll("
+        "'input:not([type=hidden]):not([type=checkbox]):not([type=radio])"
+        ":not([type=submit]):not([type=button]):not([type=password])'));"
+        "var user=document.querySelector('input[autocomplete=username],"
+        "input[autocomplete=email],input[type=email]')"
+        "||all.slice().reverse().find(function(el){"
+        "return el.compareDocumentPosition(pw)&4;});"
+        f"if(user)fill(user,'{u}');"
+        f"fill(pw,'{p}');"
+        "})()"
+    )
+    qute_command(f'jseval -q {js}')
+
+
+def fake_key_raw(text):
+    for character in text:
+        sequence = '" "' if character == ' ' else r'\{}'.format(character)
+        qute_command('fake-key {}'.format(sequence))
+
+
+def main(arguments):
+    if not arguments.url:
+        argument_parser.print_help()
+        return ExitCodes.FAILURE
+
+    extract_result = tldextract.extract(arguments.url)
+
+    candidates = []
+    for target in filter(None, [
+        extract_result.fqdn,
+        (
+            extract_result.top_domain_under_public_suffix
+            if hasattr(extract_result, 'top_domain_under_public_suffix')
+            else extract_result.registered_domain
+        ),
+        extract_result.subdomain + '.' + extract_result.domain,
+        extract_result.domain,
+        extract_result.ipv4,
+    ]):
+        target_candidates = search_entries(target)
+        if not target_candidates:
+            continue
+        seen = {(c['name'], c['folder']) for c in candidates}
+        candidates += [c for c in target_candidates if (c['name'], c['folder']) not in seen]
+        if not arguments.merge_candidates:
+            break
+    else:
+        if not candidates:
+            stderr('No rbw candidates for URL {!r} found!'.format(arguments.url))
+            return ExitCodes.NO_PASS_CANDIDATES
+
+    if len(candidates) == 1:
+        selection = candidates[0]
+    else:
+        choices = ['{} | {}'.format(c['name'], c['username']) for c in candidates]
+        choice = dmenu(choices, arguments.dmenu_invocation, arguments.io_encoding)
+        choice_tokens = choice.split('|')
+        if len(choice_tokens) < 2:
+            return ExitCodes.SUCCESS
+        choice_name = choice_tokens[0].strip()
+        choice_username = choice_tokens[1].strip()
+        selection = next(
+            (c for c in candidates if c['name'] == choice_name and c['username'] == choice_username),
+            None,
+        )
+
+    if not selection:
+        return ExitCodes.SUCCESS
+
+    username = selection['username']
+
+    name, folder, username = selection['name'], selection['folder'], selection['username']
+
+    if arguments.username_only:
+        fake_key_raw(username)
+    elif arguments.password_only:
+        fake_key_raw(get_password(name, folder, username))
+    elif arguments.totp_only:
+        fake_key_raw(get_totp_code(name, folder, username))
+    elif arguments.tab_fill:
+        fake_key_raw(username)
+        qute_command('fake-key <Tab>')
+        fake_key_raw(get_password(name, folder, username))
+    else:
+        js_fill(username, get_password(name, folder, username))
+
+    if arguments.insert_mode:
+        qute_command('mode-enter insert')
+
+    if not arguments.totp_only and arguments.totp:
+        totp = get_totp_code(name, folder, username)
+        if totp:
+            import pyperclip
+            pyperclip.copy(totp)
+
+    return ExitCodes.SUCCESS
+
+
+if __name__ == '__main__':
+    arguments = argument_parser.parse_args()
+    sys.exit(main(arguments))

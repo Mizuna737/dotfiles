@@ -10,7 +10,7 @@ hdr()  { echo -e "${BLUE}::${RESET} ${BOLD}$*${RESET}"; }
 ok()   { echo -e "${GREEN}  ✓${RESET} $*"; }
 
 # ── Config ─────────────────────────────────────────────────────────────────────
-MAX_SNAPSHOTS=5
+MAX_SNAPSHOTS=3
 SNAP_PREFIX="pre-update"
 BTRFS_DEV=$(findmnt -n -o SOURCE / | sed 's/\[.*\]//')
 TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
