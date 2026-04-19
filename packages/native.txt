@@ -1,6 +1,7 @@
 7zip
 alacritty
 amd-ucode
+android-tools
 apache
 arandr
 aspnet-runtime-9.0

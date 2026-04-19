@@ -19,12 +19,12 @@ if [ $# -ge 1 ]; then
   "nicole") PRIORITY="nicole" ;;
   esac
 else
-  TASK=$(rofi -dmenu -p "Capture Task" -l 0)
+  TASK=$(rofi -dmenu -i -p "Capture Task" -l 0)
   [ -z "$TASK" ] && exit 0
 
-  DUE=$(rofi -dmenu -p "Due date (e.g. 'friday', 'shopping', leave blank to skip)" -l 0) || true
+  DUE=$(rofi -dmenu -i -p "Due date (e.g. 'friday', 'shopping', leave blank to skip)" -l 0) || true
 
-  PRIORITY=$(printf "⏫ Highest\n🔼 High\n➡ Normal\n🔽 Low\n⏬ Lowest\n♥ Nicole's List\nskip" | rofi -dmenu -p "Priority" -l 7) || true
+  PRIORITY=$(printf "⏫ Highest\n🔼 High\n➡ Normal\n🔽 Low\n⏬ Lowest\n♥ Nicole's List\nskip" | rofi -dmenu -i -p "Priority" -l 7) || true
   case "$PRIORITY" in
   "⏫ Highest") PRIORITY="⏫" ;;
   "🔼 High") PRIORITY="🔼" ;;
@@ -35,9 +35,9 @@ else
   *) PRIORITY="skip" ;;
   esac
 
-  DOMAIN=$(printf "#work\n#household\n#personal\nskip" | rofi -dmenu -p "Domain" -l 4) || true
+  DOMAIN=$(printf "#work\n#household\n#personal\nskip" | rofi -dmenu -i -p "Domain" -l 4) || true
 
-  DESC=$(rofi -dmenu -p "Description (optional, blank to skip)" -l 0) || true
+  DESC=$(rofi -dmenu -i -p "Description (optional, blank to skip)" -l 0) || true
 fi
 
 [ -z "$TASK" ] && exit 1
