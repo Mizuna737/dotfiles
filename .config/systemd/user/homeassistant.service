@@ -1,0 +1,14 @@
+[Unit]
+Description=Home Assistant
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=docker compose -f /home/max/dotfiles/homeassistant/docker-compose.yml up -d
+ExecStop=docker compose -f /home/max/dotfiles/homeassistant/docker-compose.yml down
+WorkingDirectory=/home/max/dotfiles/homeassistant
+
+[Install]
+WantedBy=default.target

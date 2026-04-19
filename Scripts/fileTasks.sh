@@ -59,7 +59,7 @@ while true; do
     TASK_MENU="$TASK_MENU\n$lbl"
   done
 
-  PICKED_TASK=$(printf "%b" "$TASK_MENU" | rofi -dmenu -p "File Task" -l 10) || break
+  PICKED_TASK=$(printf "%b" "$TASK_MENU" | rofi -dmenu -i -p "File Task" -l 10) || break
   [ "$PICKED_TASK" = "── Done ──" ] && break
   [ -z "$PICKED_TASK" ] && break
 
@@ -81,7 +81,7 @@ while true; do
   # Due date prompt if missing (daily note tasks only)
   DUE_STR=""
   if [ "$IS_FILED" = "false" ] && [[ ! "$TASK_LINE" =~ \[\[ ]]; then
-    DUE_INPUT=$(rofi -dmenu -p "Due date (e.g. 'friday', 'ponder', blank to skip)" -l 0) || true
+    DUE_INPUT=$(rofi -dmenu -i -p "Due date (e.g. 'friday', 'ponder', blank to skip)" -l 0) || true
     if [ -n "$DUE_INPUT" ] && [ "$DUE_INPUT" != "skip" ]; then
       if [ "$DUE_INPUT" = "ponder" ]; then
         DUE_STR=" #ponder"
@@ -96,7 +96,7 @@ while true; do
   # Priority prompt if missing (daily note tasks only)
   PRIORITY_STR=""
   if [ "$IS_FILED" = "false" ] && [[ ! "$TASK_LINE" =~ [⏫🔼🔽⏬] ]]; then
-    PRIORITY=$(printf "⏫ Highest\n🔼 High\n➡ Normal\n🔽 Low\n⏬ Lowest\nskip" | rofi -dmenu -p "Priority" -l 6) || true
+    PRIORITY=$(printf "⏫ Highest\n🔼 High\n➡ Normal\n🔽 Low\n⏬ Lowest\nskip" | rofi -dmenu -i -p "Priority" -l 6) || true
     case "$PRIORITY" in
     "⏫ Highest") PRIORITY_STR=" ⏫" ;;
     "🔼 High") PRIORITY_STR=" 🔼" ;;
@@ -110,7 +110,7 @@ while true; do
   # Domain prompt if missing
   DOMAIN_TAG=""
   if [[ ! "$TASK_LINE" =~ (#work|#household|#personal) ]]; then
-    DOMAIN_INPUT=$(printf "#work\n#household\n#personal\nskip" | rofi -dmenu -p "Domain" -l 4) || true
+    DOMAIN_INPUT=$(printf "#work\n#household\n#personal\nskip" | rofi -dmenu -i -p "Domain" -l 4) || true
     case "$DOMAIN_INPUT" in
     "#work") DOMAIN_TAG=" #work" ;;
     "#household") DOMAIN_TAG=" #household" ;;
@@ -122,7 +122,7 @@ while true; do
   # Description prompt if missing
   DESC_STR=""
   if [[ ! "$TASK_LINE" =~ desc:: ]]; then
-    DESC_INPUT=$(rofi -dmenu -p "Description (optional, blank to skip)" -l 0) || true
+    DESC_INPUT=$(rofi -dmenu -i -p "Description (optional, blank to skip)" -l 0) || true
     if [ -n "$DESC_INPUT" ]; then
       DESC_STR=" [desc:: $DESC_INPUT]"
     fi
@@ -165,7 +165,7 @@ EOF
       DEST_LABELS+=("$label")
     done < <(find "$PEOPLE_DIR" -name "*.md" -print0)
 
-    PICKED_DEST=$(printf "%b" "$DEST_MENU" | rofi -dmenu -p "File to" -l 10) || continue
+    PICKED_DEST=$(printf "%b" "$DEST_MENU" | rofi -dmenu -i -p "File to" -l 10) || continue
     [ -z "$PICKED_DEST" ] && continue
     [ "$PICKED_DEST" = "── Done ──" ] && break
 
@@ -232,13 +232,13 @@ EOF
     # Resolve destination file
     DEST_FILE=""
     if [ "$PICKED_DEST" = "📋 + New Project" ]; then
-      NEW_NAME=$(rofi -dmenu -p "New project name:" -l 0) || continue
+      NEW_NAME=$(rofi -dmenu -i -p "New project name:" -l 0) || continue
       [ -z "$NEW_NAME" ] && continue
       DEST_FILE="$PROJECTS_DIR/$NEW_NAME.md"
       printf -- "---\nstatus: active\ntags: [project]\n---\n\n## Tasks\n" >"$DEST_FILE"
       notify-send "File Task" "Created project: $NEW_NAME"
     elif [ "$PICKED_DEST" = "👤 + New Person" ]; then
-      NEW_NAME=$(rofi -dmenu -p "New person's name:" -l 0) || continue
+      NEW_NAME=$(rofi -dmenu -i -p "New person's name:" -l 0) || continue
       [ -z "$NEW_NAME" ] && continue
       DEST_FILE="$PEOPLE_DIR/$NEW_NAME.md"
       printf -- "---\ntags: [person]\n---\n\n## Tasks\n" >"$DEST_FILE"
