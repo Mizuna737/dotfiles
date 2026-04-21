@@ -446,9 +446,7 @@
         font-size: 20px;
         color: var(--fg);
         letter-spacing: 0.3px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        overflow-wrap: anywhere;
         cursor: pointer;
         line-height: 1.3;
       }
@@ -478,11 +476,17 @@
       .taskDesc {
         font-size: 14px;
         color: var(--fg-dim);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        overflow-wrap: anywhere;
         margin-top: 1px;
         font-style: italic;
+      }
+      .taskDesc a {
+        color: var(--accent, #7aa2f7);
+        text-decoration: underline;
+        font-style: normal;
+      }
+      .taskDesc a:hover {
+        color: color-mix(in srgb, var(--accent, #7aa2f7) 70%, white);
       }
       .taskItem.nicole .taskDesc {
         color: color-mix(in srgb, var(--nicole) 55%, var(--fg-dim));
@@ -1156,7 +1160,37 @@
           if (task.description) {
             const descEl = document.createElement("div");
             descEl.className = "taskDesc";
-            descEl.textContent = task.description;
+            const linkRe = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s)]+)/g;
+            let lastIdx = 0;
+            let m;
+            while ((m = linkRe.exec(task.description)) !== null) {
+              if (m.index > lastIdx) {
+                descEl.appendChild(
+                  document.createTextNode(task.description.slice(lastIdx, m.index)),
+                );
+              }
+              const href = m[2] || m[3];
+              const label = m[1] || (() => {
+                try {
+                  return new URL(href).hostname.replace(/^www\./, "");
+                } catch {
+                  return href;
+                }
+              })();
+              const a = document.createElement("a");
+              a.href = href;
+              a.textContent = label;
+              a.target = "_blank";
+              a.rel = "noopener noreferrer";
+              a.addEventListener("click", (e) => e.stopPropagation());
+              descEl.appendChild(a);
+              lastIdx = m.index + m[0].length;
+            }
+            if (lastIdx < task.description.length) {
+              descEl.appendChild(
+                document.createTextNode(task.description.slice(lastIdx)),
+              );
+            }
             body.appendChild(descEl);
           }
 

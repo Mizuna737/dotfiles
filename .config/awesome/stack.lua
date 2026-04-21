@@ -193,7 +193,9 @@ end
 
 -- Programmatically create a frame from an explicit client list.
 -- clients: ordered list of clients; activeIdx: 1-based index of the anchor.
-function M.createFrame(clients, activeIdx)
+-- opts (optional): table of extra keys to copy onto the frame:
+--   isRelated, isGlobal, homeTags, originTag, priorFrames
+function M.createFrame(clients, activeIdx, opts)
 	if not clients or #clients < 2 then return end
 	activeIdx = activeIdx or 1
 
@@ -212,6 +214,14 @@ function M.createFrame(clients, activeIdx)
 
 	local anchor = clients[activeIdx]
 	local frame = { clients = clients, activeIdx = activeIdx, anchor = anchor }
+
+	if opts then
+		for _, key in ipairs({ "isRelated", "isGlobal", "homeTags", "originTag", "priorFrames" }) do
+			if opts[key] ~= nil then
+				frame[key] = opts[key]
+			end
+		end
+	end
 
 	for i, c in ipairs(clients) do
 		clientFrame[c] = frame
@@ -245,6 +255,8 @@ function M.stackAll()
 	local allClients = {}
 	local seen = {}
 	local affectedFrames = {}
+	local priorFrames = {}
+	local snapshotted = {}
 
 	for _, c in ipairs(cls) do
 		local inFrame = clientFrame[c] ~= nil
@@ -253,6 +265,24 @@ function M.stackAll()
 			local f = clientFrame[c]
 			if f then
 				affectedFrames[f] = true
+				-- Capture predecessor frames for later restore by unstackAll.
+				-- Skip isRelated/isGlobal frames — their dispersal semantics are special.
+				if not f.isRelated and not f.isGlobal and not snapshotted[f] then
+					snapshotted[f] = true
+					if f.priorFrames then
+						-- f was itself a mega-frame; inherit its priors to keep
+						-- repeated stackAll/unstackAll round-trips idempotent.
+						for _, prior in ipairs(f.priorFrames) do
+							table.insert(priorFrames, prior)
+						end
+					else
+						local copy = {}
+						for _, fc in ipairs(f.clients) do
+							table.insert(copy, fc)
+						end
+						table.insert(priorFrames, { clients = copy, activeIdx = f.activeIdx })
+					end
+				end
 			end
 			clientFrame[c] = nil
 			table.insert(allClients, c)
@@ -280,6 +310,9 @@ function M.stackAll()
 
 	local anchor = allClients[focusedIdx]
 	local frame = { clients = allClients, activeIdx = focusedIdx, anchor = anchor }
+	if #priorFrames > 0 then
+		frame.priorFrames = priorFrames
+	end
 
 	for _, c in ipairs(allClients) do
 		clientFrame[c] = frame
@@ -420,6 +453,30 @@ function M.unstackAll()
 	end
 
 	dissolveFrame(frame)
+
+	if frame.priorFrames and #frame.priorFrames > 0 then
+		local t = awful.screen.focused().selected_tag
+		local tagClients = {}
+		if t then
+			for _, tc in ipairs(t:clients()) do
+				tagClients[tc] = true
+			end
+		end
+
+		for _, snapshot in ipairs(frame.priorFrames) do
+			local filtered = {}
+			for _, sc in ipairs(snapshot.clients) do
+				if sc.valid and tagClients[sc] then
+					table.insert(filtered, sc)
+				end
+			end
+			if #filtered >= 2 then
+				local idx = math.max(1, math.min(snapshot.activeIdx, #filtered))
+				M.createFrame(filtered, idx)
+			end
+		end
+	end
+
 	client.focus = c
 	c:raise()
 end
