@@ -18,3 +18,10 @@ Documents/The Vault/.obsidian/plugins/claude-assistant/data.json
 
 # VLC window state
 .config/vlc/vlc-qt-interface.conf
+
+# Python bytecode
+__pycache__/
+
+# Services with local secrets
+adguard/
+homeassistant/

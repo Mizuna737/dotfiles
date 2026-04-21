@@ -167,10 +167,11 @@ class ModelSession:
             except Exception:
                 pass
 
-    def generate(self, prompt, system=None, timeout=60):
+    def generate(self, prompt, system=None, timeout=60, format=None):
         """
         POST to /api/generate with keep_alive="5m" so the model stays loaded
         between calls in the same session. Retries once on connection error.
+        Pass format="json" to force structured JSON output.
         """
         payload = {
             "model": self.model,
@@ -181,6 +182,8 @@ class ModelSession:
         }
         if system is not None:
             payload["system"] = system
+        if format is not None:
+            payload["format"] = format
 
         for attempt in range(2):
             try:

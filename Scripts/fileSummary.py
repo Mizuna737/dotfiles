@@ -3,31 +3,29 @@
 
 import sys
 import os
+import json
 import argparse
 import pathlib
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from lib.localModel import ModelSession, toonEncode, toonDecode, RingLogger, selftest as libSelftest
 
-DEFAULT_MODEL = "qwen2.5-coder:7b-instruct-q4_K_M"
+DEFAULT_MODEL = "qwen2.5:7b-instruct"
 LOG_DIR       = "/tmp/fileSummaryLog"
 MAX_LINES     = 800   # trim huge files to keep prompt manageable
 
 
 SYSTEM_PROMPT = """\
-You are a code analysis assistant. Output ONLY a TOON block in this exact format:
+You are a code analysis assistant. You describe a source file as a JSON object.
 
-summaries[1]{path,purpose,keyExports,deps}:
-/some/file.py "does X and Y in ≤15 words" funcA,classB,VAR_C requests,os
+Output exactly one JSON object with these four string fields:
+  - path:       the file path passed to you
+  - purpose:    at most 15 words describing what the file does
+  - keyExports: up to 5 top-level names (functions, classes, constants), joined by commas, no spaces
+  - deps:       up to 5 external imports/requires, joined by commas, no spaces
 
-Each row has exactly 4 space-separated values:
-1. path — the file path (no spaces; quote if spaces present)
-2. purpose — ≤15 words, quoted if multi-word (it usually will be)
-3. keyExports — up to 5 top-level names, comma-separated, no spaces around commas
-4. deps — up to 5 external import names, comma-separated, no spaces around commas
-
-Use a single dash - for any field that has no meaningful value.
-Output NOTHING else — no labels, no bullets, no markdown."""
+Use the single character "-" for any field that has no meaningful value.
+Do not output anything except the JSON object."""
 
 
 def summariseFile(session, path, verbose):
@@ -44,13 +42,14 @@ def summariseFile(session, path, verbose):
         print(f"[fileSummary] {path}: trimmed to {MAX_LINES} lines", file=sys.stderr)
 
     userPrompt = (
-        f"Summarise this file.\nPath: {path}\n\n```\n{trimmed}\n```\n\n"
-        "Output the TOON block now."
+        f"File to summarise: {path}\n\n"
+        f"<file>\n{trimmed}\n</file>\n\n"
+        "Return a JSON object with fields path, purpose, keyExports, deps."
     )
     if verbose:
         print(f"[fileSummary] querying model for {path}...", file=sys.stderr)
 
-    return session.generate(userPrompt, system=SYSTEM_PROMPT, timeout=90)
+    return session.generate(userPrompt, system=SYSTEM_PROMPT, timeout=90, format="json")
 
 
 def main():
@@ -88,17 +87,32 @@ def main():
                 continue
             logData["responses"].append({"path": path, "raw": raw})
 
-            # Parse the TOON block the model returned
+            # Parse the JSON object the model returned
             try:
-                _, rows = toonDecode(raw)
-                # Always stamp the real path — model often mangles it
-                for row in rows:
-                    row["path"] = path
-                allRows.extend(rows)
-            except ValueError:
+                obj = json.loads(raw)
+                if not isinstance(obj, dict):
+                    raise ValueError("not a JSON object")
+
+                def norm(v, limit=None):
+                    if v is None or v == "":
+                        return "-"
+                    if isinstance(v, list):
+                        items = [str(x).strip() for x in v if str(x).strip()]
+                        if limit:
+                            items = items[:limit]
+                        return ",".join(items) or "-"
+                    return str(v).strip() or "-"
+
+                row = {
+                    "path":       path,  # always stamp the real path
+                    "purpose":    norm(obj.get("purpose")),
+                    "keyExports": norm(obj.get("keyExports"), limit=5),
+                    "deps":       norm(obj.get("deps"), limit=5),
+                }
+                allRows.append(row)
+            except (ValueError, json.JSONDecodeError):
                 if args.verbose:
-                    print(f"[fileSummary] TOON parse failed for {path}, raw:\n{raw}", file=sys.stderr)
-                # Emit a placeholder row so the caller still gets something
+                    print(f"[fileSummary] JSON parse failed for {path}, raw:\n{raw}", file=sys.stderr)
                 allRows.append({
                     "path":       path,
                     "purpose":    "parse-failed",
