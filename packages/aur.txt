@@ -6,6 +6,7 @@ downgrade
 droidcam
 ftb-app-bin
 gcc11
+hhpc-git
 hytale-launcher-bin
 libdeep_filter_ladspa-bin
 minecraft-launcher
@@ -35,6 +36,7 @@ via-bin
 vscodium-bin
 vtop
 windscribe-v2-bin
+woeusb-ng
 yay
 yay-debug
 zoom

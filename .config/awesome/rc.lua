@@ -48,7 +48,7 @@ end
 
 runOnce({
 	"urxvtd",
-	"unclutter -root",
+	"hhpc -i 1",
 	"~/.screenlayout/DefaultLayout.sh",
 	"lxqt=policykit-agent",
 	"copyq",
@@ -74,6 +74,7 @@ beautiful.init("/home/max/.config/awesome/themes/powerarrow/theme.lua")
 --------------------------------
 
 local bar = require("bar") -- Adjust if bar.lua is in a subfolder
+local workspaceManager = require("workspaceManager")
 bar.setupWibar()
 
 --------------------------------
@@ -102,13 +103,17 @@ layoutMapping = {
 	{ func = lain.layout.cascade, name = "cascade" },
 }
 -- Basic layout definitions for each tag
-awful.layout.primaryLayouts = {
-	lain.layout.centerwork, -- Entertainment
-	lain.layout.centerwork, -- Code
-	lain.layout.centerwork, -- Work
-	lain.layout.centerwork, -- Obsidian
-	awful.layout.suit.fair, -- Misc
+local primaryLayoutFallbacks = {
+	lain.layout.centerwork,
+	lain.layout.centerwork,
+	lain.layout.centerwork,
+	lain.layout.centerwork,
+	awful.layout.suit.fair,
 }
+awful.layout.primaryLayouts = {}
+for i, tagName in ipairs(awful.util.primaryTagnames) do
+	awful.layout.primaryLayouts[i] = workspaceManager.getSavedLayout(tagName) or primaryLayoutFallbacks[i]
+end
 
 local primary_tags = awful.tag(awful.util.primaryTagnames, screen.primary, awful.layout.primaryLayouts)
 
@@ -117,7 +122,9 @@ local primary_tags = awful.tag(awful.util.primaryTagnames, screen.primary, awful
 local dashboardScreen = nil
 
 local function setupDashboardScreen(s)
-	if s == screen.primary then return end
+	if s == screen.primary then
+		return
+	end
 	dashboardScreen = s
 	if #s.tags == 0 then
 		awful.tag({ "Dashboard" }, s, awful.layout.suit.max)
@@ -183,7 +190,7 @@ primary_tags[1].master_width_factor = 0.694
 
 local myFuncs = require("functions") -- custom functions
 local stack = require("stack") -- your separate stacking module
-require("signals")              -- gesture D-Bus signal handlers
+require("signals") -- gesture D-Bus signal handlers
 local normalKeys = require("devices.normalKeys") -- normal (keyboard) hotkeys
 
 -- Device-specific keymaps

@@ -89,11 +89,47 @@ local function makeAnchor(frame, c)
 		return
 	end
 	local old = frame.anchor
+
+	-- Detach the geometry-mirror signal from the outgoing anchor.
+	if frame._geomMirror and old and old.valid then
+		old:disconnect_signal("property::geometry", frame._geomMirror)
+	end
+	frame._geomMirror = nil
+
+	-- Snapshot the tile geometry before any layout state changes.
+	local geom = (old and old.valid) and old:geometry() or nil
+
 	old.hidden = true -- remove old from tiling layout invisibly
 	old.floating = true -- mark as float so it re-appears correctly later
 	c:swap(old) -- swap client-list positions (both excluded from tiling, no reflow)
+
+	-- Pre-seed c's geometry so the tiling layout has no stale position to snap from.
+	-- Must happen after swap (so c is in old's list slot) but before floating=false
+	-- (which triggers the layout pass). If floating=false resets geometry anyway,
+	-- the apply after hidden=false in setActive will catch it.
+	if geom then
+		c:geometry(geom)
+	end
+
 	c.floating = false -- c enters tiling at old's former list position
 	frame.anchor = c
+
+	-- Attach a geometry-mirror signal to the new anchor so stashed members
+	-- always carry the current tile geometry and arrive without a snap when promoted.
+	-- Capture only the frame table (strong ref); re-read frame.anchor inside handler
+	-- so we never extend the lifetime of any client via a closure strong-ref.
+	local mirrorHandler = function()
+		local anchor = frame.anchor
+		if not anchor or not anchor.valid then return end
+		local g = anchor:geometry()
+		for _, m in ipairs(frame.clients) do
+			if m ~= anchor and m.valid then
+				m:geometry(g)
+			end
+		end
+	end
+	frame._geomMirror = mirrorHandler
+	c:connect_signal("property::geometry", mirrorHandler)
 end
 
 local function removeFromFrame(frame, c)
@@ -111,6 +147,13 @@ local function removeFromFrame(frame, c)
 end
 
 local function dissolveFrame(frame)
+	-- Detach the geometry-mirror signal before dissolving so the handler doesn't
+	-- fire on clients that are about to leave the frame.
+	if frame._geomMirror and frame.anchor and frame.anchor.valid then
+		frame.anchor:disconnect_signal("property::geometry", frame._geomMirror)
+	end
+	frame._geomMirror = nil
+
 	for _, c in ipairs(frame.clients) do
 		clientFrame[c] = nil
 		if c.valid then
@@ -141,7 +184,12 @@ setActive = function(frame, newIdx)
 		return
 	end
 
+	-- Capture tile geometry before makeAnchor modifies layout state.
+	-- Re-apply after makeAnchor so that if floating=false reset c's geometry,
+	-- the correct position is restored before the first paint on un-hide.
+	local preGeom = frame.anchor.valid and frame.anchor:geometry() or nil
 	makeAnchor(frame, newActive) -- old anchor: hidden=true (fade out); newActive: tiling
+	if preGeom then newActive:geometry(preGeom) end
 	newActive.hidden = false -- reveal: picom fade in
 	newActive:raise()
 
@@ -223,9 +271,13 @@ function M.createFrame(clients, activeIdx, opts)
 		end
 	end
 
+	local anchorGeom = anchor.valid and anchor:geometry() or nil
 	for i, c in ipairs(clients) do
 		clientFrame[c] = frame
 		if i ~= activeIdx then
+			-- Pre-seed stash geometry so the client arrives at the correct tile
+			-- position if it is later promoted to anchor via makeAnchor.
+			if anchorGeom then c:geometry(anchorGeom) end
 			c.floating = true
 			c.hidden = true
 		else
@@ -322,9 +374,12 @@ function M.stackAll()
 	anchor.hidden = false
 	anchor.floating = false
 
-	-- Others: mark as float and hide — makeAnchor tiles them when cycled to
+	-- Others: mark as float and hide — makeAnchor tiles them when cycled to.
+	-- Pre-seed stash geometry so promotion via makeAnchor has no snap.
+	local anchorGeom = anchor.valid and anchor:geometry() or nil
 	for i, c in ipairs(allClients) do
 		if i ~= focusedIdx then
+			if anchorGeom then c:geometry(anchorGeom) end
 			c.floating = true
 			c.hidden = true
 		end
@@ -621,8 +676,10 @@ function M.stackRelated()
 
 	anchor.hidden = false
 	anchor.floating = false
+	local anchorGeomR = anchor.valid and anchor:geometry() or nil
 	for i, cl in ipairs(toStack) do
 		if i ~= focusedIdx then
+			if anchorGeomR then cl:geometry(anchorGeomR) end
 			cl.floating = true
 			cl.hidden = true
 		end
@@ -728,8 +785,10 @@ function M.stackAllGlobal()
 
 	anchor.hidden = false
 	anchor.floating = false
+	local anchorGeomG = anchor.valid and anchor:geometry() or nil
 	for i, cl in ipairs(toStack) do
 		if i ~= focusedIdx then
+			if anchorGeomG then cl:geometry(anchorGeomG) end
 			cl.floating = true
 			cl.hidden = true
 		end

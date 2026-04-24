@@ -61,6 +61,7 @@ kvantum-qt5
 libaec
 libfabric
 libreoffice-fresh
+libva-nvidia-driver
 linux
 linux-firmware
 linux-headers
@@ -114,6 +115,7 @@ qbittorrent
 qemu-full
 qemu-guest-agent
 qt5ct
+qt6ct
 qutebrowser
 rbw
 reflector
@@ -157,6 +159,7 @@ wireplumber
 woff2
 wol
 wpa_supplicant
+xdg-desktop-portal-gtk
 xdg-utils
 xdotool
 xorg-server

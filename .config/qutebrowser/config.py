@@ -112,3 +112,10 @@ c.url.start_pages = ["https://claude.ai/project/019cace2-12a1-7221-ad0a-cf900e4b
 
 # Use ChatGPT as the default page (for :open or new-tab)
 c.url.default_page = "https://claude.ai/project/019cace2-12a1-7221-ad0a-cf900e4b0933"
+
+c.qt.args += [
+    'enable-features=VaapiVideoDecoder,VaapiVideoEncoder',
+    'ignore-gpu-blocklist',
+    'enable-gpu-rasterization',
+    'enable-zero-copy',
+]
