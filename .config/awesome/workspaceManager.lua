@@ -422,4 +422,23 @@ function M.loadWorkspaceConfiguration(optionalFilename)
 	end)
 end
 
+--------------------------------------------------------------------------------
+-- Get the saved layout object for a tag name, or nil if unavailable.
+--------------------------------------------------------------------------------
+function M.getSavedLayout(tagName)
+	local path = os.getenv("HOME") .. "/.config/awesome/workspaces/" .. tagName .. ".lua"
+	local ok, data = pcall(dofile, path)
+	if not ok or type(data) ~= "table" then return nil end
+	local entry = data[tagName]
+	if not entry then return nil end
+	local layoutName = entry.layoutName
+	if not layoutName then return nil end
+	for _, mapping in ipairs(layoutMapping) do
+		if mapping.name:lower() == layoutName:lower() then
+			return mapping.func
+		end
+	end
+	return nil
+end
+
 return M
