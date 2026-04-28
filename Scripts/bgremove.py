@@ -275,10 +275,45 @@ def main():
     print("[bgremove] Running — Ctrl-C or SIGTERM to stop.")
     print(f"[bgremove] Hot-reload: echo 'blur' > {bgSwapFile} && kill -USR1 $$")
 
-    frameCount = 0
-    fpsStart   = time.monotonic()
-    inferTotal = 0.0
-    cap        = None
+    frameCount  = 0
+    fpsStart    = time.monotonic()
+    inferTotal  = 0.0
+    cap         = None
+
+    # Streaming-detection state
+    prevThumb       = None   # 64×64 grayscale of previous frame
+    liveCounter     = 0      # consecutive "changed" frames seen
+    idleCounter     = 0      # consecutive "unchanged" frames seen
+    isLive          = False  # current operating mode
+    LIVE_THRESH     = 3      # frames needed to enter live mode
+    IDLE_THRESH     = 10     # frames needed to enter idle mode
+    SAD_THRESHOLD   = 500    # sum-of-abs-diff on 64×64 uint8
+
+    def checkLive(frame):
+        """Return True if frame represents live video (producer is streaming)."""
+        nonlocal prevThumb, liveCounter, idleCounter, isLive
+        thumb = cv2.resize(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), (64, 64))
+        if thumb.mean() < 2.0:
+            # All-black / all-zero = definitely no signal
+            changed = False
+        elif prevThumb is None:
+            changed = True
+        else:
+            changed = int(cv2.absdiff(thumb, prevThumb).sum()) >= SAD_THRESHOLD
+        prevThumb = thumb
+        if changed:
+            liveCounter += 1
+            idleCounter  = 0
+        else:
+            idleCounter += 1
+            liveCounter  = 0
+        if not isLive and liveCounter >= LIVE_THRESH:
+            isLive = True
+            print("[bgremove] phone stream detected — entering live mode")
+        elif isLive and idleCounter >= IDLE_THRESH:
+            isLive = False
+            print("[bgremove] phone stream idle — entering idle mode")
+        return isLive
 
     while running:
         # (Re)open input device if not available
@@ -309,6 +344,10 @@ def main():
             segmenter.resetState()
             camera.schedule_frame(placeholder)
             time.sleep(0.5)
+            continue
+
+        if not checkLive(frame):
+            time.sleep(1.0)
             continue
 
         frameRgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)

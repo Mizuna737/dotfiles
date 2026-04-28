@@ -4,6 +4,7 @@ colorz
 curseforge
 downgrade
 droidcam
+fancontrol-gui
 ftb-app-bin
 gcc11
 hhpc-git
@@ -11,6 +12,7 @@ hytale-launcher-bin
 libdeep_filter_ladspa-bin
 minecraft-launcher
 minigalaxy
+nct6687d-dkms-git
 neofetch
 nitrogen
 nvm-git

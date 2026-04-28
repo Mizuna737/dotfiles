@@ -212,10 +212,23 @@ function M.nextLayoutForTag()
 	end
 end
 
-local commsForTag = {
-	["Work"] = { app = "teams-for-linux", cmd = "teams-for-linux" },
-	["Entertainment"] = { app = "discord", cmd = "discord" },
+M.commsApps = {
+	{ class = "teams-for-linux", cmd = "teams-for-linux" },
+	{ class = "discord",         cmd = "discord" },
+	{ class = "signal",          cmd = "signal-desktop" },
+	{ class = "zoom",            cmd = "zoom" },
 }
+
+local commsForTag = {
+	["Work"]          = "teams-for-linux",
+	["Entertainment"] = "discord",
+}
+
+local function commsEntryByClass(cls)
+	for _, entry in ipairs(M.commsApps) do
+		if entry.class == cls then return entry end
+	end
+end
 
 -- scope "current" = look on current tag, spawn if missing
 -- scope "all"     = search across all tags, follow if found elsewhere
@@ -223,8 +236,18 @@ function M.findComms(scope)
 	scope = scope or "current"
 	local tag = awful.screen.focused().selected_tag
 	local tagName = tag and tag.name or ""
-	local info = commsForTag[tagName] or { app = "signal", cmd = "signal-desktop" }
-	M.findExisting(info.app, info.cmd, scope)
+	local cls = commsForTag[tagName] or "signal"
+	local info = commsEntryByClass(cls) or { class = cls, cmd = "signal-desktop" }
+	M.findExisting(info.class, info.cmd, scope)
+end
+
+function M.isCommsClient(c)
+	if not c or not c.valid then return false end
+	local lower = string.lower(c.class or "")
+	for _, entry in ipairs(M.commsApps) do
+		if string.find(lower, entry.class, 1, true) then return true end
+	end
+	return false
 end
 
 function M.prevLayoutForTag()
@@ -661,6 +684,17 @@ end
 
 function M.cycleSink()
 	awful.spawn.with_shell("curl -s -X POST http://localhost:9876/toggle/sink")
+end
+
+function M.toggleGestureControl()
+	awful.spawn.easy_async_with_shell("systemctl --user is-active gestureControl", function(out)
+		local active = out:match("^active") ~= nil
+		local cmd = active and "systemctl --user stop gestureControl" or "systemctl --user start gestureControl"
+		local label = active and "stopped" or "started"
+		awful.spawn.easy_async_with_shell(cmd, function()
+			naughty.notify({ title = "gestureControl", text = label })
+		end)
+	end)
 end
 
 return M

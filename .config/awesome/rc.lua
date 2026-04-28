@@ -189,6 +189,8 @@ primary_tags[1].master_width_factor = 0.694
 --------------------------------
 
 local myFuncs = require("functions") -- custom functions
+local micWatcher = require("micWatcher")
+local glowBorder = require("glowBorder")
 local stack = require("stack") -- your separate stacking module
 require("signals") -- gesture D-Bus signal handlers
 local normalKeys = require("devices.normalKeys") -- normal (keyboard) hotkeys
@@ -363,16 +365,37 @@ client.connect_signal("request::activate", function(c, context, hints)
 	end
 end)
 
+local function applyBorder(c)
+	if not c or not c.valid then return end
+	if client.focus ~= c then
+		c.border_color = beautiful.border_normal
+		return
+	end
+	if myFuncs.isCommsClient(c) then
+		if micWatcher.muted then
+			c.border_color = glowBorder.blend(beautiful.borderMutedBright, beautiful.borderMutedDim)
+		else
+			c.border_color = glowBorder.blend(beautiful.borderUnmutedBright, beautiful.borderUnmutedDim)
+		end
+	else
+		c.border_color = glowBorder.blend(beautiful.border_focus, beautiful.border_normal)
+	end
+end
+
 client.connect_signal("focus", function(c)
-	c.border_color = beautiful.border_focus
+	applyBorder(c)
 end)
 
 client.connect_signal("unfocus", function(c)
-	c.border_color = beautiful.border_normal
+	applyBorder(c)
 	if c.wasPromoted and c.maximized then
 		c.maximized = false
 		c.wasPromoted = false
 	end
+end)
+
+awesome.connect_signal("micMuteChanged", function()
+	if client.focus then applyBorder(client.focus) end
 end)
 
 awesome.connect_signal("save::focused_tag", function()
@@ -415,5 +438,10 @@ beautiful.useless_gap = 6
 -- Finish up
 ----------------------------------
 bar.updateVolumeWidget()
+micWatcher.start()
+glowBorder.subscribe(function()
+	if client.focus then applyBorder(client.focus) end
+end)
+glowBorder.start()
 
 -- Done.
