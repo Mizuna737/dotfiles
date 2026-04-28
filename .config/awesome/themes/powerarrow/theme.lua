@@ -60,6 +60,10 @@ theme.tasklist_fg_focus = wal.WAL_COLOR4 or "#5CCFE6"
 theme.border_normal = wal.WAL_COLOR8 or "#5C6773"
 theme.border_focus = wal.WAL_COLOR2 or "#5CCFE6"
 theme.border_marked = wal.WAL_COLOR3 or "#FFA759"
+theme.borderMutedBright = "#ff2a2a"
+theme.borderMutedDim = "#a01818"
+theme.borderUnmutedBright = "#22dd22"
+theme.borderUnmutedDim = "#147a14"
 theme.border_width = 2
 
 theme.menu_height = dpi(16)

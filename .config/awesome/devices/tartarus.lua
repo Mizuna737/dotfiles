@@ -15,6 +15,7 @@ local modkey = "Mod4" -- Super
 local ctrl = "Control"
 local altkey = "Mod1"
 local shft = "Shift"
+local mutePttHeld = false
 
 local tartarus = {}
 
@@ -305,11 +306,38 @@ tartarus.globalkeys = gears.table.join(
 		myFuncs.toggleVPN()
 	end, "F hold => toggle VPN"),
 	tk({ modkey, ctrl, shft }, "f", function()
-		naughty.notify({ title = "T f", text = "mod tap pressed" })
-	end, "F mod tap => (unassigned)"),
+		awful.spawn("pactl set-source-mute @DEFAULT_SOURCE@ toggle")
+	end, "F mod tap => toggle mic mute"),
 	tk({ modkey, ctrl, altkey, shft }, "f", function()
-		naughty.notify({ title = "T f", text = "mod tap+hold pressed" })
-	end, "F mod hold => (unassigned)"),
+		if mutePttHeld then
+			return
+		end
+		mutePttHeld = true
+		awful.spawn("pactl set-source-mute @DEFAULT_SOURCE@ toggle")
+		local releaseTimer
+		awful.keygrabber({
+			autostart = true,
+			keypressed_callback = function(self, mod, key)
+				if (key == "f" or key == "F") and releaseTimer and releaseTimer.started then
+					releaseTimer:stop()
+				end
+			end,
+			keyreleased_callback = function(self, mod, key)
+				if key == "f" or key == "F" then
+					releaseTimer = gears.timer({
+						timeout = 0.005,
+						single_shot = true,
+						autostart = true,
+						callback = function()
+							mutePttHeld = false
+							awful.spawn("pactl set-source-mute @DEFAULT_SOURCE@ toggle")
+							self:stop()
+						end,
+					})
+				end
+			end,
+		})
+	end, "F mod hold => push-to-talk mic mute"),
 
 	--------------------------------------------------
 	-- Row 4: shift, z, x, c, space
@@ -360,8 +388,8 @@ tartarus.globalkeys = gears.table.join(
 
 	-- Key c
 	tk({ modkey, ctrl }, "c", function()
-		myFuncs.bitwardenPasswordCLI()
-	end, "C tap => bitwardenPasswordCLI"),
+		myFuncs.toggleGestureControl()
+	end, "T19 tap => toggle gestureControl engine"),
 	tk({ modkey, ctrl, altkey }, "c", function()
 		naughty.notify({ title = "T c", text = "tap+hold pressed" })
 	end, "C hold => notify"),

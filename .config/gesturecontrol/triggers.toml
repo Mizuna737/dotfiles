@@ -1,6 +1,6 @@
 [settings]
 camera = 2
-dwell_ms = 200
+dwell_ms = 50
 format = "GREY"
 spread_threshold = 0.4
 
@@ -118,7 +118,7 @@ pinky = true
 [[bindings]]
 name = "tag_cycle"
 require = [{hand = "left", pose = "THREE"}]
-trigger = { hand = "left", hysteresis = 0.15, metric = "pinch_distance", range = [0.1, 0.35], type = "continuous" }
+trigger = { type = "continuous", metric = "pinch_distance", range = [0.1, 0.35], hysteresis = 0.15, hand = "left" }
 
 [[bindings]]
 name = "set_volume"
@@ -127,8 +127,8 @@ trigger = { hand = "left", metric = "pinch_distance", range = [0, 0.6], type = "
 
 [[bindings]]
 name = "window_cycle"
-require = [{hand = "right", pose = "THREE"}]
-trigger = { type = "continuous", metric = "pinch_distance", range = [0.1, 0.25], hysteresis = 0.1, hand = "right" }
+require = [{hand = "either", pose = "L"}]
+trigger = { type = "continuous", metric = "pinch_distance", range = [0.1, 0.35], hysteresis = 0.15, hand = "left" }
 
 [[bindings]]
 name = "play_pause"
@@ -136,14 +136,15 @@ trigger = { hand = "left", step_dwell_ms = 5, steps = ["FIVE", "OPEN_PALM", "FIS
 
 [[bindings]]
 name = "browser_back"
-require = [{hand = "either", pose = "TWO"}]
-trigger = { direction = "left", hand = "either", min_displacement = 0.1, type = "swipe" }
+require = [{hand = "either", pose = "SIGN"}]
+trigger = { type = "swipe", direction = "left", min_displacement = 0.1, hand = "either" }
 
 [[bindings]]
 name = "browser_forward"
-require = [{hand = "either", pose = "TWO"}]
-trigger = { direction = "right", hand = "either", min_displacement = 0.1, type = "swipe" }
+require = [{hand = "either", pose = "SIGN"}]
+trigger = { type = "swipe", direction = "right", min_displacement = 0.1, hand = "either" }
 
 [[bindings]]
-name = "youtube"
-trigger = { dwell_ms = 200, hand = "either", shape = "Y", type = "pose" }
+name = "toggleGestureControl"
+require = [{hand = "right", pose = "OPEN_PALM"}]
+trigger = { hand = "left", step_dwell_ms = 80, steps = ["FOUR", "LLAP", "FOUR", "FIST"], type = "sequence", window_ms = 2500 }

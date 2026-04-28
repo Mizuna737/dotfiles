@@ -38,6 +38,7 @@ ffmpeg
 flameshot
 freerdp
 ghostscript
+gimp
 git
 github-cli
 gnome-disk-utility
@@ -132,6 +133,7 @@ snapper
 sshfs
 steam
 stow
+stress
 sysstat
 system-config-printer
 tailscale
@@ -163,6 +165,7 @@ xdg-desktop-portal-gtk
 xdg-utils
 xdotool
 xorg-server
+xorg-xev
 xorg-xinit
 xorg-xrandr
 xsel

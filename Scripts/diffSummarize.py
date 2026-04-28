@@ -11,9 +11,11 @@ import pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from lib.localModel import ModelSession, toonEncode, toonDecode, RingLogger, selftest as libSelftest
 
-DEFAULT_MODEL = "qwen2.5-coder:7b-instruct-q4_K_M"
-LOG_DIR       = "/tmp/diffSummarizeLog"
-MAX_DIFF_CHARS = 12000  # trim large diffs to fit 7b context window
+DEFAULT_MODEL  = "qwen2.5-coder:7b-instruct-q4_K_M"
+LOG_DIR        = "/tmp/diffSummarizeLog"
+MAX_DIFF_CHARS = 12000   # trim large diffs to fit 7b context window
+MAX_SCAN_CHARS = 20000   # cap for --secretScan blob
+MAX_FILE_CHARS = 4000    # per-file cap for untracked files in secret scan
 
 TOON_SYSTEM = """\
 You are a code review assistant. Output ONLY a TOON block in this exact format:
@@ -36,6 +38,23 @@ Line 1: imperative-mood title, ≤72 characters
 Line 2: blank
 Lines 3+: 2-3 bullet points (each starting with "- ") describing what changed and why.
 Output ONLY the commit message. No markdown headers, no extra commentary."""
+
+SECRET_SCAN_SYSTEM = """\
+You are a security scanner. Inspect the following code/diff for secrets.
+
+Look for: SSH private keys, API tokens, passwords, .env values, bearer tokens, \
+AWS/GCP/Azure credentials, database connection strings, private certificates, \
+hardcoded credentials of any kind.
+
+Bias toward flagging — a false positive is better than a false negative.
+
+If you find NOTHING suspicious, output exactly:
+CLEAN
+
+If you find anything suspicious, output exactly:
+SECRETS_FOUND
+- <file or location>: <one-line description>
+(one bullet per finding, no other text before or after)"""
 
 
 def getDiff(args):
@@ -60,17 +79,40 @@ def getDiff(args):
 
 def main():
     parser = argparse.ArgumentParser(description="Summarise a git diff via local Ollama model")
-    parser.add_argument("--staged",    action="store_true", help="Use git diff --staged")
-    parser.add_argument("--range",     metavar="REF..REF",  help="Use git diff <range>")
-    parser.add_argument("--commitMsg", action="store_true", help="Also emit a commit message title+body")
-    parser.add_argument("--model",     default=DEFAULT_MODEL)
-    parser.add_argument("--verbose",   action="store_true", help="Debug output on stderr")
-    parser.add_argument("--selftest",  action="store_true", help="Run TOON codec selftest and exit")
-    parser.add_argument("--root",      default=os.getcwd(), help="Git repo root for --staged/--range")
+    parser.add_argument("--staged",     action="store_true", help="Use git diff --staged")
+    parser.add_argument("--range",      metavar="REF..REF",  help="Use git diff <range>")
+    parser.add_argument("--commitMsg",  action="store_true", help="Also emit a commit message title+body")
+    parser.add_argument("--secretScan", action="store_true", help="Read stdin blob, scan for secrets, output CLEAN or SECRETS_FOUND")
+    parser.add_argument("--model",      default=DEFAULT_MODEL)
+    parser.add_argument("--verbose",    action="store_true", help="Debug output on stderr")
+    parser.add_argument("--selftest",   action="store_true", help="Run TOON codec selftest and exit")
+    parser.add_argument("--root",       default=os.getcwd(), help="Git repo root for --staged/--range")
     args = parser.parse_args()
 
     if args.selftest:
         libSelftest()
+        sys.exit(0)
+
+    # --- Secret scan mode: read stdin, send to model, print CLEAN/SECRETS_FOUND ---
+    if args.secretScan:
+        blob = sys.stdin.read()
+        if not blob.strip():
+            print("CLEAN")
+            sys.exit(0)
+        # Cap total blob size
+        if len(blob) > MAX_SCAN_CHARS:
+            blob = blob[:MAX_SCAN_CHARS] + "\n[truncated]"
+        logger  = RingLogger(LOG_DIR)
+        logData = {"model": args.model, "mode": "secretScan", "blobLen": len(blob)}
+        with ModelSession(args.model, verbose=args.verbose) as session:
+            scanRaw = session.generate(
+                f"Content to scan:\n```\n{blob}\n```\n\nReport now.",
+                system=SECRET_SCAN_SYSTEM,
+                timeout=90,
+            )
+        logData["response"] = scanRaw
+        logger.write(logData)
+        print(scanRaw.strip())
         sys.exit(0)
 
     diffText = getDiff(args)

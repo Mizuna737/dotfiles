@@ -1,3 +1,7 @@
 [[bindings]]
 signal = "play_pause"
 action = { cmd = ["playerctl", "play-pause"], type = "exec" }
+
+[[bindings]]
+signal = "toggleGestureControl"
+action = { cmd = ["systemctl", "--user", "stop", "gestureControl"], type = "exec" }

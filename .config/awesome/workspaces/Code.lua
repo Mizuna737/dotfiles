@@ -1,6 +1,4 @@
 return {
-  ["workspace"] = "Code",
-  ["master_width_factor"] = 0.5,
   ["slots"] = {
     {
       ["class"] = "kitty",
@@ -12,8 +10,10 @@ return {
     },
     {
       ["class"] = "qutebrowser",
-      ["name"] = "Understanding sub-agent usage and optimization - Claude - qutebrowser",
+      ["name"] = "intake case fan really loud - Google Search - qutebrowser",
     },
   },
-  ["layoutName"] = "fair",
+  ["workspace"] = "Code",
+  ["layoutName"] = "centerwork",
+  ["master_width_factor"] = 0.5,
 }

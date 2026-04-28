@@ -427,8 +427,6 @@ def cycleSink():
         parts = line.split()
         if parts:
             run(["pactl", "move-sink-input", parts[0], nextSink])
-    # Push updated state to all SSE clients immediately
-    sseBroadcast("sink-changed", getSinkState())
 
 
 def getSinkState():
@@ -933,8 +931,8 @@ def startSinkWatcher():
         )
         lastSink = getDefaultSink()
         for line in proc.stdout:
-            # We care about sink events: "Event 'change' on sink #N"
-            if "'change'" in line and "sink #" in line.lower():
+            # Any change event triggers a re-read; the lastSink guard below filters to actual default-sink swaps.
+            if "'change'" in line:
                 current = getDefaultSink()
                 if current != lastSink:
                     lastSink = current
