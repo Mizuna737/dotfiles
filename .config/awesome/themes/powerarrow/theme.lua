@@ -65,6 +65,8 @@ theme.borderMutedDim = "#a01818"
 theme.borderUnmutedBright = "#22dd22"
 theme.borderUnmutedDim = "#147a14"
 theme.border_width = 2
+theme.cornerRadius = 12
+theme.borderWidthFocusMax = 5
 
 theme.menu_height = dpi(16)
 theme.menu_width = dpi(140)

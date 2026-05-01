@@ -16,7 +16,9 @@ Background switching without restart:
 """
 
 import argparse
+import os
 import signal
+import socket
 import sys
 import time
 from pathlib import Path
@@ -29,7 +31,36 @@ import pyfakewebcam
 DEBUG = False
 
 
+def loadDroidcamEndpoint():
+    cfg = os.path.expanduser("~/.config/droidcam")
+    host, port = "192.168.0.156", 4747
+    try:
+        with open(cfg) as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("ip="):
+                    host = line.split("=", 1)[1].strip() or host
+                elif line.startswith("port="):
+                    try:
+                        port = int(line.split("=", 1)[1].strip())
+                    except ValueError:
+                        pass
+    except FileNotFoundError:
+        pass
+    return host, port
+
+
+def isDroidcamReachable(host, port, timeout=1.0):
+    try:
+        sock = socket.create_connection((host, port), timeout=timeout)
+        sock.close()
+        return True
+    except Exception:
+        return False
+
+
 def parseArgs():
+    _dcHost, _dcPort = loadDroidcamEndpoint()
     p = argparse.ArgumentParser(description="GPU background removal virtual camera")
     p.add_argument("--input",      default="/dev/video20",
                    help="Source v4l2 device (droidcam output)")
@@ -50,6 +81,12 @@ def parseArgs():
                    help="Skip TensorRT EP, use CUDA EP only")
     p.add_argument("--trt-cache",  default="~/.local/share/bgremove/trt_cache",
                    help="TensorRT engine cache directory (persists between runs)")
+    p.add_argument("--droidcam-host", default=_dcHost,
+                   help="Droidcam phone IP (default from ~/.config/droidcam)")
+    p.add_argument("--droidcam-port", type=int, default=_dcPort,
+                   help="Droidcam phone port (default from ~/.config/droidcam)")
+    p.add_argument("--no-droidcam-gate", action="store_true",
+                   help="Disable TCP reachability gate (use for non-droidcam inputs)")
     p.add_argument("--debug",      action="store_true")
     return p.parse_args()
 
@@ -280,42 +317,27 @@ def main():
     inferTotal  = 0.0
     cap         = None
 
-    # Streaming-detection state
-    prevThumb       = None   # 64×64 grayscale of previous frame
-    liveCounter     = 0      # consecutive "changed" frames seen
-    idleCounter     = 0      # consecutive "unchanged" frames seen
-    isLive          = False  # current operating mode
-    LIVE_THRESH     = 3      # frames needed to enter live mode
-    IDLE_THRESH     = 10     # frames needed to enter idle mode
-    SAD_THRESHOLD   = 500    # sum-of-abs-diff on 64×64 uint8
-
-    def checkLive(frame):
-        """Return True if frame represents live video (producer is streaming)."""
-        nonlocal prevThumb, liveCounter, idleCounter, isLive
-        thumb = cv2.resize(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), (64, 64))
-        if thumb.mean() < 2.0:
-            # All-black / all-zero = definitely no signal
-            changed = False
-        elif prevThumb is None:
-            changed = True
-        else:
-            changed = int(cv2.absdiff(thumb, prevThumb).sum()) >= SAD_THRESHOLD
-        prevThumb = thumb
-        if changed:
-            liveCounter += 1
-            idleCounter  = 0
-        else:
-            idleCounter += 1
-            liveCounter  = 0
-        if not isLive and liveCounter >= LIVE_THRESH:
-            isLive = True
-            print("[bgremove] phone stream detected — entering live mode")
-        elif isLive and idleCounter >= IDLE_THRESH:
-            isLive = False
-            print("[bgremove] phone stream idle — entering idle mode")
-        return isLive
+    probeIntervalSec = 2.0
+    lastProbeTime    = 0.0
+    lastProbeOk      = False
 
     while running:
+        if not args.no_droidcam_gate:
+            now = time.monotonic()
+            if now - lastProbeTime >= probeIntervalSec:
+                ok = isDroidcamReachable(args.droidcam_host, args.droidcam_port)
+                if ok != lastProbeOk:
+                    print(f"[bgremove] droidcam {'reachable' if ok else 'unreachable'} at {args.droidcam_host}:{args.droidcam_port}", flush=True)
+                lastProbeOk = ok
+                lastProbeTime = now
+            if not lastProbeOk:
+                camera.schedule_frame(placeholder)
+                if cap is not None:
+                    cap.release()
+                    cap = None
+                time.sleep(1.0)
+                continue
+
         # (Re)open input device if not available
         if cap is None or not cap.isOpened():
             if cap is not None:
@@ -333,7 +355,7 @@ def main():
                 cap.release()
                 cap = None
                 camera.schedule_frame(placeholder)
-                time.sleep(frameInterval)
+                time.sleep(1.0)
                 continue
 
         ret, frame = cap.read()
@@ -344,10 +366,6 @@ def main():
             segmenter.resetState()
             camera.schedule_frame(placeholder)
             time.sleep(0.5)
-            continue
-
-        if not checkLive(frame):
-            time.sleep(1.0)
             continue
 
         frameRgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)

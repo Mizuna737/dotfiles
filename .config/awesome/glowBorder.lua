@@ -39,12 +39,19 @@ function M.blend(bright, dim)
 	return lerpColor(dim, bright, t)
 end
 
+function M.blendNumber(high, low)
+	local t = (math.sin(math.pi * 2 * pulsePhase / M.cyclePeriod) + 1) / 2
+	return low + (high - low) * t
+end
+
 function M.subscribe(fn)
 	subscribers[#subscribers + 1] = fn
 end
 
 function M.start()
-	if pulseTimer then return end
+	if pulseTimer then
+		return
+	end
 	pulseTimer = gears.timer({
 		timeout = tickRate,
 		call_now = false,

@@ -1,0 +1,1392 @@
+symbol	file	line	kind	language
+run	.config/autostart/autorun.sh	3		
+settings	.config/awesome/bar.lua	66		
+settings	.config/awesome/bar.lua	76		
+settings	.config/awesome/bar.lua	86		
+animate_widget_size	.config/awesome/bar.lua	135		
+timer	.config/awesome/bar.lua	140		
+updateVolumeText	.config/awesome/bar.lua	175		
+callback	.config/awesome/bar.lua	195		
+updateVolumeWidget	.config/awesome/bar.lua	212		
+shrink_timer	.config/awesome/bar.lua	235		
+formatDateTime	.config/awesome/bar.lua	254		
+updateDateTime	.config/awesome/bar.lua	274		
+updateFocusedClass	.config/awesome/bar.lua	306		
+makeFrameWidget	.config/awesome/clientBorder.lua	9		
+visibleFor	.config/awesome/clientBorder.lua	39		
+place	.config/awesome/clientBorder.lua	43		
+refresh	.config/awesome/clientBorder.lua	81		
+onTagChange	.config/awesome/clientBorder.lua	125		
+makeRow	.config/awesome/cycleSelector.lua	25		
+buildWidget	.config/awesome/cycleSelector.lua	46		
+reposition	.config/awesome/cycleSelector.lua	58		
+myFuncs	.config/awesome/devices/macropad.lua	7		
+"	.config/awesome/devices/macropad.lua	55		
+"	.config/awesome/devices/macropad.lua	59		
+myFuncs	.config/awesome/devices/normalKeys.lua	6		
+myFuncs	.config/awesome/devices/scimitar.lua	9		
+sk	.config/awesome/devices/scimitar.lua	23		
+myFuncs	.config/awesome/devices/tartarus.lua	10		
+tk	.config/awesome/devices/tartarus.lua	25		
+keypressed_callback	.config/awesome/devices/tartarus.lua	320		
+keyreleased_callback	.config/awesome/devices/tartarus.lua	325		
+callback	.config/awesome/devices/tartarus.lua	331		
+onNewWindow	.config/awesome/functions.lua	125		
+commsEntryByClass	.config/awesome/functions.lua	227		
+postClose	.config/awesome/functions.lua	319		
+isDropdownClient	.config/awesome/functions.lua	329		
+manage_callback	.config/awesome/functions.lua	381		
+matches	.config/awesome/functions.lua	403		
+hideOtherDropdowns	.config/awesome/functions.lua	482		
+positionDropdown	.config/awesome/functions.lua	500		
+onManage	.config/awesome/functions.lua	538		
+hexToRgb	.config/awesome/glowBorder.lua	11		
+lerpColor	.config/awesome/glowBorder.lua	16		
+callback	.config/awesome/glowBorder.lua	59		
+Please, read me!	.config/awesome/lain/ISSUE_TEMPLATE.md	1		
+If you have an issue	.config/awesome/lain/ISSUE_TEMPLATE.md	5		
+How to provide X error log	.config/awesome/lain/ISSUE_TEMPLATE.md	16		
+Lain	.config/awesome/lain/README.rst	1		
+stdout	.config/awesome/lain/helpers.lua	127		
+do_cascade	.config/awesome/lain/layout/cascade.lua	29		
+arrange	.config/awesome/lain/layout/centerwork.lua	24		
+mouse_resize_handler	.config/awesome/lain/layout/centerwork.lua	132		
+compare_position	.config/awesome/lain/layout/centerwork.lua	207		
+clients_by_position	.config/awesome/lain/layout/centerwork.lua	215		
+in_centerwork	.config/awesome/lain/layout/centerwork.lua	238		
+do_fair	.config/awesome/lain/layout/termfair.lua	19		
+__tojson	.config/awesome/lain/util/dkjson.lua	77		
+isarray	.config/awesome/lain/util/dkjson.lua	80		
+escapeutf8	.config/awesome/lain/util/dkjson.lua	109		
+fsub	.config/awesome/lain/util/dkjson.lua	139		
+quotestring	.config/awesome/lain/util/dkjson.lua	150		
+replace	.config/awesome/lain/util/dkjson.lua	167		
+updatedecpoint	.config/awesome/lain/util/dkjson.lua	179		
+num2str	.config/awesome/lain/util/dkjson.lua	187		
+str2num	.config/awesome/lain/util/dkjson.lua	191		
+addnewline2	.config/awesome/lain/util/dkjson.lua	200		
+addpair	.config/awesome/lain/util/dkjson.lua	216		
+appendcustom	.config/awesome/lain/util/dkjson.lua	233		
+exception	.config/awesome/lain/util/dkjson.lua	242		
+encode2	.config/awesome/lain/util/dkjson.lua	259		
+loc	.config/awesome/lain/util/dkjson.lua	382		
+unterminated	.config/awesome/lain/util/dkjson.lua	397		
+scanwhite	.config/awesome/lain/util/dkjson.lua	401		
+unichar	.config/awesome/lain/util/dkjson.lua	427		
+scanstring	.config/awesome/lain/util/dkjson.lua	449		
+scantable	.config/awesome/lain/util/dkjson.lua	512		
+scanvalue	.config/awesome/lain/util/dkjson.lua	556		
+optionalmetatables	.config/awesome/lain/util/dkjson.lua	592		
+ErrorCall	.config/awesome/lain/util/dkjson.lua	615		
+Err	.config/awesome/lain/util/dkjson.lua	623		
+ErrorUnterminatedCall	.config/awesome/lain/util/dkjson.lua	627		
+ErrUnterminated	.config/awesome/lain/util/dkjson.lua	635		
+UTF16Surrogate	.config/awesome/lain/util/dkjson.lua	642		
+UTF16BMP	.config/awesome/lain/util/dkjson.lua	650		
+parsearray	.config/awesome/lain/util/dkjson.lua	667		
+parseobject	.config/awesome/lain/util/dkjson.lua	686		
+exe_callback	.config/awesome/lain/util/init.lua	139		
+exe_callback	.config/awesome/lain/util/init.lua	151		
+__call	.config/awesome/lain/util/markup.lua	62		
+__call	.config/awesome/lain/util/markup.lua	63		
+__call	.config/awesome/lain/util/markup.lua	66		
+naughty_destroy_callback	.config/awesome/lain/util/menu_iterator.lua	23		
+iterate	.config/awesome/lain/util/menu_iterator.lua	43		
+menu	.config/awesome/lain/util/menu_iterator.lua	97		
+1]	.config/awesome/lain/util/menu_iterator.lua	119		
+1]	.config/awesome/lain/util/menu_iterator.lua	126		
+__call	.config/awesome/lain/util/quake.lua	179		
+factory	.config/awesome/lain/widget/alsa.lua	17		
+settings	.config/awesome/lain/widget/alsa.lua	21		
+factory	.config/awesome/lain/widget/alsabar.lua	21		
+settings	.config/awesome/lain/widget/alsabar.lua	36		
+destroy	.config/awesome/lain/widget/alsabar.lua	153		
+factory	.config/awesome/lain/widget/bat.lua	21		
+settings	.config/awesome/lain/widget/bat.lua	38		
+factory	.config/awesome/lain/widget/cal.lua	25		
+factory	.config/awesome/lain/widget/contrib/moc.lua	20		
+settings	.config/awesome/lain/widget/contrib/moc.lua	30		
+pid	.config/awesome/lain/widget/contrib/redshift.lua	29		
+exe_callback	.config/awesome/lain/widget/contrib/task.lua	56		
+factory	.config/awesome/lain/widget/contrib/tp_smapi.lua	20		
+settings	.config/awesome/lain/widget/contrib/tp_smapi.lua	87		
+factory	.config/awesome/lain/widget/cpu.lua	17		
+settings	.config/awesome/lain/widget/cpu.lua	22		
+factory	.config/awesome/lain/widget/fs.lua	28		
+settings	.config/awesome/lain/widget/fs.lua	61		
+update_synced	.config/awesome/lain/widget/fs.lua	74		
+factory	.config/awesome/lain/widget/imap.lua	19		
+settings	.config/awesome/lain/widget/imap.lua	32		
+factory	.config/awesome/lain/widget/mem.lua	16		
+settings	.config/awesome/lain/widget/mem.lua	21		
+factory	.config/awesome/lain/widget/mpd.lua	21		
+settings	.config/awesome/lain/widget/mpd.lua	35		
+factory	.config/awesome/lain/widget/net.lua	15		
+settings	.config/awesome/lain/widget/net.lua	30		
+factory	.config/awesome/lain/widget/pulse.lua	17		
+settings	.config/awesome/lain/widget/pulse.lua	22		
+factory	.config/awesome/lain/widget/pulsebar.lua	21		
+settings	.config/awesome/lain/widget/pulsebar.lua	38		
+destroy	.config/awesome/lain/widget/pulsebar.lua	162		
+factory	.config/awesome/lain/widget/sysload.lua	16		
+settings	.config/awesome/lain/widget/sysload.lua	21		
+factory	.config/awesome/lain/widget/temp.lua	15		
+settings	.config/awesome/lain/widget/temp.lua	22		
+factory	.config/awesome/lain/widget/weather.lua	23		
+settings	.config/awesome/lain/widget/weather.lua	47		
+Dependencies	.config/awesome/lain/wiki/Home.md	5		
+Installation	.config/awesome/lain/wiki/Home.md	12		
+Usage	.config/awesome/lain/wiki/Home.md	31		
+Usage	.config/awesome/lain/wiki/Layouts.md	11		
+How do layouts work?	.config/awesome/lain/wiki/Layouts.md	20		
+Pre 4.0 `uselesstile` patches	.config/awesome/lain/wiki/Layouts.md	215		
+What about layout icons?	.config/awesome/lain/wiki/Layouts.md	234		
+Quake	.config/awesome/lain/wiki/Utilities.md	1		
+Separators	.config/awesome/lain/wiki/Utilities.md	72		
+markup	.config/awesome/lain/wiki/Utilities.md	97		
+Dynamic tagging	.config/awesome/lain/wiki/Utilities.md	144		
+Useless gaps resize	.config/awesome/lain/wiki/Utilities.md	168		
+tag\\_view\\_nonempty	.config/awesome/lain/wiki/Utilities.md	203		
+magnify\\_client	.config/awesome/lain/wiki/Utilities.md	223		
+menu\\_clients\\_current\\_tags	.config/awesome/lain/wiki/Utilities.md	243		
+menu\\_iterator	.config/awesome/lain/wiki/Utilities.md	255		
+Usage	.config/awesome/lain/wiki/Widgets.md	1		
+Index	.config/awesome/lain/wiki/Widgets.md	32		
+Usage	.config/awesome/lain/wiki/alsa.md	1		
+Input table	.config/awesome/lain/wiki/alsa.md	13		
+Output table	.config/awesome/lain/wiki/alsa.md	33		
+Toggle channel	.config/awesome/lain/wiki/alsa.md	41		
+Buttons	.config/awesome/lain/wiki/alsa.md	76		
+Keybindings	.config/awesome/lain/wiki/alsa.md	104		
+Usage	.config/awesome/lain/wiki/alsabar.md	1		
+Input table	.config/awesome/lain/wiki/alsabar.md	13		
+Output table	.config/awesome/lain/wiki/alsabar.md	68		
+Buttons	.config/awesome/lain/wiki/alsabar.md	78		
+Keybindings	.config/awesome/lain/wiki/alsabar.md	106		
+Usage	.config/awesome/lain/wiki/bat.md	1		
+Input table	.config/awesome/lain/wiki/bat.md	16		
+Output table	.config/awesome/lain/wiki/bat.md	92		
+Note	.config/awesome/lain/wiki/bat.md	101		
+Usage	.config/awesome/lain/wiki/cal.md	1		
+Input table	.config/awesome/lain/wiki/cal.md	16		
+Output table	.config/awesome/lain/wiki/cal.md	56		
+Keybinding	.config/awesome/lain/wiki/cal.md	67		
+Notes	.config/awesome/lain/wiki/cal.md	75		
+Usage	.config/awesome/lain/wiki/cpu.md	1		
+Input table	.config/awesome/lain/wiki/cpu.md	13		
+Output table	.config/awesome/lain/wiki/cpu.md	26		
+Usage	.config/awesome/lain/wiki/fs.md	1		
+Input table	.config/awesome/lain/wiki/fs.md	15		
+Output table	.config/awesome/lain/wiki/fs.md	63		
+Note	.config/awesome/lain/wiki/fs.md	81		
+Usage	.config/awesome/lain/wiki/imap.md	1		
+Input table	.config/awesome/lain/wiki/imap.md	21		
+Password security	.config/awesome/lain/wiki/imap.md	67		
+Output table	.config/awesome/lain/wiki/imap.md	105		
+Usage	.config/awesome/lain/wiki/mem.md	1		
+Input table	.config/awesome/lain/wiki/mem.md	13		
+Output table	.config/awesome/lain/wiki/mem.md	31		
+Usage	.config/awesome/lain/wiki/moc.md	1		
+Input table	.config/awesome/lain/wiki/moc.md	23		
+Output table	.config/awesome/lain/wiki/moc.md	65		
+Keybindings	.config/awesome/lain/wiki/moc.md	77		
+Usage	.config/awesome/lain/wiki/mpd.md	1		
+Input table	.config/awesome/lain/wiki/mpd.md	25		
+Output table	.config/awesome/lain/wiki/mpd.md	84		
+Key bindings	.config/awesome/lain/wiki/mpd.md	96		
+Notes	.config/awesome/lain/wiki/mpd.md	148		
+Usage	.config/awesome/lain/wiki/net.md	1		
+Input table	.config/awesome/lain/wiki/net.md	13		
+Output table	.config/awesome/lain/wiki/net.md	51		
+Notes	.config/awesome/lain/wiki/net.md	59		
+Usage examples	.config/awesome/lain/wiki/net.md	68		
+Usage	.config/awesome/lain/wiki/pulse.md	1		
+Input table	.config/awesome/lain/wiki/pulse.md	13		
+Output table	.config/awesome/lain/wiki/pulse.md	57		
+Buttons	.config/awesome/lain/wiki/pulse.md	64		
+Keybindings	.config/awesome/lain/wiki/pulse.md	90		
+Example	.config/awesome/lain/wiki/pulse.md	123		
+Usage	.config/awesome/lain/wiki/pulsebar.md	1		
+Input table	.config/awesome/lain/wiki/pulsebar.md	13		
+Output table	.config/awesome/lain/wiki/pulsebar.md	60		
+Buttons	.config/awesome/lain/wiki/pulsebar.md	70		
+Keybindings	.config/awesome/lain/wiki/pulsebar.md	96		
+What is Redshift?	.config/awesome/lain/wiki/redshift.md	1		
+Preparations	.config/awesome/lain/wiki/redshift.md	13		
+Using the widget	.config/awesome/lain/wiki/redshift.md	25		
+Usage examples	.config/awesome/lain/wiki/redshift.md	34		
+Usage	.config/awesome/lain/wiki/sysload.md	1		
+Input table	.config/awesome/lain/wiki/sysload.md	13		
+Output table	.config/awesome/lain/wiki/sysload.md	23		
+Usage	.config/awesome/lain/wiki/task.md	1		
+Note	.config/awesome/lain/wiki/task.md	49		
+Usage	.config/awesome/lain/wiki/temp.md	1		
+Input table	.config/awesome/lain/wiki/temp.md	13		
+Output table	.config/awesome/lain/wiki/temp.md	32		
+Description	.config/awesome/lain/wiki/tp_smapi.md	1		
+Functions	.config/awesome/lain/wiki/tp_smapi.md	11		
+Usage	.config/awesome/lain/wiki/watch.md	1		
+Input table	.config/awesome/lain/wiki/watch.md	17		
+Output table	.config/awesome/lain/wiki/watch.md	41		
+Use case examples	.config/awesome/lain/wiki/watch.md	53		
+Usage	.config/awesome/lain/wiki/weather.md	1		
+Input table	.config/awesome/lain/wiki/weather.md	17		
+Output table	.config/awesome/lain/wiki/weather.md	105		
+Functions	.config/awesome/lain/wiki/weather.md	115		
+Key bindings	.config/awesome/lain/wiki/weather.md	125		
+queryMute	.config/awesome/micWatcher.lua	7		
+startSubscribe	.config/awesome/micWatcher.lua	16		
+stdout	.config/awesome/micWatcher.lua	18		
+exit	.config/awesome/micWatcher.lua	28		
+runOnce	.config/awesome/rc.lua	43		
+setupDashboardScreen	.config/awesome/rc.lua	124		
+myFuncs	.config/awesome/rc.lua	191		
+callback	.config/awesome/rc.lua	258		
+callback	.config/awesome/rc.lua	298		
+callback	.config/awesome/rc.lua	346		
+applyBorder	.config/awesome/rc.lua	387		
+myFuncs	.config/awesome/signals.lua	17		
+registerSlots	.config/awesome/signals.lua	46		
+myFuncs	.config/awesome/stack.lua	14		
+rebuildTabbar	.config/awesome/stack.lua	40		
+hideTabbar	.config/awesome/stack.lua	74		
+makeAnchor	.config/awesome/stack.lua	87		
+mirrorHandler	.config/awesome/stack.lua	121		
+removeFromFrame	.config/awesome/stack.lua	135		
+dissolveFrame	.config/awesome/stack.lua	149		
+setActive	.config/awesome/stack.lua	174		
+_tempStackTimer	.config/awesome/stack.lua	596		
+settings	.config/awesome/themes/blackburn/theme.lua	105		
+settings	.config/awesome/themes/blackburn/theme.lua	121		
+settings	.config/awesome/themes/blackburn/theme.lua	142		
+settings	.config/awesome/themes/blackburn/theme.lua	158		
+settings	.config/awesome/themes/blackburn/theme.lua	168		
+settings	.config/awesome/themes/blackburn/theme.lua	187		
+settings	.config/awesome/themes/copland/theme.lua	118		
+settings	.config/awesome/themes/copland/theme.lua	135		
+settings	.config/awesome/themes/copland/theme.lua	170		
+settings	.config/awesome/themes/copland/theme.lua	220		
+settings	.config/awesome/themes/copland/theme.lua	239		
+settings	.config/awesome/themes/dremora/theme.lua	103		
+settings	.config/awesome/themes/dremora/theme.lua	119		
+settings	.config/awesome/themes/dremora/theme.lua	140		
+settings	.config/awesome/themes/dremora/theme.lua	156		
+settings	.config/awesome/themes/dremora/theme.lua	166		
+settings	.config/awesome/themes/holo/theme.lua	132		
+settings	.config/awesome/themes/holo/theme.lua	155		
+settings	.config/awesome/themes/holo/theme.lua	205		
+settings	.config/awesome/themes/holo/theme.lua	241		
+settings	.config/awesome/themes/holo/theme.lua	253		
+settings	.config/awesome/themes/multicolor/theme.lua	119		
+settings	.config/awesome/themes/multicolor/theme.lua	132		
+settings	.config/awesome/themes/multicolor/theme.lua	146		
+settings	.config/awesome/themes/multicolor/theme.lua	164		
+settings	.config/awesome/themes/multicolor/theme.lua	172		
+settings	.config/awesome/themes/multicolor/theme.lua	180		
+settings	.config/awesome/themes/multicolor/theme.lua	194		
+settings	.config/awesome/themes/multicolor/theme.lua	208		
+settings	.config/awesome/themes/multicolor/theme.lua	225		
+settings	.config/awesome/themes/multicolor/theme.lua	233		
+settings	.config/awesome/themes/powerarrow-dark/theme.lua	124		
+settings	.config/awesome/themes/powerarrow-dark/theme.lua	154		
+settings	.config/awesome/themes/powerarrow-dark/theme.lua	175		
+settings	.config/awesome/themes/powerarrow-dark/theme.lua	183		
+settings	.config/awesome/themes/powerarrow-dark/theme.lua	191		
+settings	.config/awesome/themes/powerarrow-dark/theme.lua	201		
+settings	.config/awesome/themes/powerarrow-dark/theme.lua	210		
+settings	.config/awesome/themes/powerarrow-dark/theme.lua	232		
+settings	.config/awesome/themes/powerarrow-dark/theme.lua	260		
+factory	.config/awesome/themes/powerarrow/binclock.lua	43		
+fit	.config/awesome/themes/powerarrow/binclock.lua	55		
+draw	.config/awesome/themes/powerarrow/binclock.lua	58		
+callback	.config/awesome/themes/powerarrow/binclock.lua	88		
+load_wal_colors	.config/awesome/themes/powerarrow/theme.lua	20		
+settings	.config/awesome/themes/rainbow/theme.lua	112		
+settings	.config/awesome/themes/rainbow/theme.lua	130		
+settings	.config/awesome/themes/rainbow/theme.lua	152		
+update_txt_layoutbox	.config/awesome/themes/rainbow/theme.lua	209		
+settings	.config/awesome/themes/steamburn/theme.lua	105		
+settings	.config/awesome/themes/steamburn/theme.lua	121		
+settings	.config/awesome/themes/steamburn/theme.lua	139		
+settings	.config/awesome/themes/steamburn/theme.lua	146		
+settings	.config/awesome/themes/steamburn/theme.lua	161		
+settings	.config/awesome/themes/steamburn/theme.lua	170		
+settings	.config/awesome/themes/steamburn/theme.lua	179		
+update_txt_layoutbox	.config/awesome/themes/steamburn/theme.lua	205		
+settings	.config/awesome/themes/vertex/theme.lua	141		
+settings	.config/awesome/themes/vertex/theme.lua	170		
+settings	.config/awesome/themes/vertex/theme.lua	191		
+settings	.config/awesome/themes/vertex/theme.lua	280		
+dockshape	.config/awesome/themes/vertex/theme.lua	325		
+tagClients	.config/awesome/windowCycle.lua	13		
+isArray	.config/awesome/workspaceManager.lua	16		
+buildSlots	.config/awesome/workspaceManager.lua	54		
+writeConfig	.config/awesome/workspaceManager.lua	93		
+save	.config/awesome/workspaceManager.lua	120		
+exe_callback	.config/awesome/workspaceManager.lua	136		
+getOverflow	.config/awesome/workspaceManager.lua	196		
+tryMatch	.config/awesome/workspaceManager.lua	212		
+finalize	.config/awesome/workspaceManager.lua	267		
+getTilingClients	.config/awesome/workspaceManager.lua	327		
+manageHandler	.config/awesome/workspaceManager.lua	390		
+Commands	.config/copyq/copyq-commands.ini	1		
+General	.config/copyq/copyq-filter.ini	1		
+General	.config/copyq/copyq-monitor.ini	1		
+General	.config/copyq/copyq.conf	1		
+Options	.config/copyq/copyq.conf	4		
+Plugins	.config/copyq/copyq.conf	86		
+Shortcuts	.config/copyq/copyq.conf	100		
+Tabs	.config/copyq/copyq.conf	151		
+Theme	.config/copyq/copyq.conf	158		
+OBSIDIAN_VAULT	.config/dashboard/dashboardServer.py	37		
+loadTodoistConfig	.config/dashboard/dashboardServer.py	40		
+todoistConf	.config/dashboard/dashboardServer.py	49		
+TODOIST_API_TOKEN	.config/dashboard/dashboardServer.py	50		
+TODOIST_CLIENT_ID	.config/dashboard/dashboardServer.py	51		
+TODOIST_CLIENT_SECRET	.config/dashboard/dashboardServer.py	52		
+TODOIST_PROJECT_NAME	.config/dashboard/dashboardServer.py	53		
+SHOPPING_LIST_FILE	.config/dashboard/dashboardServer.py	54		
+NICOLE_PROJECT_NAME	.config/dashboard/dashboardServer.py	55		
+NICOLE_PRIORITIES_FILE	.config/dashboard/dashboardServer.py	56		
+PORT	.config/dashboard/dashboardServer.py	58		
+run	.config/dashboard/dashboardServer.py	63		
+jsonResp	.config/dashboard/dashboardServer.py	71		
+getEndOfWeek	.config/dashboard/dashboardServer.py	81		
+PRIORITY_ORDER	.config/dashboard/dashboardServer.py	88		
+PRIORITY_RE	.config/dashboard/dashboardServer.py	89		
+PONDER_RE	.config/dashboard/dashboardServer.py	90		
+TODOIST_ID_RE	.config/dashboard/dashboardServer.py	91		
+DESC_RE	.config/dashboard/dashboardServer.py	92		
+getPriority	.config/dashboard/dashboardServer.py	95		
+isImportant	.config/dashboard/dashboardServer.py	102		
+buildMatrix	.config/dashboard/dashboardServer.py	107		
+todoistPollLoop	.config/dashboard/dashboardServer.py	150		
+todoistRequest	.config/dashboard/dashboardServer.py	163		
+getTodoistProjectId	.config/dashboard/dashboardServer.py	178		
+getTodoistTasks	.config/dashboard/dashboardServer.py	189		
+createTodoistTask	.config/dashboard/dashboardServer.py	194		
+closeTodoistTask	.config/dashboard/dashboardServer.py	200		
+deleteTodoistTask	.config/dashboard/dashboardServer.py	204		
+readShoppingList	.config/dashboard/dashboardServer.py	208		
+writeShoppingList	.config/dashboard/dashboardServer.py	216		
+getShoppingListItems	.config/dashboard/dashboardServer.py	221		
+addShoppingItem	.config/dashboard/dashboardServer.py	246		
+completeShoppingItem	.config/dashboard/dashboardServer.py	262		
+removeShoppingItem	.config/dashboard/dashboardServer.py	271		
+syncShoppingListFromTodoist	.config/dashboard/dashboardServer.py	277		
+syncNicolePrioritiesFromTodoist	.config/dashboard/dashboardServer.py	300		
+updateTodoistTaskDue	.config/dashboard/dashboardServer.py	338		
+syncCompletedNicoleTasks	.config/dashboard/dashboardServer.py	346		
+getVpnState	.config/dashboard/dashboardServer.py	364		
+toggleVpn	.config/dashboard/dashboardServer.py	381		
+SINK_NAMES	.config/dashboard/dashboardServer.py	398		
+getSinks	.config/dashboard/dashboardServer.py	404		
+getDefaultSink	.config/dashboard/dashboardServer.py	414		
+cycleSink	.config/dashboard/dashboardServer.py	419		
+getSinkState	.config/dashboard/dashboardServer.py	437		
+getMediaState	.config/dashboard/dashboardServer.py	446		
+mediaCommand	.config/dashboard/dashboardServer.py	486		
+DATE_RE	.config/dashboard/dashboardServer.py	501		
+TASK_RE	.config/dashboard/dashboardServer.py	502		
+TAG_RE	.config/dashboard/dashboardServer.py	503		
+DOMAIN_TAGS	.config/dashboard/dashboardServer.py	504		
+extractTasks	.config/dashboard/dashboardServer.py	507		
+_sseClients	.config/dashboard/dashboardServer.py	601		
+_sseLock	.config/dashboard/dashboardServer.py	602		
+sseSubscribe	.config/dashboard/dashboardServer.py	605		
+sseUnsubscribe	.config/dashboard/dashboardServer.py	612		
+sseBroadcast	.config/dashboard/dashboardServer.py	620		
+_eisenhowerClients	.config/dashboard/dashboardServer.py	630		
+_eisenhowerLock	.config/dashboard/dashboardServer.py	631		
+eisenhowerSubscribe	.config/dashboard/dashboardServer.py	634		
+eisenhowerUnsubscribe	.config/dashboard/dashboardServer.py	641		
+eisenhowerBroadcast	.config/dashboard/dashboardServer.py	649		
+syncCompletedShoppingItems	.config/dashboard/dashboardServer.py	659		
+startVaultWatcher	.config/dashboard/dashboardServer.py	672		
+DROIDCAM_IP	.config/dashboard/dashboardServer.py	702		
+DROIDCAM_PORT	.config/dashboard/dashboardServer.py	703		
+DROIDCAM_SIZE	.config/dashboard/dashboardServer.py	704		
+DROIDCAM_BASE	.config/dashboard/dashboardServer.py	705		
+droidcamPut	.config/dashboard/dashboardServer.py	708		
+getDroidcamInfo	.config/dashboard/dashboardServer.py	721		
+getDroidcamState	.config/dashboard/dashboardServer.py	731		
+isDroidcamReachable	.config/dashboard/dashboardServer.py	746		
+toggleDroidcam	.config/dashboard/dashboardServer.py	760		
+_signal	.config/dashboard/dashboardServer.py	781		
+BG_CACHE_FILE	.config/dashboard/dashboardServer.py	783		
+_BG_VALID_MODES	.config/dashboard/dashboardServer.py	784		
+WALLPAPER_DIR	.config/dashboard/dashboardServer.py	785		
+getBgremoveState	.config/dashboard/dashboardServer.py	788		
+_signalBgremove	.config/dashboard/dashboardServer.py	801		
+setBgremoveMode	.config/dashboard/dashboardServer.py	813		
+_bgPickerLock	.config/dashboard/dashboardServer.py	824		
+pickBgremoveImage	.config/dashboard/dashboardServer.py	827		
+_pickBgremoveImageInner	.config/dashboard/dashboardServer.py	836		
+_lastCpuStat	.config/dashboard/dashboardServer.py	869		
+_hwmonPath	.config/dashboard/dashboardServer.py	870		
+getCpuPercent	.config/dashboard/dashboardServer.py	873		
+getSysStats	.config/dashboard/dashboardServer.py	887		
+startSinkWatcher	.config/dashboard/dashboardServer.py	967		
+setTaskStatus	.config/dashboard/dashboardServer.py	997		
+completeTask	.config/dashboard/dashboardServer.py	1015		
+startMediaWatcher	.config/dashboard/dashboardServer.py	1022		
+Handler	.config/dashboard/dashboardServer.py	1106		
+todoistThread	.config/dashboard/dashboardServer.py	1523		
+server	.config/dashboard/dashboardServer.py	1526		
+bus	.config/dashboard/dbusTest.py	5		
+onChanged	.config/dashboard/dbusTest.py	8		
+Eisenhower Matrix	.config/dashboard/eisenhower.html	6		
+header	.config/dashboard/eisenhower.html	715		
+headerLeft	.config/dashboard/eisenhower.html	716		
+statusDot	.config/dashboard/eisenhower.html	717		
+headerTitle	.config/dashboard/eisenhower.html	718		
+domainFilters	.config/dashboard/eisenhower.html	720		
+headerButtons	.config/dashboard/eisenhower.html	726		
+shoppingBtn	.config/dashboard/eisenhower.html	727		
+refreshBtn	.config/dashboard/eisenhower.html	730		
+exitBtn	.config/dashboard/eisenhower.html	731		
+grid	.config/dashboard/eisenhower.html	736		
+q1	.config/dashboard/eisenhower.html	737		
+capture-q1	.config/dashboard/eisenhower.html	743		
+list-q1	.config/dashboard/eisenhower.html	744		
+q2	.config/dashboard/eisenhower.html	746		
+capture-q2	.config/dashboard/eisenhower.html	752		
+list-q2	.config/dashboard/eisenhower.html	753		
+q3	.config/dashboard/eisenhower.html	755		
+capture-q3	.config/dashboard/eisenhower.html	761		
+list-q3	.config/dashboard/eisenhower.html	762		
+q4	.config/dashboard/eisenhower.html	764		
+capture-q4	.config/dashboard/eisenhower.html	770		
+list-q4	.config/dashboard/eisenhower.html	771		
+shoppingView	.config/dashboard/eisenhower.html	776		
+shoppingList	.config/dashboard/eisenhower.html	777		
+addRow	.config/dashboard/eisenhower.html	778		
+addInput	.config/dashboard/eisenhower.html	779		
+addBtn	.config/dashboard/eisenhower.html	780		
+Dashboard	.config/dashboard/index.html	6		
+app	.config/dashboard/index.html	888		
+dashButtons	.config/dashboard/index.html	889		
+exitBtn	.config/dashboard/index.html	891		
+togglePanel	.config/dashboard/index.html	895		
+toggleGrid	.config/dashboard/index.html	897		
+toggleDynamic	.config/dashboard/index.html	899		
+dcToggle	.config/dashboard/index.html	900		
+dcSub	.config/dashboard/index.html	905		
+dcPill	.config/dashboard/index.html	908		
+dcControls	.config/dashboard/index.html	910		
+zmSlider	.config/dashboard/index.html	913		
+zmVal	.config/dashboard/index.html	917		
+afTriggerBtn	.config/dashboard/index.html	921		
+afSBtn	.config/dashboard/index.html	922		
+afCBtn	.config/dashboard/index.html	923		
+mfBtn	.config/dashboard/index.html	924		
+bgOffBtn	.config/dashboard/index.html	928		
+bgBlurBtn	.config/dashboard/index.html	929		
+bgGreenBtn	.config/dashboard/index.html	930		
+bgBlackBtn	.config/dashboard/index.html	931		
+bgImgBtn	.config/dashboard/index.html	935		
+mediaPanel	.config/dashboard/index.html	943		
+mediaBody	.config/dashboard/index.html	945		
+mediaIdle	.config/dashboard/index.html	946		
+idleClock	.config/dashboard/index.html	948		
+idleDate	.config/dashboard/index.html	949		
+idleDay	.config/dashboard/index.html	950		
+statCpuBar	.config/dashboard/index.html	956		
+statCpuTemp	.config/dashboard/index.html	958		
+statCpuVal	.config/dashboard/index.html	960		
+statCpuTempVal	.config/dashboard/index.html	961		
+statGpuBar	.config/dashboard/index.html	967		
+statGpuTemp	.config/dashboard/index.html	969		
+statGpuVal	.config/dashboard/index.html	971		
+statGpuTempVal	.config/dashboard/index.html	972		
+statRamBar	.config/dashboard/index.html	978		
+statRamVal	.config/dashboard/index.html	980		
+statVramBar	.config/dashboard/index.html	986		
+statVramVal	.config/dashboard/index.html	988		
+mediaMini	.config/dashboard/index.html	992		
+miniPlayBtn	.config/dashboard/index.html	993		
+miniTitle	.config/dashboard/index.html	995		
+miniArtist	.config/dashboard/index.html	996		
+mediaActive	.config/dashboard/index.html	1000		
+mediaTitle	.config/dashboard/index.html	1003		
+mediaArtist	.config/dashboard/index.html	1004		
+mediaAlbum	.config/dashboard/index.html	1005		
+progressFill	.config/dashboard/index.html	1008		
+progressTime	.config/dashboard/index.html	1009		
+playBtn	.config/dashboard/index.html	1013		
+mediaClockTime	.config/dashboard/index.html	1020		
+mediaClockDate	.config/dashboard/index.html	1021		
+statCpuBar2	.config/dashboard/index.html	1026		
+statCpuTemp2	.config/dashboard/index.html	1028		
+statCpuVal2	.config/dashboard/index.html	1030		
+statCpuTempVal2	.config/dashboard/index.html	1031		
+statGpuBar2	.config/dashboard/index.html	1035		
+statGpuTemp2	.config/dashboard/index.html	1037		
+statGpuVal2	.config/dashboard/index.html	1039		
+statGpuTempVal2	.config/dashboard/index.html	1040		
+statRamBar2	.config/dashboard/index.html	1044		
+statRamVal2	.config/dashboard/index.html	1046		
+statVramBar2	.config/dashboard/index.html	1050		
+statVramVal2	.config/dashboard/index.html	1052		
+taskPanel	.config/dashboard/index.html	1061		
+taskList	.config/dashboard/index.html	1063		
+VAULT	.config/dashboard/taskCreate.py	18		
+TEMPLATE	.config/dashboard/taskCreate.py	19		
+DAILY_NOTES	.config/dashboard/taskCreate.py	20		
+PARSEDATE	.config/dashboard/taskCreate.py	21		
+resolveDueDate	.config/dashboard/taskCreate.py	24		
+createTask	.config/dashboard/taskCreate.py	33		
+args	.config/dashboard/taskCreate.py	94		
+taskText	.config/dashboard/taskCreate.py	95		
+taskDue	.config/dashboard/taskCreate.py	96		
+taskPriority	.config/dashboard/taskCreate.py	97		
+taskDomain	.config/dashboard/taskCreate.py	98		
+taskDesc	.config/dashboard/taskCreate.py	99		
+line	.config/dashboard/taskCreate.py	100		
+General	.config/flameshot/flameshot.ini	1		
+entry	.config/luakit/window.lua	28		
+eventbox	.config/luakit/window.lua	31		
+hbox	.config/luakit/window.lua	34		
+label	.config/luakit/window.lua	37		
+notebook	.config/luakit/window.lua	40		
+vbox	.config/luakit/window.lua	43		
+overlay	.config/luakit/window.lua	46		
+window_notebook_page_switch_cb	.config/luakit/window.lua	171		
+set_window_notebook	.config/luakit/window.lua	190		
+last_win_check	.config/luakit/window.lua	205		
+key_press_match	.config/luakit/window.lua	217		
+match	.config/luakit/window.lua	223		
+tablist_tab_click	.config/luakit/window.lua	235		
+apply_window_theme	.config/luakit/window.lua	247		
+set_dark_mode	.config/luakit/window.lua	280		
+set_default_size	.config/luakit/window.lua	285		
+set_window_icon	.config/luakit/window.lua	294		
+clear_urgency_hint	.config/luakit/window.lua	302		
+hide_ui_on_fullscreen	.config/luakit/window.lua	308		
+check_before_closing_last_window	.config/luakit/window.lua	315		
+hit	.config/luakit/window.lua	327		
+match_cmd	.config/luakit/window.lua	342		
+enter_cmd	.config/luakit/window.lua	348		
+run_cmd	.config/luakit/window.lua	354		
+activate	.config/luakit/window.lua	365		
+notify	.config/luakit/window.lua	370		
+warning	.config/luakit/window.lua	377		
+error	.config/luakit/window.lua	384		
+update_sbar_visibility	.config/luakit/window.lua	391		
+set_prompt	.config/luakit/window.lua	407		
+set_widget	.config/luakit/window.lua	414		
+set_input	.config/luakit/window.lua	432		
+set_ibar_theme	.config/luakit/window.lua	453		
+update_win_title	.config/luakit/window.lua	461		
+update_buf	.config/luakit/window.lua	473		
+update_binds	.config/luakit/window.lua	475		
+new_tab	.config/luakit/window.lua	484		
+close_tab	.config/luakit/window.lua	538		
+attach_tab	.config/luakit/window.lua	546		
+detach_tab	.config/luakit/window.lua	556		
+can_quit	.config/luakit/window.lua	570		
+close_win	.config/luakit/window.lua	582		
+navigate	.config/luakit/window.lua	631		
+search_open_navigate	.config/luakit/window.lua	648		
+restart	.config/luakit/window.lua	661		
+search_open	.config/luakit/window.lua	689		
+inc_uri	.config/luakit/window.lua	739		
+uri	.config/luakit/window.lua	740		
+next_tab	.config/luakit/window.lua	747		
+prev_tab	.config/luakit/window.lua	751		
+goto_tab	.config/luakit/window.lua	755		
+each_tab	.config/luakit/window.lua	763		
+emit_form_root_active_signal	.config/luakit/window.lua	772		
+__index	.config/luakit/window.lua	806		
+__newindex	.config/luakit/window.lua	815		
+validator	.config/luakit/window.lua	883		
+formatter	.config/luakit/window.lua	931		
+v	.config/luakit/window.lua	936		
+validator	.config/luakit/window.lua	947		
+General	.config/lxqt/lxqt.conf	1		
+title_fqdn	.config/neofetch/config.conf	48		
+kernel_shorthand	.config/neofetch/config.conf	64		
+distro_shorthand	.config/neofetch/config.conf	76		
+os_arch	.config/neofetch/config.conf	88		
+uptime_shorthand	.config/neofetch/config.conf	104		
+memory_percent	.config/neofetch/config.conf	119		
+memory_unit	.config/neofetch/config.conf	131		
+package_managers	.config/neofetch/config.conf	147		
+shell_path	.config/neofetch/config.conf	162		
+shell_version	.config/neofetch/config.conf	173		
+speed_type	.config/neofetch/config.conf	186		
+speed_shorthand	.config/neofetch/config.conf	198		
+cpu_brand	.config/neofetch/config.conf	209		
+cpu_speed	.config/neofetch/config.conf	221		
+cpu_cores	.config/neofetch/config.conf	235		
+cpu_temp	.config/neofetch/config.conf	252		
+gpu_brand	.config/neofetch/config.conf	267		
+gpu_type	.config/neofetch/config.conf	286		
+refresh_rate	.config/neofetch/config.conf	301		
+gtk_shorthand	.config/neofetch/config.conf	316		
+gtk2	.config/neofetch/config.conf	328		
+gtk3	.config/neofetch/config.conf	339		
+public_ip_host	.config/neofetch/config.conf	350		
+public_ip_timeout	.config/neofetch/config.conf	357		
+de_version	.config/neofetch/config.conf	368		
+disk_show	.config/neofetch/config.conf	390		
+disk_subtitle	.config/neofetch/config.conf	414		
+disk_percent	.config/neofetch/config.conf	426		
+music_player	.config/neofetch/config.conf	481		
+song_format	.config/neofetch/config.conf	491		
+song_shorthand	.config/neofetch/config.conf	505		
+mpc_args	.config/neofetch/config.conf	511		
+colors	.config/neofetch/config.conf	529		
+bold	.config/neofetch/config.conf	540		
+underline_enabled	.config/neofetch/config.conf	547		
+underline_char	.config/neofetch/config.conf	554		
+separator	.config/neofetch/config.conf	566		
+block_range	.config/neofetch/config.conf	586		
+color_blocks	.config/neofetch/config.conf	593		
+block_width	.config/neofetch/config.conf	600		
+block_height	.config/neofetch/config.conf	607		
+col_offset	.config/neofetch/config.conf	621		
+bar_char_elapsed	.config/neofetch/config.conf	635		
+bar_char_total	.config/neofetch/config.conf	636		
+bar_border	.config/neofetch/config.conf	643		
+bar_length	.config/neofetch/config.conf	651		
+bar_color_elapsed	.config/neofetch/config.conf	663		
+bar_color_total	.config/neofetch/config.conf	664		
+cpu_display	.config/neofetch/config.conf	682		
+memory_display	.config/neofetch/config.conf	683		
+battery_display	.config/neofetch/config.conf	684		
+disk_display	.config/neofetch/config.conf	685		
+image_backend	.config/neofetch/config.conf	697		
+image_source	.config/neofetch/config.conf	711		
+ascii_distro	.config/neofetch/config.conf	763		
+ascii_colors	.config/neofetch/config.conf	774		
+ascii_bold	.config/neofetch/config.conf	782		
+image_loop	.config/neofetch/config.conf	795		
+thumbnail_dir	.config/neofetch/config.conf	801		
+crop_mode	.config/neofetch/config.conf	811		
+crop_offset	.config/neofetch/config.conf	820		
+image_size	.config/neofetch/config.conf	829		
+gap	.config/neofetch/config.conf	836		
+yoffset	.config/neofetch/config.conf	845		
+xoffset	.config/neofetch/config.conf	846		
+background_color	.config/neofetch/config.conf	854		
+stdout	.config/neofetch/config.conf	864		
+LazyVim	.config/nvim/lazy-lock.json	2		
+LuaSnip	.config/nvim/lazy-lock.json	3		
+SchemaStore.nvim	.config/nvim/lazy-lock.json	4		
+blink.cmp	.config/nvim/lazy-lock.json	5		
+bufferline.nvim	.config/nvim/lazy-lock.json	6		
+catppuccin	.config/nvim/lazy-lock.json	7		
+conform.nvim	.config/nvim/lazy-lock.json	8		
+dial.nvim	.config/nvim/lazy-lock.json	9		
+flash.nvim	.config/nvim/lazy-lock.json	10		
+friendly-snippets	.config/nvim/lazy-lock.json	11		
+gitsigns.nvim	.config/nvim/lazy-lock.json	12		
+grug-far.nvim	.config/nvim/lazy-lock.json	13		
+inc-rename.nvim	.config/nvim/lazy-lock.json	14		
+lazy.nvim	.config/nvim/lazy-lock.json	15		
+lazydev.nvim	.config/nvim/lazy-lock.json	16		
+lualine.nvim	.config/nvim/lazy-lock.json	17		
+markdown-preview.nvim	.config/nvim/lazy-lock.json	18		
+mason-lspconfig.nvim	.config/nvim/lazy-lock.json	19		
+mason.nvim	.config/nvim/lazy-lock.json	20		
+mini.ai	.config/nvim/lazy-lock.json	21		
+mini.comment	.config/nvim/lazy-lock.json	22		
+mini.hipatterns	.config/nvim/lazy-lock.json	23		
+mini.icons	.config/nvim/lazy-lock.json	24		
+mini.pairs	.config/nvim/lazy-lock.json	25		
+mini.surround	.config/nvim/lazy-lock.json	26		
+neo-tree.nvim	.config/nvim/lazy-lock.json	27		
+neovim-ayu	.config/nvim/lazy-lock.json	28		
+noice.nvim	.config/nvim/lazy-lock.json	29		
+nui.nvim	.config/nvim/lazy-lock.json	30		
+nvim-jdtls	.config/nvim/lazy-lock.json	31		
+nvim-lint	.config/nvim/lazy-lock.json	32		
+nvim-lspconfig	.config/nvim/lazy-lock.json	33		
+nvim-treesitter	.config/nvim/lazy-lock.json	34		
+nvim-treesitter-context	.config/nvim/lazy-lock.json	35		
+nvim-treesitter-textobjects	.config/nvim/lazy-lock.json	36		
+nvim-ts-autotag	.config/nvim/lazy-lock.json	37		
+nvim-ts-context-commentstring	.config/nvim/lazy-lock.json	38		
+persistence.nvim	.config/nvim/lazy-lock.json	39		
+plenary.nvim	.config/nvim/lazy-lock.json	40		
+pywal.nvim	.config/nvim/lazy-lock.json	41		
+render-markdown.nvim	.config/nvim/lazy-lock.json	42		
+snacks.nvim	.config/nvim/lazy-lock.json	43		
+todo-comments.nvim	.config/nvim/lazy-lock.json	44		
+tokyonight.nvim	.config/nvim/lazy-lock.json	45		
+trouble.nvim	.config/nvim/lazy-lock.json	46		
+ts-comments.nvim	.config/nvim/lazy-lock.json	47		
+venv-selector.nvim	.config/nvim/lazy-lock.json	48		
+vim-fugitive	.config/nvim/lazy-lock.json	49		
+which-key.nvim	.config/nvim/lazy-lock.json	50		
+yanky.nvim	.config/nvim/lazy-lock.json	51		
+yazi.nvim	.config/nvim/lazy-lock.json	52		
+extras	.config/nvim/lazyvim.json	2		
+install_version	.config/nvim/lazyvim.json	19		
+news	.config/nvim/lazyvim.json	20		
+version	.config/nvim/lazyvim.json	23		
+find_project_root	.config/nvim/lua/config/keymaps.lua	7		
+callback	.config/nvim/lua/config/keymaps.lua	50		
+toggleTerminal	.config/nvim/lua/config/terminalToggle.lua	3		
+config	.config/nvim/lua/plugins/colorscheme.lua	7		
+opts	.config/nvim/lua/plugins/neo-tree.lua	3		
+opts	.config/nvim/lua/plugins/snacks.lua	3		
+config	.config/nvim/lua/plugins/yazi.lua	8		
+focusEnd	.config/nvim/quickNotes.lua	4		
+refreshDailyNoteBuffer	.config/nvim/quickNotes.lua	17		
+checkStaleBuffer	.config/nvim/quickNotes.lua	76		
+onEnterDo	.config/nvim/quickNotes.lua	93		
+saveOnFocusLost	.config/nvim/quickNotes.lua	101		
+profile_network_context_service	.config/obs-studio/plugin_config/obs-browser/LocalPrefs.json	1		
+updateclientdata	.config/obs-studio/plugin_config/obs-browser/LocalPrefs.json	1		
+profile	.config/obs-studio/plugin_config/obs-browser/UserPrefs.json	1		
+tracking_protection	.config/obs-studio/plugin_config/obs-browser/UserPrefs.json	1		
+0	.config/obs-studio/plugin_config/obs-browser/WidevineCdm/4.10.2891.0/_metadata/verified_contents.json	1		
+manifest_version	.config/obs-studio/plugin_config/obs-browser/WidevineCdm/4.10.2891.0/manifest.json	2		
+update_url	.config/obs-studio/plugin_config/obs-browser/WidevineCdm/4.10.2891.0/manifest.json	3		
+name	.config/obs-studio/plugin_config/obs-browser/WidevineCdm/4.10.2891.0/manifest.json	4		
+description	.config/obs-studio/plugin_config/obs-browser/WidevineCdm/4.10.2891.0/manifest.json	5		
+version	.config/obs-studio/plugin_config/obs-browser/WidevineCdm/4.10.2891.0/manifest.json	6		
+minimum_chrome_version	.config/obs-studio/plugin_config/obs-browser/WidevineCdm/4.10.2891.0/manifest.json	7		
+x-cdm-module-versions	.config/obs-studio/plugin_config/obs-browser/WidevineCdm/4.10.2891.0/manifest.json	8		
+x-cdm-interface-versions	.config/obs-studio/plugin_config/obs-browser/WidevineCdm/4.10.2891.0/manifest.json	9		
+x-cdm-host-versions	.config/obs-studio/plugin_config/obs-browser/WidevineCdm/4.10.2891.0/manifest.json	10		
+x-cdm-codecs	.config/obs-studio/plugin_config/obs-browser/WidevineCdm/4.10.2891.0/manifest.json	11		
+x-cdm-persistent-license-support	.config/obs-studio/plugin_config/obs-browser/WidevineCdm/4.10.2891.0/manifest.json	12		
+x-cdm-supported-encryption-schemes	.config/obs-studio/plugin_config/obs-browser/WidevineCdm/4.10.2891.0/manifest.json	13		
+icons	.config/obs-studio/plugin_config/obs-browser/WidevineCdm/4.10.2891.0/manifest.json	17		
+platforms	.config/obs-studio/plugin_config/obs-browser/WidevineCdm/4.10.2891.0/manifest.json	21		
+alerts_enabled	.config/obs-studio/plugin_config/obs-websocket/config.json	2		
+auth_required	.config/obs-studio/plugin_config/obs-websocket/config.json	3		
+first_load	.config/obs-studio/plugin_config/obs-websocket/config.json	4		
+server_enabled	.config/obs-studio/plugin_config/obs-websocket/config.json	5		
+server_password	.config/obs-studio/plugin_config/obs-websocket/config.json	6		
+server_port	.config/obs-studio/plugin_config/obs-websocket/config.json	7		
+0	.config/obs-studio/plugin_manager/modules.json	2		
+0	.config/obs-studio/updates/whatsnew.json	2		
+window	.config/pavucontrol.ini	1		
+corner-radius	.config/picom.conf	2		
+blur	.config/picom.conf	5		
+fading	.config/picom.conf	11		
+fade-delta	.config/picom.conf	12		
+fade-in-step	.config/picom.conf	13		
+fade-out-step	.config/picom.conf	14		
+animations	.config/picom.conf	17		
+backend	.config/picom.conf	30		
+vsync	.config/picom.conf	31		
+use-damage	.config/picom.conf	32		
+detect-rounded-corners	.config/picom.conf	33		
+detect-client-opacity	.config/picom.conf	34		
+detect-transient	.config/picom.conf	35		
+detect-client-leader	.config/picom.conf	36		
+rules	.config/picom.conf	40		
+Appearance	.config/qt5ct/qt5ct.conf	1		
+Fonts	.config/qt5ct/qt5ct.conf	8		
+Interface	.config/qt5ct/qt5ct.conf	12		
+SettingsWindow	.config/qt5ct/qt5ct.conf	27		
+Troubleshooting	.config/qt5ct/qt5ct.conf	30		
+ColorScheme	.config/qt5ct/style-colors.conf	1		
+config_home	.config/qutebrowser/config.py	22		
+qm_path	.config/qutebrowser/config.py	23		
+bills_urls	.config/qutebrowser/config.py	28		
+line	.config/qutebrowser/config.py	32		
+match	.config/qutebrowser/config.py	36		
+cmd	.config/qutebrowser/config.py	42		
+cmd	.config/qutebrowser/config.py	44		
+anonymousFunction53c43f610100	.config/qutebrowser/greasemonkey/youtube-mpris-refresh.user.js	12		
+anonymousObject53c43f610205	.config/qutebrowser/greasemonkey/youtube-mpris-refresh.user.js	54		
+anonymousFunctionb5f5e0df0100	.config/qutebrowser/greasemonkey/youtubeTheaterMode.user.js	11		
+USAGE	.config/qutebrowser/userscripts/qute-bitwarden	13		
+EPILOG	.config/qutebrowser/userscripts/qute-bitwarden	22		
+argument_parser	.config/qutebrowser/userscripts/qute-bitwarden	36		
+group	.config/qutebrowser/userscripts/qute-bitwarden	54		
+stderr	.config/qutebrowser/userscripts/qute-bitwarden	59		
+ExitCodes	.config/qutebrowser/userscripts/qute-bitwarden	62		
+qute_command	.config/qutebrowser/userscripts/qute-bitwarden	68		
+search_entries	.config/qutebrowser/userscripts/qute-bitwarden	74		
+get_password	.config/qutebrowser/userscripts/qute-bitwarden	94		
+get_totp_code	.config/qutebrowser/userscripts/qute-bitwarden	108		
+dmenu	.config/qutebrowser/userscripts/qute-bitwarden	122		
+js_escape	.config/qutebrowser/userscripts/qute-bitwarden	128		
+js_fill	.config/qutebrowser/userscripts/qute-bitwarden	136		
+fake_key_raw	.config/qutebrowser/userscripts/qute-bitwarden	161		
+main	.config/qutebrowser/userscripts/qute-bitwarden	167		
+arguments	.config/qutebrowser/userscripts/qute-bitwarden	246		
+Unit	.config/systemd/user/bgremove.service	1		
+Service	.config/systemd/user/bgremove.service	5		
+Install	.config/systemd/user/bgremove.service	21		
+Unit	.config/systemd/user/dashboard.service	1		
+Service	.config/systemd/user/dashboard.service	5		
+Install	.config/systemd/user/dashboard.service	15		
+Unit	.config/systemd/user/droidCamDaemon.service	1		
+Service	.config/systemd/user/droidCamDaemon.service	6		
+Install	.config/systemd/user/droidCamDaemon.service	14		
+Unit	.config/systemd/user/gestureControl-actions.service	1		
+Service	.config/systemd/user/gestureControl-actions.service	5		
+Install	.config/systemd/user/gestureControl-actions.service	14		
+Unit	.config/systemd/user/gestureControl.service	1		
+Service	.config/systemd/user/gestureControl.service	6		
+Install	.config/systemd/user/gestureControl.service	17		
+Unit	.config/systemd/user/homeassistant.service	1		
+Service	.config/systemd/user/homeassistant.service	6		
+Install	.config/systemd/user/homeassistant.service	13		
+fr.yazi	.config/yazi/plugins/fr.yazi/README.md	1		
+get_cwd	.config/yazi/plugins/fr.yazi/main.lua	4		
+fail	.config/yazi/plugins/fr.yazi/main.lua	5		
+fmt_opts	.config/yazi/plugins/fr.yazi/main.lua	7		
+get_custom_opts	.config/yazi/plugins/fr.yazi/main.lua	16		
+fzf_from	.config/yazi/plugins/fr.yazi/main.lua	28		
+extra	.config/yazi/plugins/fr.yazi/main.lua	36		
+setup	.config/yazi/plugins/fr.yazi/main.lua	92		
+entry	.config/yazi/plugins/fr.yazi/main.lua	104		
+prod	Documents/The Vault/.obsidian/plugins/claude-assistant/esbuild.config.mjs	5		
+anonymousObject9a640ec60105	Documents/The Vault/.obsidian/plugins/claude-assistant/esbuild.config.mjs	7		
+context	Documents/The Vault/.obsidian/plugins/claude-assistant/esbuild.config.mjs	7		
+__export	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	5		
+__copyProps	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	9		
+__toCommonJS	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	17		
+anonymousObject43c3edd20405	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	17		
+main_exports	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	20		
+import_obsidian	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	26		
+VIEW_TYPE	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	27		
+DEFAULT_SETTINGS	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	28		
+TOOLS	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	37		
+anonymousObject43c3edd20605	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	38		
+anonymousObject43c3edd20705	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	52		
+anonymousObject43c3edd20805	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	67		
+anonymousObject43c3edd20905	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	85		
+anonymousObject43c3edd20a05	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	100		
+anonymousObject43c3edd20b05	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	112		
+TOOLS_WITH_CACHE	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	122		
+anonymousObject43c3edd20c05	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	123		
+callClaude	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	125		
+anonymousObject43c3edd20e05	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	162		
+OLLAMA_TOOL_INSTRUCTIONS	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	174		
+ollamaToolCallCounter	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	235		
+parseOllamaToolCalls	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	236		
+anonymousObject43c3edd20f05	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	246		
+callOllama	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	258		
+computeWindow	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	302		
+scanClaudeUsage	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	309		
+anonymousObject43c3edd21305	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	334		
+callClaudeCLI	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	370		
+usage	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	430		
+usage	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	440		
+anonymousObject43c3edd21905	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	450		
+NEMO_RETRIEVAL_SYSTEM	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	460		
+callNemoRetrieval	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	477		
+buildSystemPrompt	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	516		
+MODEL_PRICING	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	542		
+computeApiCost	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	562		
+ClaudeAssistantView	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	567		
+anonymousObject43c3edd22205	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	629		
+anonymousObject43c3edd22305	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	630		
+anonymousObject43c3edd22405	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	635		
+apiMessages	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	698		
+runUsage	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	700		
+nemoLog	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	707		
+anonymousObject43c3edd22a05	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	844		
+anonymousObject43c3edd22b05	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	862		
+anonymousObject43c3edd22c05	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	886		
+anonymousObject43c3edd22d05	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	890		
+anonymousObject43c3edd22f05	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	900		
+anonymousObject43c3edd23105	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	957		
+anonymousObject43c3edd23305	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	963		
+anonymousObject43c3edd23405	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	970		
+anonymousObject43c3edd23505	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	992		
+anonymousObject43c3edd23605	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1006		
+anonymousObject43c3edd23705	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1016		
+anonymousObject43c3edd23905	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1031		
+anonymousObject43c3edd23c05	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1050		
+anonymousObject43c3edd23d05	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1054		
+anonymousObject43c3edd24105	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1079		
+anonymousObject43c3edd24205	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1086		
+anonymousObject43c3edd24305	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1099		
+anonymousObject43c3edd24605	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1258		
+anonymousObject43c3edd24705	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1259		
+anonymousObject43c3edd24905	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1266		
+ClaudeSettingTab	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1277		
+anonymousObject43c3edd24b05	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1285		
+anonymousObject43c3edd24c05	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1300		
+anonymousObject43c3edd24d05	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1301		
+anonymousObject43c3edd24e05	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1317		
+anonymousObject43c3edd24f05	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1324		
+ClaudeAssistantPlugin	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1339		
+anonymousObject43c3edd25105	Documents/The Vault/.obsidian/plugins/claude-assistant/main.js	1362		
+VIEW_TYPE	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	14		
+ClaudeSettings	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	18		
+DEFAULT_SETTINGS	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	28		
+TOOLS	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	40		
+TextBlock	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	141		
+ToolUseBlock	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	145		
+ToolResultBlock	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	151		
+ContentBlock	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	156		
+ApiMessage	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	158		
+PendingToolCall	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	163		
+Usage	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	169		
+TOOLS_WITH_CACHE	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	180		
+callClaude	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	184		
+OLLAMA_TOOL_INSTRUCTIONS	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	243		
+ollamaToolCallCounter	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	305		
+parseOllamaToolCalls	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	307		
+toolCalls	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	311		
+g	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	312		
+toolCallRe	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	312		
+match	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	314		
+name	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	316		
+body	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	317		
+pathMatch	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	318		
+contentMatch	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	319		
+text	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	330		
+callOllama	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	336		
+UsageWindow	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	395		
+computeWindow	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	407		
+anchor	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	411		
+now	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	412		
+n	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	413		
+start	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	414		
+scanClaudeUsage	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	418		
+callClaudeCLI	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	505		
+NEMO_RETRIEVAL_SYSTEM	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	607		
+callNemoRetrieval	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	625		
+buildSystemPrompt	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	671		
+MODEL_PRICING	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	705		
+computeApiCost	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	734		
+ClaudeAssistantView	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	748		
+root	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	788		
+inputArea	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	798		
+file	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	830		
+logBtn	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	843		
+lines	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	848		
+entry	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	854		
+msg	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	878		
+b	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	883		
+clearBtn	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	902		
+text	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	923		
+sessionResetAnchor	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	930		
+weeklyResetAnchor	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	930		
+formatTokens	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	932		
+lines	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	944		
+end	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	947		
+start	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	947		
+w	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	951		
+resetTime	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	952		
+end	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	966		
+start	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	966		
+w	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	970		
+resetDate	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	971		
+resetTime	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	975		
+SLASH_COMMANDS	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	991		
+cmd	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1021		
+text	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1021		
+usingOllama	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1031		
+usingCli	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1032		
+usingNemoCc	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1033		
+file	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1050		
+noteContent	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1051		
+systemPrompt	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1052		
+relevantSections	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1057		
+apiText	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1080		
+u	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1094		
+model	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1096		
+parts	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1102		
+cost	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1110		
+myRunId	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1121		
+usingOllama	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1122		
+usingCli	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1123		
+usingNemoCc	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1124		
+bubble	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1125		
+contentEl	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1138		
+text	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1144		
+toolCalls	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1144		
+usage	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1144		
+usageParts	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1194		
+assistantContent	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1209		
+tc	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1211		
+readCalls	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1222		
+writeCalls	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1225		
+readResults	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1230		
+tc	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1231		
+result	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1232		
+newlineIdx	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1235		
+pathHeader	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1236		
+rawContent	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1238		
+relevantSections	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1242		
+confirmEl	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1289		
+list	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1297		
+tc	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1298		
+item	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1299		
+ICONS	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1300		
+LABELS	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1306		
+btnRow	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1322		
+applyBtn	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1323		
+cancelBtn	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1327		
+writeResults	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1338		
+items	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1339		
+i	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1340		
+result	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1341		
+tool_use_id	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1372		
+content	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1373		
+exact	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1384		
+byLink	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1388		
+basename	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1395		
+byBasename	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1397		
+input	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1408		
+name	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1408		
+file	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1411		
+props	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1415		
+line	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1416		
+m	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1417		
+raw	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1423		
+fmMatch	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1424		
+newFm	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1428		
+fm	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1435		
+rest	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1436		
+key	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1437		
+value	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1437		
+keyRe	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1438		
+file	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1453		
+content	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1455		
+dir	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1460		
+existing	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1470		
+file	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1480		
+file	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1487		
+existing	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1489		
+dayNames	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1495		
+monthNames	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1504		
+now	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1518		
+pad	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1519		
+fmt	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1520		
+lines	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1522		
+i	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1523		
+d	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1524		
+bubble	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1538		
+bubble	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1547		
+el	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1551		
+ClaudeSettingTab	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1565		
+ClaudeAssistantPlugin	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1687		
+existing	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1711		
+leaf	Documents/The Vault/.obsidian/plugins/claude-assistant/main.ts	1716		
+id	Documents/The Vault/.obsidian/plugins/claude-assistant/manifest.json	2		
+name	Documents/The Vault/.obsidian/plugins/claude-assistant/manifest.json	3		
+version	Documents/The Vault/.obsidian/plugins/claude-assistant/manifest.json	4		
+minAppVersion	Documents/The Vault/.obsidian/plugins/claude-assistant/manifest.json	5		
+description	Documents/The Vault/.obsidian/plugins/claude-assistant/manifest.json	6		
+author	Documents/The Vault/.obsidian/plugins/claude-assistant/manifest.json	7		
+isDesktopOnly	Documents/The Vault/.obsidian/plugins/claude-assistant/manifest.json	8		
+name	Documents/The Vault/.obsidian/plugins/claude-assistant/package.json	2		
+version	Documents/The Vault/.obsidian/plugins/claude-assistant/package.json	3		
+main	Documents/The Vault/.obsidian/plugins/claude-assistant/package.json	4		
+scripts	Documents/The Vault/.obsidian/plugins/claude-assistant/package.json	5		
+devDependencies	Documents/The Vault/.obsidian/plugins/claude-assistant/package.json	9		
+.claude-root	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	1		
+.claude-context-bar	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	10		
+.claude-context-icon	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	19		
+.claude-context-name	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	20		
+.claude-clear-btn	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	28		
+.claude-clear-btn:hover	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	37		
+.claude-messages	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	40		
+.claude-message	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	49		
+.claude-message-role	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	56		
+.claude-user .claude-message-role	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	64		
+.claude-message-content	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	66		
+.claude-user .claude-message-content	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	76		
+.claude-thinking	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	82		
+.claude-usage	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	84		
+.claude-assistant .claude-message-content p	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	91		
+.claude-assistant .claude-message-content p:last-child	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	92		
+.claude-assistant .claude-message-content ul	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	93		
+.claude-assistant .claude-message-content ol	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	94		
+.claude-assistant .claude-message-content code	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	95		
+.claude-assistant .claude-message-content pre	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	101		
+.claude-confirm-area	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	110		
+.claude-confirm-area:not(:empty)	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	113		
+.claude-tool-confirm	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	117		
+.claude-tool-confirm-label	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	120		
+.claude-tool-list	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	130		
+.claude-tool-item	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	131		
+.claude-tool-item.applied	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	140		
+.claude-tool-icon	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	141		
+.claude-tool-label	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	142		
+.claude-tool-btn-row	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	148		
+.claude-apply-btn	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	155		
+.claude-cancel-btn	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	156		
+.claude-apply-btn	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	163		
+.claude-apply-btn:hover:not(:disabled)	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	167		
+.claude-apply-btn:disabled	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	168		
+.claude-cancel-btn	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	169		
+.claude-cancel-btn:hover:not(:disabled)	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	173		
+.claude-cancel-btn:disabled	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	174		
+.claude-input-area	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	177		
+.claude-input	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	186		
+.claude-input:focus	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	201		
+.claude-input:disabled	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	205		
+.claude-send-btn	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	206		
+.claude-send-btn:hover:not(:disabled)	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	216		
+.claude-send-btn:disabled	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	217		
+.claude-run-usage	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	220		
+.claude-run-usage-label	Documents/The Vault/.obsidian/plugins/claude-assistant/styles.css	227		
+compilerOptions	Documents/The Vault/.obsidian/plugins/claude-assistant/tsconfig.json	2		
+include	Documents/The Vault/.obsidian/plugins/claude-assistant/tsconfig.json	14		
+<% tp.date.now("dddd, MMMM Do YYYY") %>	Documents/The Vault/Templates/Daily Notes Template.md	9		
+created: <% tp.date.now("YYYY-MM-DD") %>	Documents/The Vault/Templates/Meeting Template.md	102		
+Attendees	Documents/The Vault/Templates/Meeting Template.md	105		
+Agenda	Documents/The Vault/Templates/Meeting Template.md	113		
+Notes	Documents/The Vault/Templates/Meeting Template.md	115		
+Tasks	Documents/The Vault/Templates/Meeting Template.md	117		
+Follow-ups	Documents/The Vault/Templates/Meeting Template.md	119		
+created: <% tp.date.now("YYYY-MM-DD") %>	Documents/The Vault/Templates/People Template.md	12		
+Context	Documents/The Vault/Templates/People Template.md	15		
+Goals & Development	Documents/The Vault/Templates/People Template.md	18		
+Tasks	Documents/The Vault/Templates/People Template.md	21		
+1:1 History	Documents/The Vault/Templates/People Template.md	24		
+Running Notes	Documents/The Vault/Templates/People Template.md	26		
+created: "[[<% tp.date.now("YYYY-MM-DD") %>]]"	Documents/The Vault/Templates/Project Template.md	12		
+Goal	Documents/The Vault/Templates/Project Template.md	14		
+Tasks	Documents/The Vault/Templates/Project Template.md	17		
+Notes	Documents/The Vault/Templates/Project Template.md	20		
+Related	Documents/The Vault/Templates/Project Template.md	23		
+np	Scripts/bgremove.py	27		
+ort	Scripts/bgremove.py	28		
+DEBUG	Scripts/bgremove.py	31		
+loadDroidcamEndpoint	Scripts/bgremove.py	34		
+isDroidcamReachable	Scripts/bgremove.py	53		
+parseArgs	Scripts/bgremove.py	62		
+buildProviders	Scripts/bgremove.py	96		
+_NAMED_COLORS	Scripts/bgremove.py	120		
+parseBackground	Scripts/bgremove.py	130		
+composite	Scripts/bgremove.py	180		
+RVMSegmenter	Scripts/bgremove.py	201		
+main	Scripts/bgremove.py	251		
+hdr	Scripts/bootstrap.sh	14		
+ok	Scripts/bootstrap.sh	15		
+warn	Scripts/bootstrap.sh	16		
+die	Scripts/bootstrap.sh	17		
+DEFAULT_MODEL	Scripts/buildIndex.py	17		
+LOG_DIR	Scripts/buildIndex.py	18		
+REPO_ROOT	Scripts/buildIndex.py	19		
+INDEX_DIR	Scripts/buildIndex.py	20		
+INDEX_TOML	Scripts/buildIndex.py	21		
+SYMBOLS_TSV	Scripts/buildIndex.py	22		
+MAX_FILE_BYTES	Scripts/buildIndex.py	23		
+SKIP_SIZE_BYTES	Scripts/buildIndex.py	24		
+BINARY_SNIFF_BYTES	Scripts/buildIndex.py	25		
+LOCKED_TAGS	Scripts/buildIndex.py	27		
+LOCKED_TAG_SET	Scripts/buildIndex.py	32		
+SKIP_FILENAME_PATTERNS	Scripts/buildIndex.py	34		
+FEW_SHOT_EXAMPLES	Scripts/buildIndex.py	39		
+SYSTEM_PROMPT	Scripts/buildIndex.py	59		
+computeSha1	Scripts/buildIndex.py	80		
+isBinary	Scripts/buildIndex.py	89		
+shouldSkip	Scripts/buildIndex.py	98		
+getFileSet	Scripts/buildIndex.py	115		
+verifyCtagsVariant	Scripts/buildIndex.py	128		
+_tomlStr	Scripts/buildIndex.py	166		
+_tomlStrArray	Scripts/buildIndex.py	171		
+serializeIndexToml	Scripts/buildIndex.py	176		
+parseExistingIndex	Scripts/buildIndex.py	200		
+buildSymbolsTsv	Scripts/buildIndex.py	256		
+buildQwenPrompt	Scripts/buildIndex.py	361		
+callQwen	Scripts/buildIndex.py	386		
+parseQwenResponse	Scripts/buildIndex.py	418		
+_normalizeStringList	Scripts/buildIndex.py	470		
+stubEntry	Scripts/buildIndex.py	479		
+runBuild	Scripts/buildIndex.py	492		
+main	Scripts/buildIndex.py	599		
+NOTEEOF	Scripts/captureTaskRemote.sh	28		
+DEFAULT_MODEL	Scripts/codeSearch.py	17		
+DEFAULT_EXTS	Scripts/codeSearch.py	18		
+LOG_DIR	Scripts/codeSearch.py	19		
+CHUNK_SIZE	Scripts/codeSearch.py	20		
+CHUNK_OVERLAP	Scripts/codeSearch.py	21		
+MAX_LINE_LEN	Scripts/codeSearch.py	22		
+CALL_TIMEOUT	Scripts/codeSearch.py	23		
+runSelftest	Scripts/codeSearch.py	28		
+enumerateFiles	Scripts/codeSearch.py	37		
+keywordPrefilter	Scripts/codeSearch.py	58		
+stage1SelectCandidates	Scripts/codeSearch.py	104		
+chunkLines	Scripts/codeSearch.py	162		
+stage2ScanFile	Scripts/codeSearch.py	174		
+mergeRanges	Scripts/codeSearch.py	259		
+main	Scripts/codeSearch.py	278		
+VAULT	Scripts/createtask	18		
+TEMPLATE	Scripts/createtask	19		
+DAILY_NOTES	Scripts/createtask	20		
+PARSEDATE	Scripts/createtask	21		
+resolveDueDate	Scripts/createtask	24		
+createTask	Scripts/createtask	33		
+args	Scripts/createtask	94		
+taskText	Scripts/createtask	95		
+taskDue	Scripts/createtask	96		
+taskPriority	Scripts/createtask	97		
+taskDomain	Scripts/createtask	98		
+taskDesc	Scripts/createtask	99		
+line	Scripts/createtask	100		
+libSelftest	Scripts/diffSummarize.py	12		
+DEFAULT_MODEL	Scripts/diffSummarize.py	14		
+LOG_DIR	Scripts/diffSummarize.py	15		
+MAX_DIFF_CHARS	Scripts/diffSummarize.py	16		
+MAX_SCAN_CHARS	Scripts/diffSummarize.py	17		
+MAX_FILE_CHARS	Scripts/diffSummarize.py	18		
+TOON_SYSTEM	Scripts/diffSummarize.py	20		
+COMMIT_SYSTEM	Scripts/diffSummarize.py	35		
+SECRET_SCAN_SYSTEM	Scripts/diffSummarize.py	42		
+getDiff	Scripts/diffSummarize.py	60		
+main	Scripts/diffSummarize.py	80		
+notify	Scripts/dpmsInhibit.sh	11		
+setDpms	Scripts/dpmsInhibit.sh	17		
+cleanup	Scripts/droidCamDaemon.sh	16		
+CONFIG_PATH	Scripts/fanCurve.py	17		
+DEFAULT_CONFIG	Scripts/fanCurve.py	18		
+POLL_INTERVAL	Scripts/fanCurve.py	44		
+EMA_ALPHA	Scripts/fanCurve.py	45		
+HYSTERESIS	Scripts/fanCurve.py	46		
+TRIP_THRESHOLD	Scripts/fanCurve.py	47		
+CURVE_CHANNEL	Scripts/fanCurve.py	48		
+FULL_CHANNELS	Scripts/fanCurve.py	49		
+NUM_CHANNELS	Scripts/fanCurve.py	50		
+findHwmonByName	Scripts/fanCurve.py	55		
+readSysInt	Scripts/fanCurve.py	64		
+writeSysInt	Scripts/fanCurve.py	68		
+pwmPath	Scripts/fanCurve.py	74		
+pwmEnablePath	Scripts/fanCurve.py	78		
+saveOriginals	Scripts/fanCurve.py	82		
+restoreOriginals	Scripts/fanCurve.py	95		
+loadConfig	Scripts/fanCurve.py	109		
+ensureConfig	Scripts/fanCurve.py	122		
+interpolatePwm	Scripts/fanCurve.py	131		
+main	Scripts/fanCurve.py	147		
+findHwmon	Scripts/fanMap.py	20		
+readInt	Scripts/fanMap.py	35		
+writeInt	Scripts/fanMap.py	40		
+sampleFan	Scripts/fanMap.py	45		
+_savedState	Scripts/fanMap.py	60		
+_hwmon	Scripts/fanMap.py	61		
+restoreAll	Scripts/fanMap.py	64		
+signalHandler	Scripts/fanMap.py	76		
+main	Scripts/fanMap.py	86		
+libSelftest	Scripts/fileSummary.py	11		
+DEFAULT_MODEL	Scripts/fileSummary.py	13		
+LOG_DIR	Scripts/fileSummary.py	14		
+MAX_LINES	Scripts/fileSummary.py	15		
+SYSTEM_PROMPT	Scripts/fileSummary.py	18		
+summariseFile	Scripts/fileSummary.py	31		
+main	Scripts/fileSummary.py	55		
+EOF	Scripts/fileTasks.sh	136		
+EOF	Scripts/fileTasks.sh	181		
+EOF	Scripts/fileTasks.sh	212		
+EOF	Scripts/fileTasks.sh	258		
+EOF	Scripts/fileTasks.sh	287		
+extractAppName	Scripts/getPWAAppName.sh	17		
+findAppByWindowClass	Scripts/getPWAAppName.sh	24		
+EOF	Scripts/getTagState.sh	14		
+REPO_ROOT	Scripts/indexQuery.py	21		
+INDEX_TOML	Scripts/indexQuery.py	22		
+SYMBOLS_TSV	Scripts/indexQuery.py	23		
+SCRIPTS_DIR	Scripts/indexQuery.py	24		
+MAX_RESULTS	Scripts/indexQuery.py	26		
+TOML_META_KEYS	Scripts/indexQuery.py	28		
+_loadLockedTags	Scripts/indexQuery.py	34		
+LOCKED_TAGS	Scripts/indexQuery.py	48		
+LOCKED_TAG_SET	Scripts/indexQuery.py	49		
+loadIndex	Scripts/indexQuery.py	55		
+loadSymbols	Scripts/indexQuery.py	67		
+_tomlStr	Scripts/indexQuery.py	85		
+_tomlStrArray	Scripts/indexQuery.py	89		
+formatTomlBlock	Scripts/indexQuery.py	93		
+_die	Scripts/indexQuery.py	104		
+_truncate	Scripts/indexQuery.py	109		
+_normalizePath	Scripts/indexQuery.py	116		
+cmdTags	Scripts/indexQuery.py	130		
+cmdFile	Scripts/indexQuery.py	171		
+cmdSymbol	Scripts/indexQuery.py	193		
+cmdSearch	Scripts/indexQuery.py	231		
+cmdDeps	Scripts/indexQuery.py	262		
+cmdExports	Scripts/indexQuery.py	285		
+cmdStats	Scripts/indexQuery.py	318		
+buildParser	Scripts/indexQuery.py	353		
+main	Scripts/indexQuery.py	437		
+VAULT	Scripts/ingestMeetings.py	12		
+MEETINGS_DIR	Scripts/ingestMeetings.py	13		
+OLLAMA_URL	Scripts/ingestMeetings.py	14		
+OLLAMA_MODEL	Scripts/ingestMeetings.py	15		
+TODAY	Scripts/ingestMeetings.py	16		
+SKIP_EXACT	Scripts/ingestMeetings.py	18		
+SKIP_PREFIXES	Scripts/ingestMeetings.py	22		
+BOILERPLATE_PREFIXES	Scripts/ingestMeetings.py	26		
+TIME_RE	Scripts/ingestMeetings.py	36		
+ALL_DAY_RE	Scripts/ingestMeetings.py	41		
+DAY_HEADER_RE	Scripts/ingestMeetings.py	42		
+PHONE_RE	Scripts/ingestMeetings.py	43		
+MEETING_ID_RE	Scripts/ingestMeetings.py	44		
+URL_RE	Scripts/ingestMeetings.py	45		
+shouldSkip	Scripts/ingestMeetings.py	48		
+isBoilerplate	Scripts/ingestMeetings.py	58		
+to24h	Scripts/ingestMeetings.py	74		
+extractNames	Scripts/ingestMeetings.py	79		
+parsePdf	Scripts/ingestMeetings.py	84		
+extractMeetings	Scripts/ingestMeetings.py	92		
+getExistingPeople	Scripts/ingestMeetings.py	203		
+createPersonNote	Scripts/ingestMeetings.py	210		
+getExistingMeetingKeys	Scripts/ingestMeetings.py	240		
+generateAgenda	Scripts/ingestMeetings.py	263		
+formatAttendeeFrontmatter	Scripts/ingestMeetings.py	297		
+sanitizeFilename	Scripts/ingestMeetings.py	302		
+createNote	Scripts/ingestMeetings.py	306		
+main	Scripts/ingestMeetings.py	366		
+to_dashed	Scripts/installGitHooks.sh	13		
+DEFAULT_MODEL	Scripts/lib/localModel.py	12		
+DEFAULT_HOST	Scripts/lib/localModel.py	13		
+_TOON_NEEDS_QUOTE	Scripts/lib/localModel.py	22		
+_toonEscape	Scripts/lib/localModel.py	25		
+toonEncode	Scripts/lib/localModel.py	33		
+_toonParseLine	Scripts/lib/localModel.py	47		
+toonDecode	Scripts/lib/localModel.py	81		
+ModelSession	Scripts/lib/localModel.py	130		
+RingLogger	Scripts/lib/localModel.py	218		
+selftest	Scripts/lib/localModel.py	256		
+libSelftest	Scripts/logDigest.py	10		
+DEFAULT_MODEL	Scripts/logDigest.py	12		
+LOG_DIR	Scripts/logDigest.py	13		
+MAX_LINES	Scripts/logDigest.py	14		
+SYSTEM_PROMPT	Scripts/logDigest.py	16		
+readLog	Scripts/logDigest.py	32		
+preCount	Scripts/logDigest.py	49		
+main	Scripts/logDigest.py	60		
+WEEKDAYS	Scripts/parsedate	13		
+preprocess	Scripts/parsedate	15		
+main	Scripts/parsedate	53		
+onManage	Scripts/present.sh	7		
+TableParser	Scripts/printLettersFromUnicodeListAssessment.py	6		
+printGridFromDoc	Scripts/printLettersFromUnicodeListAssessment.py	65		
+fetchHtml	Scripts/printLettersFromUnicodeListAssessment.py	81		
+parsePositionsFromHtml	Scripts/printLettersFromUnicodeListAssessment.py	90		
+buildGrid	Scripts/printLettersFromUnicodeListAssessment.py	122		
+printGrid	Scripts/printLettersFromUnicodeListAssessment.py	130		
+EOF	Scripts/quickNotes.sh	23		
+writeback	Scripts/quickNotes.sh	54		
+EOF	Scripts/quickNotes.sh	55		
+EOF	Scripts/toggleTag.sh	13		
+EOF	Scripts/updateObsidianColors.sh	9		
+EOF	Scripts/updateRofiColors.sh	17		
+hdr	Scripts/updateSystem.sh	11		
+ok	Scripts/updateSystem.sh	12		
+checkReboot	Scripts/updateSystem.sh	24		
+fmt_pkg_line	Scripts/updateSystem.sh	147		
+runWithBars	Scripts/updateSystem.sh	221		
+EOF	Scripts/updateTMUXColors.sh	22		
+EOF	Scripts/updateYaziColors.sh	23		
+EOF	Scripts/updateZenTheme.sh	11		
+launch_viewer	Scripts/virtualCamMux.sh	34		
+run_relay	Scripts/virtualCamMux.sh	55		
+is_src_capture_ready	Scripts/virtualCamMux.sh	68		
+run_black	Scripts/virtualCamMux.sh	75		
+app	Scripts/webhookServer.py	7		
+auth	Scripts/webhookServer.py	8		
+USERNAME	Scripts/webhookServer.py	11		
+PASSWORD_HASH	Scripts/webhookServer.py	12		
+users	Scripts/webhookServer.py	14		
+verifyPassword	Scripts/webhookServer.py	18		
+webhook	Scripts/webhookServer.py	25		
+Max's Workflow System — Claude Code Handoff	projectOverview.md	1		

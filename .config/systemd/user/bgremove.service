@@ -12,8 +12,7 @@ ExecStart=/home/max/.local/share/bgremove/venv/bin/python3 /home/max/dotfiles/Sc
     --height 1080 \
     --fps 30 \
     --background blur \
-    --downsample 0.5 \
-    --no-trt
+    --downsample 0.5
 Restart=on-failure
 RestartSec=5
 StandardOutput=append:%h/.cache/bgremove.log

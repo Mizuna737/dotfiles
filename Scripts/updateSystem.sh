@@ -2,6 +2,8 @@
 # updateSystem.sh — Snapshot current system, then update with single approval + progress bar
 set -euo pipefail
 
+command -v pv >/dev/null 2>&1 || { echo "error: pv is required but not installed (pacman -S pv)"; exit 1; }
+
 # ── Colors ─────────────────────────────────────────────────────────────────────
 BOLD='\033[1m'; RESET='\033[0m'
 BLUE='\033[1;34m'; GREEN='\033[1;32m'; YELLOW='\033[1;33m'; CYAN='\033[1;36m'
@@ -129,9 +131,9 @@ hdr "Checking for updates..."
 REPO_LINES=$(paru -Qu --repo 2>/dev/null | grep -v '\[ignored\]') || true
 AUR_LINES=$(paru -Qu --aur  2>/dev/null | grep -v '\[ignored\]') || true
 
-REPO_COUNT=$(echo "$REPO_LINES" | grep -c '\S' || echo 0)
-AUR_COUNT=$(echo "$AUR_LINES"   | grep -c '\S' || echo 0)
-TOTAL=$((REPO_COUNT + AUR_COUNT))
+REPO_COUNT=$(echo "$REPO_LINES" | grep -c '\S' || true)
+AUR_COUNT=$(echo "$AUR_LINES"   | grep -c '\S' || true)
+TOTAL=$((${REPO_COUNT:-0} + ${AUR_COUNT:-0}))
 
 # Package names being updated — used by checkReboot after the update
 ALL_UPDATED=$({ echo "$REPO_LINES"; echo "$AUR_LINES"; } | awk '{print $1}')
@@ -197,18 +199,80 @@ hdr "Regenerating GRUB..."
 sudo grub-mkconfig -o /boot/grub/grub.cfg 2>&1 | grep -E "^(Found|done|Generating)" || true
 ok "GRUB updated."
 
-# ── Step 4: Update with progress bar ──────────────────────────────────────────
-BAR_WIDTH=54
+# ── Step 4: Update with progress bars ─────────────────────────────────────────
 
-draw_bar() {
-    local current=$1 total=$2
-    local filled=$(( current * BAR_WIDTH / total ))
-    local bar
-    bar=$(printf '%*s' "$filled" '' | tr ' ' '█')
-    local empty=$(( BAR_WIDTH - filled ))
-    local space
-    space=$(printf '%*s' "$empty" '')
-    printf "\r  [${GREEN}%s${RESET}%s] %d/%d " "$bar" "$space" "$current" "$total"
+# Named pipes and background pids used across runWithBars; cleaned up on EXIT.
+_barPipes=()
+_barPids=()
+
+trap '
+    for _p in "${_barPids[@]:-}"; do kill "$_p" 2>/dev/null || true; done
+    for _f in "${_barPipes[@]:-}"; do rm -f "$_f"; done
+    sudo umount "$MNTDIR" 2>/dev/null || true
+    rmdir "$MNTDIR" 2>/dev/null || true
+' EXIT
+
+# runWithBars pkgCount command [args...]
+#   Runs command, suppresses its normal stdout, and renders two stacked pv bars:
+#   - outer: one tick per installing/upgrading/reinstalling/removing event  (total = pkgCount)
+#   - inner: phase progress within the current (N/M) phase, resets on new M
+#   Lines that are neither (N/M) progress nor blank are forwarded to stderr so
+#   warnings/errors remain visible.
+runWithBars() {
+    local pkgCount=$1; shift
+
+    local outerPipe innerPipe
+    outerPipe=$(mktemp -u /tmp/upd_outer_XXXXXX)
+    innerPipe=$(mktemp -u /tmp/upd_inner_XXXXXX)
+    mkfifo "$outerPipe" "$innerPipe"
+    _barPipes+=("$outerPipe" "$innerPipe")
+
+    # Two pv processes in cursor mode so they each own a fixed line on screen.
+    pv -c -l -s "$pkgCount" -N "packages" < "$outerPipe" &
+    local outerPvPid=$!
+    pv -c -l -s 1          -N "phase   " < "$innerPipe" &
+    local innerPvPid=$!
+    _barPids+=("$outerPvPid" "$innerPvPid")
+
+    # Open write-ends so the fifos don't EOF before we're ready.
+    exec 7>"$outerPipe" 8>"$innerPipe"
+
+    local innerPhaseSize=0
+    local innerPid=""
+
+    # Process substitution (not a pipe) keeps the while loop in the current shell,
+    # so mutations to innerPhaseSize/innerPid and writes to fd 7/8 are visible here.
+    while IFS= read -r line; do
+        # Outer event: installing/upgrading/reinstalling/removing
+        if [[ "$line" =~ ^[[:space:]]*\(([0-9]+)/([0-9]+)\)[[:space:]]+(installing|upgrading|reinstalling|removing)[[:space:]] ]]; then
+            echo "" >&7   # one tick on outer bar
+        fi
+
+        # Inner phase: any (N/M) line — track M; when M changes restart inner pv
+        if [[ "$line" =~ ^[[:space:]]*\(([0-9]+)/([0-9]+)\) ]]; then
+            local m=${BASH_REMATCH[2]}
+
+            if [[ "$m" != "$innerPhaseSize" ]]; then
+                # New phase: close old write-end, kill old pv, start a fresh one.
+                exec 8>&-
+                [[ -n "$innerPid" ]] && { kill "$innerPid" 2>/dev/null || true; }
+                rm -f "$innerPipe"; mkfifo "$innerPipe"
+                pv -c -l -s "$m" -N "phase   " < "$innerPipe" &
+                innerPid=$!
+                _barPids+=("$innerPid")
+                exec 8>"$innerPipe"
+                innerPhaseSize=$m
+            fi
+
+            echo "" >&8   # one tick on inner bar
+        elif [[ "$line" =~ [^[:space:]] ]]; then
+            # Non-progress, non-blank: surface as error/warning
+            echo "$line" >&2
+        fi
+    done < <("$@" 2>&1)
+
+    exec 7>&- 8>&-
+    wait "$outerPvPid" "$innerPvPid" 2>/dev/null || true
 }
 
 echo ""
@@ -216,12 +280,13 @@ hdr "Updating ${TOTAL} packages..."
 echo ""
 
 # --noconfirm is safe here — user already approved above
-paru -Su --noconfirm 2>&1 | while IFS= read -r line; do
-    if [[ "$line" =~ ^\(([0-9]+)/([0-9]+)\) ]]; then
-        draw_bar "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
-    fi
-done
-echo ""  # newline after progress bar
+if [ "${REPO_COUNT:-0}" -gt 0 ]; then
+    runWithBars "$REPO_COUNT" paru -Su --repo --noconfirm
+fi
+if [ "${AUR_COUNT:-0}" -gt 0 ]; then
+    runWithBars "$AUR_COUNT"  paru -Su --aur  --noconfirm
+fi
+echo ""
 
 # ── Step 5: Post-update GRUB ──────────────────────────────────────────────────
 echo ""

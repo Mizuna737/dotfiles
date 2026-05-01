@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# preCommit — reindex changed files before a commit lands
+# Source: Scripts/gitHooks/preCommit (tracked); installed via Scripts/installGitHooks.sh
+
+set -u
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+# --- 1. Gather staged files --------------------------------------------------
+mapfile -t STAGED < <(git diff --cached --name-only --diff-filter=ACMR)
+
+# --- 2. Filter out paths the indexer ignores (index/ and .git/) -------------
+RELEVANT=()
+for f in "${STAGED[@]}"; do
+    case "$f" in
+        index/*|.git/*)
+            ;;  # skip — indexer ignores these
+        *)
+            RELEVANT+=("$f")
+            ;;
+    esac
+done
+
+# --- 3. Short-circuit when nothing relevant is staged -----------------------
+if [[ ${#RELEVANT[@]} -eq 0 ]]; then
+    exit 0
+fi
+
+# --- 4. Run the indexer with a timeout --------------------------------------
+printf '[preCommit] reindexing %d changed file(s)...\n' "${#RELEVANT[@]}" >&2
+
+timeout 120 python "$REPO_ROOT/Scripts/buildIndex.py" --changed-only
+EXIT_CODE=$?
+
+if [[ $EXIT_CODE -ne 0 ]]; then
+    if [[ $EXIT_CODE -eq 124 ]]; then
+        printf 'buildIndex.py timed out — commit proceeding; run Scripts/buildIndex.py --full to recover\n' >&2
+    else
+        printf 'buildIndex.py failed (exit %d) — commit proceeding; run Scripts/buildIndex.py --full to recover\n' "$EXIT_CODE" >&2
+    fi
+    exit 0
+fi
+
+# --- 5. Stage updated index files if they changed ---------------------------
+for idx_file in "$REPO_ROOT/index/INDEX.toml" "$REPO_ROOT/index/SYMBOLS.tsv"; do
+    if [[ -f "$idx_file" ]]; then
+        # git diff (unstaged) exits 1 when the file has modifications
+        if ! git diff --quiet -- "${idx_file#"$REPO_ROOT/"}"; then
+            git add "$idx_file"
+        fi
+    fi
+done
+
+exit 0

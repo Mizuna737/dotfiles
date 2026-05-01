@@ -329,6 +329,25 @@ awful.rules.rules = {
 			ontop = true,
 		},
 	},
+	{ rule = { class = "windowDressing" },
+	  properties = {
+	    focusable = false,
+	    focus = false,
+	    titlebars_enabled = false,
+	    border_width = 0,
+	    floating = true,
+	    ontop = true,
+	    sticky = true,
+	    skip_taskbar = true,
+	    below = false,
+	    above = true,
+	    -- prevent the wibar tasklist from picking it up
+	  },
+	  callback = function(c)
+	    c.hidden = false
+	    c:tags(root.tags())
+	  end,
+	},
 }
 
 --------------------------------
