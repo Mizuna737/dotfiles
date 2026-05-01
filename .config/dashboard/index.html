@@ -434,6 +434,37 @@
     filter: drop-shadow(0 0 7px var(--accent2)) drop-shadow(0 0 3px var(--accent2));
   }
 
+  .ringTempTrack {
+    fill: none;
+    stroke: rgba(255,255,255,0.05);
+    stroke-width: 3;
+  }
+
+  .ringTempFill {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 3;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 44px 44px;
+    stroke-dasharray: 270.18;
+    stroke-dashoffset: 270.18;
+    transition: stroke-dashoffset 1s ease, stroke 1s ease, filter 1s ease;
+  }
+
+  .ringTempFill.mini {
+    transform-origin: 28px 28px;
+    stroke-dasharray: 169.65;
+    stroke-dashoffset: 169.65;
+  }
+
+  .ringTempVal {
+    fill: rgba(255,255,255,0.75);
+    font-size: 9px;
+    text-anchor: middle;
+    font-family: inherit;
+  }
+
   .ringLabel {
     font-family: var(--font-mono);
     font-size: 9px;
@@ -923,16 +954,22 @@
             <svg class="statRing" viewBox="0 0 88 88">
               <circle class="ringTrack" cx="44" cy="44" r="36"/>
               <circle class="ringFill" id="statCpuBar" cx="44" cy="44" r="36"/>
+              <circle class="ringTempTrack" cx="44" cy="44" r="43"/>
+              <circle class="ringTempFill" id="statCpuTemp" cx="44" cy="44" r="43"/>
               <text class="ringLabel" x="44" y="37">CPU</text>
               <text class="ringVal" id="statCpuVal" x="44" y="53">—</text>
+              <text class="ringTempVal" id="statCpuTempVal" x="44" y="68">—</text>
             </svg>
           </div>
           <div class="statItem">
             <svg class="statRing" viewBox="0 0 88 88">
               <circle class="ringTrack" cx="44" cy="44" r="36"/>
               <circle class="ringFill gpu" id="statGpuBar" cx="44" cy="44" r="36"/>
+              <circle class="ringTempTrack" cx="44" cy="44" r="43"/>
+              <circle class="ringTempFill" id="statGpuTemp" cx="44" cy="44" r="43"/>
               <text class="ringLabel" x="44" y="37">GPU</text>
               <text class="ringVal" id="statGpuVal" x="44" y="53">—</text>
+              <text class="ringTempVal" id="statGpuTempVal" x="44" y="68">—</text>
             </svg>
           </div>
           <div class="statItem">
@@ -987,14 +1024,20 @@
             <svg class="statMini" viewBox="0 0 56 56">
               <circle class="ringTrack" cx="28" cy="28" r="22"/>
               <circle class="ringFill" id="statCpuBar2" cx="28" cy="28" r="22" data-circ="138.23"/>
+              <circle class="ringTempTrack" cx="28" cy="28" r="27"/>
+              <circle class="ringTempFill mini" id="statCpuTemp2" cx="28" cy="28" r="27"/>
               <text class="ringLabel" x="28" y="23">CPU</text>
               <text class="ringVal" id="statCpuVal2" x="28" y="33">—</text>
+              <text class="ringTempVal" id="statCpuTempVal2" x="28" y="44">—</text>
             </svg>
             <svg class="statMini" viewBox="0 0 56 56">
               <circle class="ringTrack" cx="28" cy="28" r="22"/>
               <circle class="ringFill gpu" id="statGpuBar2" cx="28" cy="28" r="22" data-circ="138.23"/>
+              <circle class="ringTempTrack" cx="28" cy="28" r="27"/>
+              <circle class="ringTempFill mini" id="statGpuTemp2" cx="28" cy="28" r="27"/>
               <text class="ringLabel" x="28" y="23">GPU</text>
               <text class="ringVal" id="statGpuVal2" x="28" y="33">—</text>
+              <text class="ringTempVal" id="statGpuTempVal2" x="28" y="44">—</text>
             </svg>
             <svg class="statMini" viewBox="0 0 56 56">
               <circle class="ringTrack" cx="28" cy="28" r="22"/>
@@ -1480,6 +1523,30 @@ function fmtMiB(mib) {
   return mib >= 1024 ? (mib / 1024).toFixed(1) + 'G' : mib + 'M';
 }
 
+const cpuTempBaseline = 40, cpuTempMax = 90;
+const gpuTempBaseline = 40, gpuTempMax = 85;
+
+const tempCirc = 270.18;
+const tempCircMini = 169.65;
+function setTempRing(arcId, valId, temp, baseline, max) {
+  const arc = document.getElementById(arcId);
+  const val = document.getElementById(valId);
+  if (!arc || !val) return;
+  const circ = arc.classList.contains('mini') ? tempCircMini : tempCirc;
+  if (temp == null) {
+    arc.style.strokeDashoffset = circ;
+    val.textContent = '';
+    return;
+  }
+  const t = Math.max(0, Math.min(1, (temp - baseline) / (max - baseline)));
+  arc.style.strokeDashoffset = circ * (1 - t);
+  const hue = (1 - t) * 120;
+  const color = `hsl(${hue}, 85%, 55%)`;
+  arc.style.stroke = color;
+  arc.style.filter = `drop-shadow(0 0 4px ${color}) drop-shadow(0 0 2px ${color})`;
+  val.textContent = `${Math.round(temp)}°C`;
+}
+
 function setBar(barId, valId, pct, label) {
   const arc = document.getElementById(barId);
   const val = document.getElementById(valId);
@@ -1507,6 +1574,10 @@ async function refreshSysStats() {
     setBar('statGpuBar2',  'statGpuVal2',  s.gpu,   gpuLbl);
     setBar('statRamBar2',  'statRamVal2',  ramPct,  ramLbl);
     setBar('statVramBar2', 'statVramVal2', vrPct,   vrLbl);
+    setTempRing('statCpuTemp',  'statCpuTempVal',  s.cpuTemp, cpuTempBaseline, cpuTempMax);
+    setTempRing('statGpuTemp',  'statGpuTempVal',  s.gpuTemp, gpuTempBaseline, gpuTempMax);
+    setTempRing('statCpuTemp2', 'statCpuTempVal2', s.cpuTemp, cpuTempBaseline, cpuTempMax);
+    setTempRing('statGpuTemp2', 'statGpuTempVal2', s.gpuTemp, gpuTempBaseline, gpuTempMax);
   } catch(e) {}
 }
 

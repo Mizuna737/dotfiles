@@ -27,6 +27,7 @@ import threading
 import queue
 import gi
 import configparser
+import pynvml
 
 sys.path.insert(0, os.path.dirname(__file__))
 from taskCreate import createTask, resolveDueDate
@@ -133,11 +134,13 @@ def buildMatrix():
             q2.append(t)
 
     # Nicole's priorities float to the top of this week's quadrant
-    q1.sort(key=lambda t: (
-        0 if "#nicole" in t.get("tags", "") else 1,
-        t.get("dueDate") or "9999",
-        PRIORITY_ORDER.get(getPriority(t["raw"]), 2),
-    ))
+    q1.sort(
+        key=lambda t: (
+            0 if "#nicole" in t.get("tags", "") else 1,
+            t.get("dueDate") or "9999",
+            PRIORITY_ORDER.get(getPriority(t["raw"]), 2),
+        )
+    )
     return {"q1": q1, "q2": q2, "q3": q3, "ponder": ponder}
 
 
@@ -325,7 +328,9 @@ def syncNicolePrioritiesFromTodoist():
         dateStr = f" [[{dueDate}]]" if dueDate else ""
         desc = (task.get("description") or "").strip()
         descStr = f" [desc:: {desc}]" if desc else ""
-        newLines.append(f"- [ ] {task['content']} #nicole{dateStr}{descStr} [todoist:: {task['id']}]\n")
+        newLines.append(
+            f"- [ ] {task['content']} #nicole{dateStr}{descStr} [todoist:: {task['id']}]\n"
+        )
     with open(NICOLE_PRIORITIES_FILE, "w", encoding="utf-8") as f:
         f.writelines(newLines)
 
@@ -816,7 +821,6 @@ def setBgremoveMode(mode):
     return {"ok": True, "mode": mode}
 
 
-
 _bgPickerLock = threading.Lock()
 
 
@@ -832,8 +836,7 @@ def pickBgremoveImage():
 def _pickBgremoveImageInner():
     exts = ("*.jpg", "*.jpeg", "*.png", "*.webp")
     images = sorted(
-        p for pat in exts
-        for p in glob.glob(os.path.join(WALLPAPER_DIR, pat))
+        p for pat in exts for p in glob.glob(os.path.join(WALLPAPER_DIR, pat))
     )
     if not images:
         return {"error": "No images found in wallpapers directory"}
@@ -842,8 +845,10 @@ def _pickBgremoveImageInner():
 
     proc = subprocess.Popen(
         ["nsxiv", "-ot"] + images,
-        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-        text=True, env=env
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        text=True,
+        env=env,
     )
 
     stdout, _ = proc.communicate()
@@ -862,6 +867,7 @@ def _pickBgremoveImageInner():
 # ── System stats ─────────────────────────────────────────────────────────────
 
 _lastCpuStat = None
+_hwmonPath = None
 
 
 def getCpuPercent():
@@ -879,6 +885,7 @@ def getCpuPercent():
 
 
 def getSysStats():
+    global _hwmonPath
     cpu = getCpuPercent()
 
     memInfo = {}
@@ -887,28 +894,70 @@ def getSysStats():
             key, val = line.split(":", 1)
             memInfo[key.strip()] = int(val.split()[0])  # kB
     ramTotal = memInfo.get("MemTotal", 1)
-    ramUsed  = ramTotal - memInfo.get("MemAvailable", 0)
+    ramUsed = ramTotal - memInfo.get("MemAvailable", 0)
 
     gpuUtil = vramUsed = vramTotal = 0
+    gpuTemp = None
+
     try:
-        r = subprocess.run(
-            ["nvidia-smi", "--query-gpu=utilization.gpu,memory.used,memory.total",
-             "--format=csv,noheader,nounits"],
-            capture_output=True, text=True, timeout=2
+        pynvml.nvmlInit()
+        handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+
+        util = pynvml.nvmlDeviceGetUtilizationRates(handle)
+        mem = pynvml.nvmlDeviceGetMemoryInfo(handle)
+
+        powerDraw = pynvml.nvmlDeviceGetPowerUsage(handle)  # milliwatts
+        powerMax = pynvml.nvmlDeviceGetEnforcedPowerLimit(handle)  # milliwatts
+
+        gpuUtil = (
+            min(100, int(util.gpu * (powerDraw / powerMax))) if powerMax > 0 else 0
         )
-        if r.returncode == 0:
-            parts = r.stdout.strip().split(",")
-            gpuUtil   = int(parts[0].strip())
-            vramUsed  = int(parts[1].strip())
-            vramTotal = int(parts[2].strip())
+        vramUsed = int(mem.used / 1024 / 1024)
+        vramTotal = int(mem.total / 1024 / 1024)
+        gpuTemp = int(
+            pynvml.nvmlDeviceGetTemperature(handle, pynvml.NVML_TEMPERATURE_GPU)
+        )
+
+    except Exception:
+        pass
+
+    cpuTemp = None
+    try:
+        if _hwmonPath is None:
+            import glob as _glob
+
+            preferredLabels = ("Tccd1", "Tdie")
+            candidates = {}  # label -> input path
+            for namePath in _glob.glob("/sys/class/hwmon/hwmon*/name"):
+                with open(namePath) as f:
+                    if f.read().strip() != "k10temp":
+                        continue
+                hwmonDir = namePath.rsplit("/", 1)[0]
+                for labelPath in _glob.glob(f"{hwmonDir}/temp*_label"):
+                    with open(labelPath) as f:
+                        label = f.read().strip()
+                    if label in preferredLabels and label not in candidates:
+                        candidates[label] = labelPath.replace("_label", "_input")
+                break
+
+            for label in preferredLabels:
+                if label in candidates:
+                    _hwmonPath = candidates[label]
+                break
+
+        if _hwmonPath:
+            with open(_hwmonPath) as f:
+                cpuTemp = round(int(f.read().strip()) / 1000)
     except Exception:
         pass
 
     return {
-        "cpu":  cpu,
-        "ram":  {"used": ramUsed,  "total": ramTotal},   # kB
-        "gpu":  gpuUtil,
+        "cpu": cpu,
+        "ram": {"used": ramUsed, "total": ramTotal},  # kB
+        "gpu": gpuUtil,
         "vram": {"used": vramUsed, "total": vramTotal},  # MiB
+        "cpuTemp": cpuTemp,
+        "gpuTemp": gpuTemp,
     }
 
 
@@ -1157,7 +1206,9 @@ class Handler(BaseHTTPRequestHandler):
                 with open(jsPath, "rb") as f:
                     body = f.read()
                 self.send_response(200)
-                self.send_header("Content-Type", "application/javascript; charset=utf-8")
+                self.send_header(
+                    "Content-Type", "application/javascript; charset=utf-8"
+                )
                 self.send_header("Content-Length", len(body))
                 self.end_headers()
                 self.wfile.write(body)

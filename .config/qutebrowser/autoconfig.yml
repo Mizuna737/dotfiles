@@ -53,4 +53,4 @@ settings:
   tabs.last_close:
     global: blank
   tabs.show:
-    global: always
+    global: switching
