@@ -718,7 +718,7 @@ def runBuild(fullRebuild, dryRun, verbose):
             if verbose:
                 print(f"[buildIndex] {relPath}", file=sys.stderr)
 
-            # Try diff-based inference first (avoids Qwen for small changes)
+           # Try diff-based inference first (avoids Qwen for small changes)
             if not fullRebuild:
                 existing = existingEntries.get(relPath, {})
                 isStub = existing and existing.get("purpose", "").startswith("TODO:")
@@ -736,6 +736,15 @@ def runBuild(fullRebuild, dryRun, verbose):
                         if verbose:
                             print(f"[buildIndex] inferred: {relPath}", file=sys.stderr)
                         continue
+                    # inferred is None but existing entry is valid
+                    # (diff had no exports/deps changes) → use existing
+                    entry = dict(existing)
+                    entry["sha1"] = fileHashes[relPath]
+                    newEntries[relPath] = entry
+                    inferredCount += 1
+                    if verbose:
+                        print(f"[buildIndex] inferred (unchanged): {relPath}", file=sys.stderr)
+                    continue
 
             # Fall back to Qwen
             entry = callQwen(session, relPath, absPath, verbose)
