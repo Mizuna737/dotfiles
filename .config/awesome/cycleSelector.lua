@@ -1,7 +1,6 @@
 -- cycleSelector.lua
--- Floating wibox overlay that displays a list of window titles with one row
--- highlighted. Used by windowCycle for gesture-driven selection and can be
--- driven by keyboard via show()/move()/commit().
+-- Generic popup overlay that displays a list of items with one row
+-- highlighted. Used by windowCycle and tagCycle for gesture-driven selection.
 
 local wibox     = require("wibox")
 local awful     = require("awful")
@@ -19,10 +18,12 @@ local FG_ACTIVE  = beautiful.taglist_fg_focus or "#ffffff"
 local BORDER     = beautiful.border_focus     or "#5294e2"
 
 local _popup   = nil
-local _clients = {}
+local _items   = {}
 local _idx     = 1
+local _getTitle = nil
 
-local function makeRow(title, active)
+local function makeRow(item, active)
+    local title = _getTitle(item, #_items, active)
     return wibox.widget {
         {
             {
@@ -45,8 +46,8 @@ end
 
 local function buildWidget()
     local layout = wibox.layout.fixed.vertical()
-    for i, c in ipairs(_clients) do
-        layout:add(makeRow(c.class or "?", i == _idx))
+    for i, item in ipairs(_items) do
+        layout:add(makeRow(item, i == _idx))
     end
     return wibox.widget {
         layout,
@@ -57,21 +58,20 @@ end
 
 local function reposition(s, h)
     local x = math.floor((s.geometry.width  - WIDTH) / 2) + s.geometry.x
-    local y = math.floor((s.geometry.height - h)     / 2) + s.geometry.y
+    local y = math.floor((s.geometry.height - h) / 2) + s.geometry.y
     return x, y
 end
 
 local M = {}
 
--- Show or refresh the popup with a new client list and active index.
--- Creates the wibox on first call; updates in-place on subsequent calls.
-function M.show(clients, activeIdx)
-    if not clients or #clients == 0 then return end
-    _clients = clients
+function M.show(items, activeIdx, getTitle)
+    if not items or #items == 0 then return end
+    _items   = items
     _idx     = activeIdx or 1
+    _getTitle = getTitle
 
     local s = awful.screen.focused()
-    local h = #_clients * ROW_H + PAD * 2
+    local h = #_items * ROW_H + PAD * 2
     local x, y = reposition(s, h)
 
     if _popup then
@@ -95,11 +95,9 @@ function M.show(clients, activeIdx)
     end
 end
 
--- Move the highlight by delta (+1 / -1), wrapping around.
--- Returns the new index so callers can focus the right client.
 function M.move(delta)
-    if #_clients == 0 then return _idx end
-    _idx = ((_idx - 1 + delta) % #_clients) + 1
+    if #_items == 0 then return _idx end
+    _idx = ((_idx - 1 + delta) % #_items) + 1
     if _popup then _popup.widget = buildWidget() end
     return _idx
 end
@@ -109,8 +107,9 @@ function M.hide()
         _popup.visible = false
         _popup = nil
     end
-    _clients = {}
-    _idx     = 1
+    _items = {}
+    _idx   = 1
+    _getTitle = nil
 end
 
 return M

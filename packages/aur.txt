@@ -16,6 +16,7 @@ nct6687d-dkms-git
 neofetch
 nitrogen
 nvm-git
+opencode-bin
 opendeck-git
 outlook-for-linux-bin
 paru

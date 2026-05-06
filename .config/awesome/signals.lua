@@ -17,10 +17,41 @@ local gears   = require("gears")
 local myFuncs     = require("functions")
 local stack       = require("stack")
 local windowCycle = require("windowCycle")
+local tagCycle    = require("tagCycle")
 
 local IFACE     = "org.gesturecontrol.Engine"
 local DBUS_NAME = "org.gesturecontrol"
 local DBUS_PATH = "/org/gesturecontrol"
+
+-- Delayed commit timers — cancel on new onUpdate so momentary signal drops
+-- don't commit until the gesture has been idle for COMMIT_DELAY seconds.
+local _COMMIT_DELAY = 0.5
+local _pendingTagCommit = nil
+local _pendingWinCommit = nil
+
+local function scheduleCommit(timerVar, name)
+    if _COMMIT_DELAY == 0 then
+        if name == "tag_cycle" then tagCycle.commit()
+        else windowCycle.commit()
+        end
+        return
+    end
+    -- Cancel any pending commit
+    if timerVar then timerVar:stop(); timerVar = nil end
+    -- Start fresh timer
+    local timer = gears.timer.start_new(_COMMIT_DELAY, function()
+        if name == "tag_cycle" then tagCycle.commit()
+        else windowCycle.commit()
+        end
+        if name == "tag_cycle" then _pendingTagCommit = nil
+        else _pendingWinCommit = nil
+        end
+    end)
+    if name == "tag_cycle" then _pendingTagCommit = timer
+    else _pendingWinCommit = timer
+    end
+    return timer
+end
 
 -- ── Dispatch tables ───────────────────────────────────────────────────────────
 
@@ -95,16 +126,22 @@ onFire("tag_4", function() awful.screen.focused().tags[4]:view_only() end)
 onFire("prev_tag", function() awful.tag.viewprev() end)
 onFire("next_tag", function() awful.tag.viewnext() end)
 
--- Tag cycling — left THREE, pinch distance sweeps across tags 1–5.
--- Re-register slots on every activation so the engine always has fresh
--- slot config (mirrors stack_cycle; avoids startup race with awful.spawn).
+-- tag_cycle: sweep left THREE across available tags;
+-- releases views the selected tag.
 onStart("tag_cycle", function(hand)
-	registerSlots("tag_cycle", 5)
+	local count = tagCycle.start()
+	if count >= 2 then
+		registerSlots("tag_cycle", count)
+	end
 end)
 
 onUpdate("tag_cycle", function(hand, value)
-	local tag = awful.screen.focused().tags[math.floor(value + 0.5)]
-	if tag then tag:view_only() end
+	tagCycle.activate(math.floor(value))
+	if _pendingTagCommit then _pendingTagCommit:stop(); _pendingTagCommit = nil end
+end)
+
+onEnd("tag_cycle", function(hand)
+	_pendingTagCommit = scheduleCommit(_pendingTagCommit, "tag_cycle")
 end)
 
 -- Volume
@@ -126,9 +163,10 @@ end)
 
 onUpdate("window_cycle", function(hand, value)
 	windowCycle.activate(math.floor(value))
+	if _pendingWinCommit then _pendingWinCommit:stop(); _pendingWinCommit = nil end
 end)
 
 onEnd("window_cycle", function(hand)
-	windowCycle.commit()
+	_pendingWinCommit = scheduleCommit(_pendingWinCommit, "window_cycle")
 end)
 

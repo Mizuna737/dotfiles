@@ -1,0 +1,17 @@
+[Unit]
+Description=Qwen3-35B TurboQuant llama.cpp inference server
+After=network.target
+
+[Service]
+Type=simple
+ExecStartPre=-/usr/bin/docker stop llamaServer
+ExecStartPre=-/usr/bin/docker rm llamaServer
+ExecStart=/home/max/Projects/turboquant-llama/llamaServerStart.sh
+ExecStop=/usr/bin/docker stop llamaServer
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:%h/.cache/llamaServer.log
+StandardError=append:%h/.cache/llamaServer.log
+
+[Install]
+WantedBy=default.target

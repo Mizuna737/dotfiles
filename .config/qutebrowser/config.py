@@ -4,6 +4,7 @@ config.load_autoconfig()
 import os, re
 
 from qutebrowser.misc import dbuscommands
+
 dbuscommands.subscribe(
     service="org.gesturecontrol",
     path="/org/gesturecontrol",
@@ -11,9 +12,9 @@ dbuscommands.subscribe(
     signal="GestureFired",
     signature="ss",
     handler=lambda name, hand: {
-        "browser_back":    ":back",
+        "browser_back": ":back",
         "browser_forward": ":forward",
-        "youtube":         ":navigate up",
+        "youtube": ":navigate up",
     }.get(name),
 )
 import pywalQute.draw
@@ -55,16 +56,16 @@ config.bind("gy", "open https://www.youtube.com/")
 config.bind("gY", "open -t https://www.youtube.com/")
 
 # toggle between always  ↔  switching
-config.bind(",t", ":config-cycle tabs.show always switching")
+config.bind(",t", ":config-cycle tabs.show multiple switching")
 
-config.bind(',p', 'spawn --userscript qute-bitwarden')
-config.bind(',P', 'spawn --userscript qute-bitwarden --password-only')
+config.bind(",p", "spawn --userscript qute-bitwarden")
+config.bind(",P", "spawn --userscript qute-bitwarden --password-only")
 
 pywalQute.draw.color(c, {"spacing": {"vertical": 6, "horizontal": 8}})
 
 # ---- Zenful qutebrowser tweaks ----
 # Hide UI until you need it
-c.tabs.show = "always"
+c.tabs.show = "multiple"
 c.statusbar.show = "in-mode"
 
 # Scrolling
@@ -114,8 +115,8 @@ c.url.start_pages = ["https://claude.ai/project/019cace2-12a1-7221-ad0a-cf900e4b
 c.url.default_page = "https://claude.ai/project/019cace2-12a1-7221-ad0a-cf900e4b0933"
 
 c.qt.args += [
-    'enable-features=VaapiVideoDecoder,VaapiVideoEncoder',
-    'ignore-gpu-blocklist',
-    'enable-gpu-rasterization',
-    'enable-zero-copy',
+    "enable-features=VaapiVideoDecoder,VaapiVideoEncoder",
+    "ignore-gpu-blocklist",
+    "enable-gpu-rasterization",
+    "enable-zero-copy",
 ]

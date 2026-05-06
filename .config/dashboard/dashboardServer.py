@@ -16,6 +16,7 @@ import subprocess
 import re
 import os
 import sys
+import socket
 import glob
 import time
 from datetime import date, timedelta
@@ -443,14 +444,37 @@ def getSinkState():
 # ── Media (playerctl) ─────────────────────────────────────────────────────
 
 
+def _activePlayer():
+    players, code = run(["playerctl", "-l"])
+    if code != 0 or not players.strip():
+        return None
+    names = [p.strip() for p in players.strip().splitlines() if p.strip()]
+    firstPaused = None
+    for p in names:
+        status, _ = run(["playerctl", "-p", p, "status"])
+        status = status.strip()
+        if status == "Playing":
+            return p
+        if status == "Paused" and firstPaused is None:
+            firstPaused = p
+    return firstPaused
+
+
 def getMediaState():
-    status, code = run(["playerctl", "status"])
-    if code != 0 or status in ("No players found", ""):
+    player = _activePlayer()
+    if player is None:
         return {}
+
+    status, code = run(["playerctl", "-p", player, "status"])
+    if code != 0 or status.strip() in ("No players found", ""):
+        return {}
+    status = status.strip()
 
     metaOut, _ = run(
         [
             "playerctl",
+            "-p",
+            player,
             "metadata",
             "--format",
             "{{xesam:title}}|{{xesam:artist}}|{{xesam:album}}",
@@ -461,13 +485,13 @@ def getMediaState():
     artist = lines[1] if len(lines) > 1 else ""
     album = lines[2] if len(lines) > 2 else ""
 
-    rawPos, _ = run(["playerctl", "position"])
+    rawPos, _ = run(["playerctl", "-p", player, "position"])
     try:
         posF = float(rawPos)
     except Exception:
         posF = 0
 
-    rawLen, _ = run(["playerctl", "metadata", "mpris:length"])
+    rawLen, _ = run(["playerctl", "-p", player, "metadata", "mpris:length"])
     try:
         lenF = int(rawLen) / 1e6
     except Exception:
@@ -486,7 +510,9 @@ def getMediaState():
 def mediaCommand(cmd):
     validCmds = {"play", "pause", "play-pause", "next", "previous", "stop"}
     if cmd in validCmds:
-        run(["playerctl", cmd])
+        player = _activePlayer()
+        if player:
+            run(["playerctl", "-p", player, cmd])
 
 
 # ── Tasks ─────────────────────────────────────────────────────────────────
@@ -699,17 +725,83 @@ def startVaultWatcher():
 
 # ── DroidCam ──────────────────────────────────────────────────────────────
 
-DROIDCAM_IP = "192.168.0.156"
 DROIDCAM_PORT = 4747
 DROIDCAM_SIZE = "3840x2160"
-DROIDCAM_BASE = f"http://{DROIDCAM_IP}:{DROIDCAM_PORT}"
+_DROIDCAM_CACHE = {"host": None, "port": DROIDCAM_PORT, "time": 0.0}
+_DROIDCAM_CACHE_TTL = 60
+
+
+def _loadDroidcamConf():
+    cfg = os.path.expanduser("~/.config/droidcam")
+    ip, port = None, DROIDCAM_PORT
+    try:
+        with open(cfg) as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("ip="):
+                    ip = line.split("=", 1)[1].strip() or None
+                elif line.startswith("port="):
+                    try:
+                        port = int(line.split("=", 1)[1].strip())
+                    except ValueError:
+                        pass
+    except FileNotFoundError:
+        pass
+    return ip, port
+
+
+def _droidcamHost():
+    """Return (host, port), resolving dynamically with subnet scan as fallback."""
+    import time as _time
+
+    now = _time.monotonic()
+    if _DROIDCAM_CACHE["host"] and (now - _DROIDCAM_CACHE["time"]) < _DROIDCAM_CACHE_TTL:
+        return _DROIDCAM_CACHE["host"], _DROIDCAM_CACHE["port"]
+
+    conf_ip, conf_port = _loadDroidcamConf()
+    host = conf_ip or "192.168.0.106"  # last-resort fallback
+
+    # Try config IP first (fast path)
+    try:
+        sock = socket.create_connection((host, conf_port), timeout=1.0)
+        sock.close()
+        _DROIDCAM_CACHE["host"] = host
+        _DROIDCAM_CACHE["port"] = conf_port
+        _DROIDCAM_CACHE["time"] = now
+        return host, conf_port
+    except (OSError, socket.timeout):
+        pass
+
+    # Subnet scan
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "Scripts", "lib"))
+        import droidcamScan
+    except ImportError:
+        droidcamScan = None
+
+    if droidcamScan:
+        result = droidcamScan.find_droidcam(host, conf_port)
+        _DROIDCAM_CACHE["host"] = result[0]
+        _DROIDCAM_CACHE["port"] = result[1]
+        _DROIDCAM_CACHE["time"] = _time.monotonic()
+        return result
+    else:
+        _DROIDCAM_CACHE["host"] = host
+        _DROIDCAM_CACHE["port"] = conf_port
+        _DROIDCAM_CACHE["time"] = now
+        return host, conf_port
+
+
+def _droidcamBase():
+    host, port = _droidcamHost()
+    return f"http://{host}:{port}"
 
 
 def droidcamPut(path):
     """Send a PUT request to the droidcam HTTP API on the phone."""
     import urllib.request
 
-    url = DROIDCAM_BASE + path
+    url = _droidcamBase() + path
     req = urllib.request.Request(url, method="PUT")
     try:
         with urllib.request.urlopen(req, timeout=3) as r:
@@ -722,7 +814,7 @@ def getDroidcamInfo():
     import urllib.request
 
     try:
-        with urllib.request.urlopen(DROIDCAM_BASE + "/v1/camera/info", timeout=3) as r:
+        with urllib.request.urlopen(_droidcamBase() + "/v1/camera/info", timeout=3) as r:
             return json.loads(r.read())
     except Exception:
         return None
@@ -733,9 +825,10 @@ def getDroidcamState():
     out, code = run(["pgrep", "-x", "droidcam-cli"])
     connected = code == 0
     info = getDroidcamInfo() if connected else None
+    host, port = _droidcamHost()
     return {
         "connected": connected,
-        "host": f"{DROIDCAM_IP}:{DROIDCAM_PORT}",
+        "host": f"{host}:{port}",
         "zmValue": info["zmValue"] if info else 1.0,
         "zmMin": info["zmMin"] if info else 1.0,
         "zmMax": info["zmMax"] if info else 6.0,
@@ -745,10 +838,9 @@ def getDroidcamState():
 
 def isDroidcamReachable():
     """Check if the phone is reachable and droidcam is listening before connecting."""
-    import socket
-
     try:
-        sock = socket.create_connection((DROIDCAM_IP, DROIDCAM_PORT), timeout=2)
+        host, port = _droidcamHost()
+        sock = socket.create_connection((host, port), timeout=2)
         sock.close()
         return True
     except (OSError, socket.timeout):
@@ -766,8 +858,9 @@ def toggleDroidcam():
         if not isDroidcamReachable():
             return {"error": "unreachable"}
         # Launch in background, detached from this process
+        host, port = _droidcamHost()
         subprocess.Popen(
-            ["droidcam-cli", "-size=" + DROIDCAM_SIZE, DROIDCAM_IP, str(DROIDCAM_PORT)],
+            ["droidcam-cli", "-size=" + DROIDCAM_SIZE, host, str(port)],
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,

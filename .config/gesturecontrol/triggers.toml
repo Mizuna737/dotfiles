@@ -1,18 +1,8 @@
-[presence]
-enabled = true
-idleSeconds = 1
-motionThreshold = 5.0       # mean abs diff on 0–255 grayscale; tune in practice
-checkHz = 2                 # how often to run the diff per second
-poseDetection = true
-poseMinConfidence = 0.5
-poseCheckMode = "fallback"  # "fallback" | "always"
-pauseHandsWhenAbsent = true
-
 [settings]
 camera = 2
 dwell_ms = 50
 format = "GREY"
-fps = 12
+fps = 30
 spread_threshold = 0.4
 
 [[poses]]
@@ -128,52 +118,33 @@ pinky = true
 
 [[bindings]]
 name = "tag_cycle"
-require = [{ hand = "left", pose = "THREE" }]
-trigger = { hand = "left", hysteresis = 0.15, metric = "pinch_distance", range = [
-  0.1,
-  0.35,
-], type = "continuous" }
+require = [{hand = "left", pose = "THREE"}]
+trigger = { hand = "left", hysteresis = 0.15, metric = "pinch_distance", range = [0.1, 0.35], type = "continuous" }
 
 [[bindings]]
 name = "set_volume"
-require = [{ hand = "left", pose = "LLAP" }]
-trigger = { hand = "left", metric = "pinch_distance", range = [
-  0,
-  0.6,
-], type = "continuous" }
+trigger = { type = "sequenced_continuous", prefix_steps = ["FIVE", "OPEN_PALM"], prefix_window_ms = 1500, prefix_dwell_ms = 100, metric = "pinch_distance", range = [0, 0.6], hand = "left" }
 
 [[bindings]]
 name = "window_cycle"
-require = [{ hand = "either", pose = "SIGN" }]
-trigger = { type = "continuous", metric = "pinch_distance", range = [
-  0.1,
-  0.35,
-], hysteresis = 0.15, hand = "left" }
+require = [{hand = "either", pose = "SIGN"}]
+trigger = { hand = "left", hysteresis = 0.15, metric = "pinch_distance", range = [0.1, 0.35], type = "continuous" }
 
 [[bindings]]
 name = "play_pause"
-trigger = { hand = "left", step_dwell_ms = 5, steps = [
-  "FIVE",
-  "OPEN_PALM",
-  "FIST",
-], type = "sequence", window_ms = 1500 }
+trigger = { hand = "left", step_dwell_ms = 1000, steps = ["FIST", "FIVE"], type = "sequence", window_ms = 3000 }
 
 [[bindings]]
 name = "browser_back"
-require = [{ hand = "either", pose = "SIGN" }]
+require = [{hand = "either", pose = "SIGN"}]
 trigger = { direction = "left", hand = "either", min_displacement = 0.1, type = "swipe" }
 
 [[bindings]]
 name = "browser_forward"
-require = [{ hand = "either", pose = "SIGN" }]
+require = [{hand = "either", pose = "SIGN"}]
 trigger = { direction = "right", hand = "either", min_displacement = 0.1, type = "swipe" }
 
 [[bindings]]
 name = "toggleGestureControl"
-require = [{ hand = "right", pose = "OPEN_PALM" }]
-trigger = { hand = "left", step_dwell_ms = 80, steps = [
-  "FOUR",
-  "LLAP",
-  "FOUR",
-  "FIST",
-], type = "sequence", window_ms = 2500 }
+require = [{hand = "right", pose = "OPEN_PALM"}]
+trigger = { hand = "left", step_dwell_ms = 80, steps = ["FOUR", "LLAP", "FOUR", "FIST"], type = "sequence", window_ms = 2500 }

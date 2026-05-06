@@ -125,7 +125,7 @@ checkReboot() {
 
 # ── Step 1: Gather updates before doing anything ───────────────────────────────
 hdr "Syncing package databases..."
-paru -Sy 2>/dev/null
+paru -Sy >/dev/null 2>&1
 
 hdr "Checking for updates..."
 REPO_LINES=$(paru -Qu --repo 2>/dev/null | grep -v '\[ignored\]') || true
@@ -244,18 +244,19 @@ runWithBars() {
     # so mutations to innerPhaseSize/innerPid and writes to fd 7/8 are visible here.
     while IFS= read -r line; do
         # Outer event: installing/upgrading/reinstalling/removing
-        if [[ "$line" =~ ^[[:space:]]*\(([0-9]+)/([0-9]+)\)[[:space:]]+(installing|upgrading|reinstalling|removing)[[:space:]] ]]; then
+        if [[ "$line" =~ \(([0-9]+)/([0-9]+)\)[[:space:]]+(installing|upgrading|reinstalling|removing)[[:space:]] ]]; then
             echo "" >&7   # one tick on outer bar
         fi
 
         # Inner phase: any (N/M) line — track M; when M changes restart inner pv
-        if [[ "$line" =~ ^[[:space:]]*\(([0-9]+)/([0-9]+)\) ]]; then
+        if [[ "$line" =~ \(([0-9]+)/([0-9]+)\) ]]; then
             local m=${BASH_REMATCH[2]}
 
             if [[ "$m" != "$innerPhaseSize" ]]; then
                 # New phase: close old write-end, kill old pv, start a fresh one.
                 exec 8>&-
                 [[ -n "$innerPid" ]] && { kill "$innerPid" 2>/dev/null || true; }
+                wait "$innerPid" 2>/dev/null || true
                 rm -f "$innerPipe"; mkfifo "$innerPipe"
                 pv -c -l -s "$m" -N "phase   " < "$innerPipe" &
                 innerPid=$!
@@ -265,12 +266,13 @@ runWithBars() {
             fi
 
             echo "" >&8   # one tick on inner bar
-        elif [[ "$line" =~ [^[:space:]] ]]; then
-            # Non-progress, non-blank: surface as error/warning
+        elif [[ "$line" =~ (error|failed|warning|unable|missing|conflicting) ]]; then
+            # Real paru errors/warnings — let them through
             echo "$line" >&2
         fi
     done < <("$@" 2>&1)
 
+    # Close write-ends so pv processes see EOF on their FIFOs and exit.
     exec 7>&- 8>&-
     wait "$outerPvPid" "$innerPvPid" 2>/dev/null || true
 }

@@ -31,39 +31,10 @@ import pyfakewebcam
 DEBUG = False
 
 
-def loadDroidcamEndpoint():
-    cfg = os.path.expanduser("~/.config/droidcam")
-    host, port = "192.168.0.156", 4747
-    try:
-        with open(cfg) as f:
-            for line in f:
-                line = line.strip()
-                if line.startswith("ip="):
-                    host = line.split("=", 1)[1].strip() or host
-                elif line.startswith("port="):
-                    try:
-                        port = int(line.split("=", 1)[1].strip())
-                    except ValueError:
-                        pass
-    except FileNotFoundError:
-        pass
-    return host, port
-
-
-def isDroidcamReachable(host, port, timeout=1.0):
-    try:
-        sock = socket.create_connection((host, port), timeout=timeout)
-        sock.close()
-        return True
-    except Exception:
-        return False
-
-
 def parseArgs():
-    _dcHost, _dcPort = loadDroidcamEndpoint()
     p = argparse.ArgumentParser(description="GPU background removal virtual camera")
     p.add_argument("--input",      default="/dev/video20",
-                   help="Source v4l2 device (droidcam output)")
+                   help="Source v4l2 device")
     p.add_argument("--output",     default="/dev/video21",
                    help="Destination v4l2loopback device")
     p.add_argument("--width",      type=int, default=1280)
@@ -81,12 +52,6 @@ def parseArgs():
                    help="Skip TensorRT EP, use CUDA EP only")
     p.add_argument("--trt-cache",  default="~/.local/share/bgremove/trt_cache",
                    help="TensorRT engine cache directory (persists between runs)")
-    p.add_argument("--droidcam-host", default=_dcHost,
-                   help="Droidcam phone IP (default from ~/.config/droidcam)")
-    p.add_argument("--droidcam-port", type=int, default=_dcPort,
-                   help="Droidcam phone port (default from ~/.config/droidcam)")
-    p.add_argument("--no-droidcam-gate", action="store_true",
-                   help="Disable TCP reachability gate (use for non-droidcam inputs)")
     p.add_argument("--debug",      action="store_true")
     return p.parse_args()
 
@@ -317,27 +282,7 @@ def main():
     inferTotal  = 0.0
     cap         = None
 
-    probeIntervalSec = 2.0
-    lastProbeTime    = 0.0
-    lastProbeOk      = False
-
     while running:
-        if not args.no_droidcam_gate:
-            now = time.monotonic()
-            if now - lastProbeTime >= probeIntervalSec:
-                ok = isDroidcamReachable(args.droidcam_host, args.droidcam_port)
-                if ok != lastProbeOk:
-                    print(f"[bgremove] droidcam {'reachable' if ok else 'unreachable'} at {args.droidcam_host}:{args.droidcam_port}", flush=True)
-                lastProbeOk = ok
-                lastProbeTime = now
-            if not lastProbeOk:
-                camera.schedule_frame(placeholder)
-                if cap is not None:
-                    cap.release()
-                    cap = None
-                time.sleep(1.0)
-                continue
-
         # (Re)open input device if not available
         if cap is None or not cap.isOpened():
             if cap is not None:

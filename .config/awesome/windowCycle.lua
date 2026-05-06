@@ -8,7 +8,12 @@ local cycleSelector = require("cycleSelector")
 
 local M = {}
 
-local _clients = {}
+local _clients   = {}
+local _focusedIdx = 1
+
+local function getClientTitle(c)
+    return c.class or c.name or "?"
+end
 
 local function tagClients()
     local t = awful.screen.focused().selected_tag
@@ -30,32 +35,37 @@ end
 -- Returns client count so the caller can register the right slot count.
 function M.start()
     _clients = tagClients()
+    _focusedIdx = 1
     if #_clients >= 2 then
-        cycleSelector.show(_clients, 1)
+        cycleSelector.show(_clients, 1, getClientTitle)
     end
     return #_clients
 end
 
--- Highlight and focus the client at 1-based index.
-function M.activate(idx)
+-- Highlight and focus the client at 1-based slot index (reversed).
+function M.activate(slotIdx)
+    local idx = #_clients - slotIdx + 1
     local c = _clients[idx]
     if not c then return end
-    cycleSelector.show(_clients, idx)
+    cycleSelector.show(_clients, idx, getClientTitle)
     c:emit_signal("request::activate", "windowCycle", { raise = true })
 end
 
--- Keyboard entry point: open selector and move highlight by delta (+1/-1).
+-- Keyboard entry point: move selection by delta (+1/-1) in reversed order.
 function M.step(delta)
     if #_clients == 0 then
         _clients = tagClients()
-        cycleSelector.show(_clients, 1)
+        cycleSelector.show(_clients, 1, getClientTitle)
     end
-    local idx = cycleSelector.move(delta)
-    local c   = _clients[idx]
+    _focusedIdx = _focusedIdx + delta
+    if _focusedIdx < 1 then _focusedIdx = #_clients end
+    if _focusedIdx > #_clients then _focusedIdx = 1 end
+    local actualIdx = #_clients - _focusedIdx + 1
+    local c = _clients[actualIdx]
     if c then c:emit_signal("request::activate", "windowCycle", { raise = true }) end
 end
 
--- Promote focused client to master and close the selector.
+-- Promote selected client to master and close the selector.
 function M.commit()
     local focused = client.focus
     if focused then

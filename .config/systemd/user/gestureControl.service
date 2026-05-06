@@ -8,6 +8,7 @@ Type=simple
 Environment=PYTHONUNBUFFERED=1
 Environment=DISPLAY=:0
 Environment=XAUTHORITY=%h/.Xauthority
+Environment=LD_LIBRARY_PATH=/home/max/.local/share/gesturecontrol/cuda_shims
 ExecStart=%h/.local/share/gesturecontrol/venv/bin/python3 %h/gesturecontrol/gestureControl.py
 Restart=on-failure
 RestartSec=5
