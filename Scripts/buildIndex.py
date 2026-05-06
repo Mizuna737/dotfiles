@@ -241,6 +241,161 @@ def parseExistingIndex(tomlPath):
 
 
 # ---------------------------------------------------------------------------
+# Diff-based entry inference (avoids Qwen for small changes)
+# ---------------------------------------------------------------------------
+
+# Language-specific export/import patterns
+_EXPORT_PATTERNS = {
+    ".lua": {
+        "add": [
+            re.compile(r"\+\s*local\s+function\s+(\w+)"),
+            re.compile(r"\+\s*function\s+M\.(\w+)"),
+            re.compile(r"\+\s*function\s+(\w+)"),
+        ],
+        "remove": [
+            re.compile(r"\-\s*local\s+function\s+(\w+)"),
+            re.compile(r"\-\s*function\s+M\.(\w+)"),
+            re.compile(r"\-\s*function\s+(\w+)"),
+        ],
+    },
+    ".py": {
+        "add": [
+            re.compile(r"\+\s*def\s+(\w+)"),
+            re.compile(r"\+\s*class\s+(\w+)"),
+        ],
+        "remove": [
+            re.compile(r"\-\s*def\s+(\w+)"),
+            re.compile(r"\-\s*class\s+(\w+)"),
+        ],
+    },
+    ".js": {
+        "add": [
+            re.compile(r"\+\s*function\s+(\w+)"),
+            re.compile(r"\+\s*const\s+(\w+)\s*="),
+            re.compile(r"\+\s*exports\.(\w+)"),
+        ],
+        "remove": [
+            re.compile(r"\-\s*function\s+(\w+)"),
+            re.compile(r"\-\s*const\s+(\w+)\s*="),
+            re.compile(r"\-\s*exports\.(\w+)"),
+        ],
+    },
+    ".sh": {
+        "add": [
+            re.compile(r"\+\s*function\s+(\w+)"),
+            re.compile(r"\+\s*(\w+)\s*\(\)"),
+        ],
+        "remove": [
+            re.compile(r"\-\s*function\s+(\w+)"),
+            re.compile(r"\-\s*(\w+)\s*\(\)"),
+        ],
+    },
+}
+
+_IMPORT_PATTERNS = {
+    ".lua": [
+        re.compile(r"\+\s*local\s+\w+\s*=\s*require\([\"']([^\"']+)[\"']\)"),
+        re.compile(r"\+\s*local\s+M\s*=\s*require\([\"']([^\"']+)[\"']\)"),
+        re.compile(r"\+\s*require\([\"']([^\"']+)[\"']\)"),
+        re.compile(r"\-\s*local\s+\w+\s*=\s*require\([\"']([^\"']+)[\"']\)"),
+        re.compile(r"\-\s*local\s+M\s*=\s*require\([\"']([^\"']+)[\"']\)"),
+        re.compile(r"\-\s*require\([\"']([^\"']+)[\"']\)"),
+    ],
+    ".py": [
+        re.compile(r"\+\s*import\s+(\w+)"),
+        re.compile(r"\+\s*from\s+(\w+)"),
+        re.compile(r"\-\s*import\s+(\w+)"),
+        re.compile(r"\-\s*from\s+(\w+)"),
+    ],
+    ".js": [
+        re.compile(r'\+\s*import\s+.*from\s+[\'"]([^\'"]+)[\'"]'),
+        re.compile(r'\+\s*require\([\'"]([^\'"]+)[\'"]\)'),
+        re.compile(r'\-\s*import\s+.*from\s+[\'"]([^\'"]+)[\'"]'),
+        re.compile(r'\-\s*require\([\'"]([^\'"]+)[\'"]\)'),
+    ],
+}
+
+
+def inferEntryFromDiff(relPath, existingEntry, diffText):
+    """
+    Given a file's existing index entry and its git diff, infer updated
+    exports/deps without calling Qwen. Returns a new entry dict or None
+    if no meaningful changes were detected.
+    """
+    if not existingEntry:
+        return None
+    if not diffText:
+        return None
+
+    _, ext = os.path.splitext(relPath)
+    newExports = list(existingEntry.get("exports", []))
+    newDeps    = list(existingEntry.get("deps", []))
+    changed    = False
+
+    # Track added/removed exports
+    addedExports = set()
+    removedExports = set()
+    exportPatterns = _EXPORT_PATTERNS.get(ext, _EXPORT_PATTERNS.get(".lua", {}))
+    for patternGroup in ("add", "remove"):
+        for pat in exportPatterns.get(patternGroup, []):
+            for m in pat.finditer(diffText):
+                name = m.group(1)
+                if patternGroup == "add":
+                    addedExports.add(name)
+                else:
+                    removedExports.add(name)
+
+    # Update exports list
+    for name in addedExports:
+        if name not in newExports:
+            newExports.append(name)
+    for name in removedExports:
+        if name in newExports:
+            newExports.remove(name)
+    if addedExports or removedExports:
+        changed = True
+
+    # Track added/removed imports
+    addedDeps = set()
+    removedDeps = set()
+    importPatterns = _IMPORT_PATTERNS.get(ext, [])
+    for pat in importPatterns:
+        for m in pat.finditer(diffText):
+            dep = m.group(1)
+            isRemove = m.group(0).startswith("-")
+            if isRemove:
+                removedDeps.add(dep)
+            else:
+                addedDeps.add(dep)
+
+    for dep in addedDeps:
+        if dep not in newDeps:
+            newDeps.append(dep)
+    for dep in removedDeps:
+        if dep in newDeps:
+            newDeps.remove(dep)
+    if addedDeps or removedDeps:
+        changed = True
+
+    if not changed:
+        return None
+
+    newEntry = dict(existingEntry)
+    newEntry["exports"] = newExports
+    newEntry["deps"]    = newDeps
+    return newEntry
+
+
+def getGitDiff(relPath):
+    """Get the git diff for a file (vs HEAD). Returns empty string if no diff."""
+    result = subprocess.run(
+        ["git", "diff", "HEAD", "--", relPath],
+        cwd=REPO_ROOT, capture_output=True, text=True, timeout=10
+    )
+    return result.stdout if result.returncode == 0 else ""
+
+
+# ---------------------------------------------------------------------------
 # ctags → SYMBOLS.tsv
 # ---------------------------------------------------------------------------
 
@@ -553,6 +708,9 @@ def runBuild(fullRebuild, dryRun, verbose):
 
     newEntries = dict(carryOver)
 
+    inferredCount = 0  # files resolved via diff inference
+    qwenCount     = 0  # files that required Qwen
+
     with ModelSession(DEFAULT_MODEL, verbose=verbose) as session:
         for i, relPath in enumerate(needsQwen):
             absPath = os.path.join(REPO_ROOT, relPath)
@@ -560,13 +718,48 @@ def runBuild(fullRebuild, dryRun, verbose):
             if verbose:
                 print(f"[buildIndex] {relPath}", file=sys.stderr)
 
+            # Try diff-based inference first (avoids Qwen for small changes)
+            inferred = None
+            if not fullRebuild:
+                existing = existingEntries.get(relPath, {})
+                if existing and existing.get("purpose", "").startswith("TODO:"):
+                    existing = None  # stub → skip inference, needs fresh analysis
+                if existing:
+                    diffText = getGitDiff(relPath)
+                    if diffText:
+                        inferred = inferEntryFromDiff(relPath, existing, diffText)
+                    else:
+                        inferred = existing  # no diff, keep as-is
+                        inferred["sha1"] = fileHashes[relPath]
+                        newEntries[relPath] = inferred
+                        inferredCount += 1
+                        if verbose:
+                            print(f"[buildIndex] inferred (no diff): {relPath}", file=sys.stderr)
+                        continue
+
+            if inferred:
+                inferred["sha1"] = fileHashes[relPath]
+                newEntries[relPath] = inferred
+                inferredCount += 1
+                if verbose:
+                    print(f"[buildIndex] inferred from diff: {relPath}", file=sys.stderr)
+                continue
+
+            # Fall back to Qwen
             entry = callQwen(session, relPath, absPath, verbose)
             entry["sha1"] = fileHashes[relPath]
             newEntries[relPath] = entry
+            qwenCount += 1
 
             logData["responses"].append({"path": relPath, "entry": entry})
 
     logger.write(logData)
+
+    if not fullRebuild:
+        print(
+            f"[buildIndex] {inferredCount} inferred from diff, {qwenCount} via Qwen",
+            file=sys.stderr,
+        )
 
     # 8. Write INDEX.toml atomically
     sortedEntries = sorted(newEntries.items(), key=lambda x: x[0])
