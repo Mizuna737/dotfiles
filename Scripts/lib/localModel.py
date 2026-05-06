@@ -10,7 +10,7 @@ import subprocess
 import requests
 
 DEFAULT_MODEL = "qwen2.5-coder:7b-instruct-q4_K_M"
-DEFAULT_HOST  = "http://localhost:11434"
+DEFAULT_HOST  = "http://localhost:8080"
 
 # ---------------------------------------------------------------------------
 # TOON codec
