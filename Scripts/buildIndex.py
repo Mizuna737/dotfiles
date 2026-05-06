@@ -36,26 +36,6 @@ SKIP_FILENAME_PATTERNS = re.compile(
 )
 
 # Few-shot examples embedded in the Qwen prompt
-FEW_SHOT_EXAMPLES = """
-Example 1 — AwesomeWM Lua helper:
-File: .config/awesome/functions.lua  Language: Lua
-{
-  "purpose": "Window/tag/dropdown helpers for AwesomeWM",
-  "tags": ["awesome", "input"],
-  "exports": ["toggleDropdownApp", "moveToTag", "smartFocus"],
-  "deps": ["workspaceManager", "awful"]
-}
-
-Example 2 — Python systemd daemon:
-File: Scripts/bgremove.py  Language: Python
-{
-  "purpose": "Background removal daemon using TensorRT inference on webcam frames",
-  "tags": ["bgremove", "systemd"],
-  "exports": ["main", "InferenceWorker"],
-  "deps": ["droidcam", "bgremove.service"]
-}
-""".strip()
-
 SYSTEM_PROMPT = """\
 You are a code analysis assistant. Analyse the provided source file and return a JSON object.
 
@@ -69,8 +49,7 @@ Required fields:
   "exports"  — JSON array of top-level public names (functions, classes, commands); [] if none
   "deps"     — JSON array of other dotfiles modules/scripts this file imports or calls;
                exclude stdlib and distro packages; [] if none
-
-""" + FEW_SHOT_EXAMPLES
+"""
 
 
 # ---------------------------------------------------------------------------
@@ -406,7 +385,7 @@ def callQwen(session, relPath, absPath, verbose):
         if attempt == 1:
             prompt = "Your previous response was not valid JSON. Try again.\n\n" + prompt
 
-        raw = session.generate(prompt, system=SYSTEM_PROMPT, timeout=90, format="json")
+        raw = session.generate(prompt, system=SYSTEM_PROMPT, timeout=300, format="json")
         entry = parseQwenResponse(raw, relPath, verbose)
         if entry is not None:
             return entry

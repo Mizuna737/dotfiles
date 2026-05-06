@@ -9,8 +9,9 @@ import subprocess
 
 import requests
 
-DEFAULT_MODEL = "qwen2.5-coder:7b-instruct-q4_K_M"
+DEFAULT_MODEL = "Qwen3.6-35B-A3B-UD-Q6_K.gguf"
 DEFAULT_HOST  = "http://localhost:8080"
+DEFAULT_API_KEY = "opencode-local"
 
 # ---------------------------------------------------------------------------
 # TOON codec
@@ -129,7 +130,7 @@ def toonDecode(text):
 
 class ModelSession:
     """
-    Context manager: keeps model resident during job, unloads on exit.
+    Context manager: sends requests to an OpenAI-compatible server.
 
     Usage:
         with ModelSession() as sess:
@@ -140,7 +141,7 @@ class ModelSession:
         self.model   = model
         self.host    = host
         self.verbose = verbose
-        self._url    = host.rstrip("/") + "/api/generate"
+        self._url    = host.rstrip("/") + "/v1/chat/completions"
 
     def __enter__(self):
         if self.verbose:
@@ -148,66 +149,57 @@ class ModelSession:
         return self
 
     def __exit__(self, *_):
-        # keep_alive=0 tells Ollama to evict the model from VRAM immediately
-        try:
-            requests.post(self._url, json={
-                "model": self.model,
-                "prompt": "",
-                "keep_alive": 0,
-                "stream": False,
-            }, timeout=10)
-            if self.verbose:
-                print(f"[ModelSession] unloaded {self.model}", file=sys.stderr)
-        except Exception as e:
-            if self.verbose:
-                print(f"[ModelSession] unload warning: {e}", file=sys.stderr)
-            # Fallback: subprocess ollama stop
-            try:
-                subprocess.run(["ollama", "stop", self.model], timeout=5, capture_output=True)
-            except Exception:
-                pass
+        # Server keeps model resident; nothing to unload
+        pass
 
-    def generate(self, prompt, system=None, timeout=60, format=None):
+    def generate(self, prompt, system=None, timeout=120, format=None):
         """
-        POST to /api/generate with keep_alive="5m" so the model stays loaded
-        between calls in the same session. Retries once on connection error.
+        POST to /v1/chat/completions. Retries once on connection error.
         Pass format="json" to force structured JSON output.
         """
+        messages = []
+        if system is not None:
+            messages.append({"role": "system", "content": system})
+        messages.append({"role": "user", "content": prompt})
+
         payload = {
             "model": self.model,
-            "prompt": prompt,
+            "messages": messages,
             "stream": False,
-            "keep_alive": "5m",
-            "options": {"temperature": 0.1},
+            "max_tokens": 256,
+            "temperature": 0.0,
         }
-        if system is not None:
-            payload["system"] = system
         if format is not None:
-            payload["format"] = format
+            payload["response_format"] = {"type": "json_object"}
+
+        headers = {"Authorization": f"Bearer {DEFAULT_API_KEY}"}
 
         for attempt in range(2):
+            resp = None
             try:
-                resp = requests.post(self._url, json=payload, timeout=timeout)
+                resp = requests.post(self._url, json=payload, headers=headers, timeout=timeout)
                 if resp.status_code == 404:
                     print(
-                        f"Model not found. Pull it with:\n  ollama pull {self.model}",
+                        f"Model not found. Available:\n  {self.host}/v1/models",
                         file=sys.stderr,
                     )
                     sys.exit(3)
                 resp.raise_for_status()
-                return resp.json()["response"].strip()
+                body = resp.json()
+                return body["choices"][0]["message"]["content"].strip()
             except requests.exceptions.ConnectionError as e:
                 if attempt == 0:
                     if self.verbose:
                         print(f"[ModelSession] retry after connection error: {e}", file=sys.stderr)
                     continue
-                print(f"Ollama unreachable at {self._url}: {e}", file=sys.stderr)
+                print(f"OpenAI-compatible server unreachable at {self._url}: {e}", file=sys.stderr)
                 sys.exit(2)
             except requests.exceptions.Timeout:
                 print(f"Model call timed out after {timeout}s", file=sys.stderr)
                 sys.exit(2)
             except requests.exceptions.HTTPError as e:
-                print(f"HTTP error from Ollama: {e}", file=sys.stderr)
+                body = resp.text[:500] if resp is not None else "(no response)"
+                print(f"HTTP error from server: {e}\n{body}", file=sys.stderr)
                 sys.exit(2)
 
 
