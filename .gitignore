@@ -25,3 +25,4 @@ __pycache__/
 # Services with local secrets
 adguard/
 homeassistant/
+# test
