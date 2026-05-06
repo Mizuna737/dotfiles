@@ -565,8 +565,9 @@ def runBuild(fullRebuild, dryRun, verbose):
     with ModelSession(DEFAULT_MODEL, verbose=verbose) as session:
         for i, relPath in enumerate(needsQwen):
             absPath = os.path.join(REPO_ROOT, relPath)
+            print(f"[{i+1}/{len(needsQwen)}] {relPath}", file=sys.stdout, flush=True)
             if verbose:
-                print(f"[buildIndex] [{i+1}/{len(needsQwen)}] {relPath}", file=sys.stderr)
+                print(f"[buildIndex] {relPath}", file=sys.stderr)
 
             entry = callQwen(session, relPath, absPath, verbose)
             entry["sha1"] = fileHashes[relPath]
