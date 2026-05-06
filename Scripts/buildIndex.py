@@ -719,31 +719,23 @@ def runBuild(fullRebuild, dryRun, verbose):
                 print(f"[buildIndex] {relPath}", file=sys.stderr)
 
             # Try diff-based inference first (avoids Qwen for small changes)
-            inferred = None
             if not fullRebuild:
                 existing = existingEntries.get(relPath, {})
-                if existing and existing.get("purpose", "").startswith("TODO:"):
-                    existing = None  # stub → skip inference, needs fresh analysis
-                if existing:
+                isStub = existing and existing.get("purpose", "").startswith("TODO:")
+                if existing and not isStub:
                     diffText = getGitDiff(relPath)
                     if diffText:
                         inferred = inferEntryFromDiff(relPath, existing, diffText)
                     else:
                         inferred = existing  # no diff, keep as-is
+
+                    if inferred:
                         inferred["sha1"] = fileHashes[relPath]
                         newEntries[relPath] = inferred
                         inferredCount += 1
                         if verbose:
-                            print(f"[buildIndex] inferred (no diff): {relPath}", file=sys.stderr)
+                            print(f"[buildIndex] inferred: {relPath}", file=sys.stderr)
                         continue
-
-            if inferred:
-                inferred["sha1"] = fileHashes[relPath]
-                newEntries[relPath] = inferred
-                inferredCount += 1
-                if verbose:
-                    print(f"[buildIndex] inferred from diff: {relPath}", file=sys.stderr)
-                continue
 
             # Fall back to Qwen
             entry = callQwen(session, relPath, absPath, verbose)

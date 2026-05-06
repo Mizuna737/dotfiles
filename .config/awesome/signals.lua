@@ -170,3 +170,4 @@ onEnd("window_cycle", function(hand)
 	_pendingWinCommit = scheduleCommit(_pendingWinCommit, "window_cycle")
 end)
 
+# optimization test
