@@ -166,8 +166,9 @@ class ModelSession:
             "model": self.model,
             "messages": messages,
             "stream": False,
-            "max_tokens": 256,
+            "max_tokens": 512,
             "temperature": 0.0,
+            "chat_template_kwargs": {"enable_thinking": False},
         }
         if format is not None:
             payload["response_format"] = {"type": "json_object"}

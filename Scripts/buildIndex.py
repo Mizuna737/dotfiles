@@ -36,7 +36,18 @@ SKIP_FILENAME_PATTERNS = re.compile(
 )
 
 # Few-shot examples embedded in the Qwen prompt
-SYSTEM_PROMPT = """\
+FEW_SHOT_EXAMPLES = """
+
+Examples:
+
+Lua helper:
+{ "purpose": "Window/tag/dropdown helpers for AwesomeWM", "tags": ["awesome", "input"], "exports": ["toggleDropdownApp", "moveToTag", "smartFocus"], "deps": ["workspaceManager", "awful"] }
+
+Python daemon:
+{ "purpose": "Background removal daemon using TensorRT inference on webcam frames", "tags": ["bgremove", "systemd"], "exports": ["main", "InferenceWorker"], "deps": ["droidcam", "bgremove.service"] }
+"""
+
+SYSTEM_PROMPT = """/no_think
 You are a code analysis assistant. Analyse the provided source file and return a JSON object.
 
 Respond with ONLY a JSON object — no markdown, no explanation, no extra text.
@@ -49,7 +60,8 @@ Required fields:
   "exports"  — JSON array of top-level public names (functions, classes, commands); [] if none
   "deps"     — JSON array of other dotfiles modules/scripts this file imports or calls;
                exclude stdlib and distro packages; [] if none
-"""
+
+""" + FEW_SHOT_EXAMPLES
 
 
 # ---------------------------------------------------------------------------
