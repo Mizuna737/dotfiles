@@ -1206,7 +1206,7 @@ parseQwenResponse	Scripts/buildIndex.py	564
 _normalizeStringList	Scripts/buildIndex.py	616		
 stubEntry	Scripts/buildIndex.py	625		
 runBuild	Scripts/buildIndex.py	638		
-main	Scripts/buildIndex.py	776		
+main	Scripts/buildIndex.py	785		
 NOTEEOF	Scripts/captureTaskRemote.sh	28		
 DEFAULT_MODEL	Scripts/codeSearch.py	17		
 DEFAULT_EXTS	Scripts/codeSearch.py	18		
