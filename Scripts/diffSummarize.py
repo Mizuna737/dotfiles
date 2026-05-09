@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""diffSummarize.py — Summarise a git diff with a local Ollama model."""
+"""diffSummarize.py — Summarise a git diff with a local model."""
 
 import sys
 import os
@@ -11,9 +11,9 @@ import pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from lib.localModel import ModelSession, toonEncode, toonDecode, RingLogger, selftest as libSelftest
 
-DEFAULT_MODEL  = "qwen2.5-coder:7b-instruct-q4_K_M"
+DEFAULT_MODEL  = "qwen3.6-35b"
 LOG_DIR        = "/tmp/diffSummarizeLog"
-MAX_DIFF_CHARS = 12000   # trim large diffs to fit 7b context window
+MAX_DIFF_CHARS = 12000
 MAX_SCAN_CHARS = 20000   # cap for --secretScan blob
 MAX_FILE_CHARS = 4000    # per-file cap for untracked files in secret scan
 

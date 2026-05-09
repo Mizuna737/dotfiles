@@ -197,7 +197,7 @@ class ChatRequestHandler:
         elif model == "claude":
             fullResponse, turnEvents = self._handleClaude(sessionId, content)
 
-        if fullResponse:
+        if fullResponse or turnEvents:
             conn3 = sqlite3.connect(CHAT_DB_PATH)
             eventsJson = json.dumps(turnEvents) if model == "qwen" and turnEvents else None
             conn3.execute("INSERT INTO messages (id, sessionId, role, content, createdAt, events) VALUES (?, ?, ?, ?, ?, ?)", (str(uuid.uuid4()), sessionId, "assistant", fullResponse, int(time.time()), eventsJson))

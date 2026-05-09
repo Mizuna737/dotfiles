@@ -528,7 +528,7 @@
             continue;
           }
         }
-        appendMessage(msg.role, msg.content, msg.createdAt, false);
+        if (msg.content) appendMessage(msg.role, msg.content, msg.createdAt, false);
       }
       thread.scrollTop = thread.scrollHeight;
     } catch(e) {
