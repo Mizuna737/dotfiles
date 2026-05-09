@@ -179,11 +179,11 @@ def serializeIndexToml(meta, entries):
     ]
     for relPath, entry in entries:
         lines.append(f'[{_tomlStr(relPath)}]')
-        lines.append(f'purpose = {_tomlStr(entry["purpose"])}')
-        lines.append(f'tags = {_tomlStrArray(entry["tags"])}')
-        lines.append(f'exports = {_tomlStrArray(entry["exports"])}')
-        lines.append(f'deps = {_tomlStrArray(entry["deps"])}')
-        lines.append(f'sha1 = "{entry["sha1"]}"')
+        lines.append(f'purpose = {_tomlStr(entry.get("purpose", ""))}')
+        lines.append(f'tags = {_tomlStrArray(entry.get("tags", []))}')
+        lines.append(f'exports = {_tomlStrArray(entry.get("exports", []))}')
+        lines.append(f'deps = {_tomlStrArray(entry.get("deps", []))}')
+        lines.append(f'sha1 = "{entry.get("sha1", "")}"')
         lines.append("")
     return "\n".join(lines)
 
@@ -236,6 +236,13 @@ def parseExistingIndex(tomlPath):
 
     if currentKey and currentEntry:
         entries[currentKey] = currentEntry
+
+    for entry in entries.values():
+        entry.setdefault("purpose", "")
+        entry.setdefault("tags", [])
+        entry.setdefault("exports", [])
+        entry.setdefault("deps", [])
+        entry.setdefault("sha1", "")
 
     return entries
 
