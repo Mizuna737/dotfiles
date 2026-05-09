@@ -302,10 +302,10 @@ _IMPORT_PATTERNS = {
         re.compile(r"\-\s*require\([\"']([^\"']+)[\"']\)"),
     ],
     ".py": [
-        re.compile(r"\+\s*import\s+(\w+)"),
-        re.compile(r"\+\s*from\s+(\w+)"),
-        re.compile(r"\-\s*import\s+(\w+)"),
-        re.compile(r"\-\s*from\s+(\w+)"),
+        re.compile(r"\+\s*import\s+([\w.,\s]+)"),
+        re.compile(r"\+\s*from\s+([\w.]+)"),
+        re.compile(r"\-\s*import\s+([\w.,\s]+)"),
+        re.compile(r"\-\s*from\s+([\w.]+)"),
     ],
     ".js": [
         re.compile(r'\+\s*import\s+.*from\s+[\'"]([^\'"]+)[\'"]'),
@@ -335,7 +335,7 @@ def inferEntryFromDiff(relPath, existingEntry, diffText):
     # Track added/removed exports
     addedExports = set()
     removedExports = set()
-    exportPatterns = _EXPORT_PATTERNS.get(ext, _EXPORT_PATTERNS.get(".lua", {}))
+    exportPatterns = _EXPORT_PATTERNS.get(ext, {})
     for patternGroup in ("add", "remove"):
         for pat in exportPatterns.get(patternGroup, []):
             for m in pat.finditer(diffText):
@@ -361,12 +361,12 @@ def inferEntryFromDiff(relPath, existingEntry, diffText):
     importPatterns = _IMPORT_PATTERNS.get(ext, [])
     for pat in importPatterns:
         for m in pat.finditer(diffText):
-            dep = m.group(1)
             isRemove = m.group(0).startswith("-")
-            if isRemove:
-                removedDeps.add(dep)
-            else:
-                addedDeps.add(dep)
+            for dep in (d.strip() for d in m.group(1).split(",") if d.strip()):
+                if isRemove:
+                    removedDeps.add(dep)
+                else:
+                    addedDeps.add(dep)
 
     for dep in addedDeps:
         if dep not in newDeps:

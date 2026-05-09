@@ -6,13 +6,14 @@ import os
 import json
 import argparse
 import pathlib
+import re
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from lib.localModel import ModelSession, toonEncode, toonDecode, RingLogger, selftest as libSelftest
 
 DEFAULT_MODEL = "qwen2.5:7b-instruct"
 LOG_DIR       = "/tmp/fileSummaryLog"
-MAX_LINES     = 800   # trim huge files to keep prompt manageable
+MAX_FILE_BYTES = 12 * 1024   # 12KB byte cap for prompt
 
 
 SYSTEM_PROMPT = """\
@@ -29,27 +30,46 @@ Do not output anything except the JSON object."""
 
 
 def summariseFile(session, path, verbose):
-    """Send file contents to the model and return its raw response."""
+    """Send file contents to the model with one retry on JSON parse failure."""
     try:
-        with open(path, "r", errors="replace") as f:
-            lines = f.readlines()
+        with open(path, "rb") as f:
+            rawBytes = f.read(MAX_FILE_BYTES + 1)
+        truncated = len(rawBytes) > MAX_FILE_BYTES
+        contents = rawBytes[:MAX_FILE_BYTES].decode("utf-8", errors="replace")
     except OSError as e:
-        print(f"Cannot read {path}: {e}", file=sys.stderr)
+        print(f"[fileSummary] cannot read {path}: {e}", file=sys.stderr)
         return None
 
-    trimmed = "".join(lines[:MAX_LINES])
-    if len(lines) > MAX_LINES and verbose:
-        print(f"[fileSummary] {path}: trimmed to {MAX_LINES} lines", file=sys.stderr)
+    if truncated and verbose:
+        print(f"[fileSummary] {path}: trimmed to 12KB", file=sys.stderr)
 
     userPrompt = (
         f"File to summarise: {path}\n\n"
-        f"<file>\n{trimmed}\n</file>\n\n"
+        f"<file>\n{contents}\n</file>\n\n"
         "Return a JSON object with fields path, purpose, keyExports, deps."
     )
     if verbose:
         print(f"[fileSummary] querying model for {path}...", file=sys.stderr)
 
-    return session.generate(userPrompt, system=SYSTEM_PROMPT, timeout=90, format="json")
+    for attempt in range(2):
+        if attempt == 1:
+            userPrompt = "Your previous response was not valid JSON. Try again.\n\n" + userPrompt
+        raw = session.generate(userPrompt, system=SYSTEM_PROMPT, timeout=90, format="json")
+        try:
+            obj = json.loads(raw)
+            if isinstance(obj, dict):
+                return raw
+        except json.JSONDecodeError:
+            cleaned = re.sub(r'```[^\n]*\n?', '', raw).strip()
+            try:
+                obj = json.loads(cleaned)
+                if isinstance(obj, dict):
+                    return raw
+            except json.JSONDecodeError:
+                if attempt == 0 and verbose:
+                    print(f"[fileSummary] JSON parse failed for {path}, retrying...", file=sys.stderr)
+                continue
+    return None
 
 
 def main():
@@ -84,41 +104,34 @@ def main():
         for path in paths:
             raw = summariseFile(session, path, args.verbose)
             if raw is None:
-                continue
-            logData["responses"].append({"path": path, "raw": raw})
-
-            # Parse the JSON object the model returned
-            try:
-                obj = json.loads(raw)
-                if not isinstance(obj, dict):
-                    raise ValueError("not a JSON object")
-
-                def norm(v, limit=None):
-                    if v is None or v == "":
-                        return "-"
-                    if isinstance(v, list):
-                        items = [str(x).strip() for x in v if str(x).strip()]
-                        if limit:
-                            items = items[:limit]
-                        return ",".join(items) or "-"
-                    return str(v).strip() or "-"
-
-                row = {
-                    "path":       path,  # always stamp the real path
-                    "purpose":    norm(obj.get("purpose")),
-                    "keyExports": norm(obj.get("keyExports"), limit=5),
-                    "deps":       norm(obj.get("deps"), limit=5),
-                }
-                allRows.append(row)
-            except (ValueError, json.JSONDecodeError):
-                if args.verbose:
-                    print(f"[fileSummary] JSON parse failed for {path}, raw:\n{raw}", file=sys.stderr)
                 allRows.append({
                     "path":       path,
                     "purpose":    "parse-failed",
                     "keyExports": "-",
                     "deps":       "-",
                 })
+                continue
+            logData["responses"].append({"path": path, "raw": raw})
+
+            obj = json.loads(raw)
+
+            def norm(v, limit=None):
+                if v is None or v == "":
+                    return "-"
+                if isinstance(v, list):
+                    items = [str(x).strip() for x in v if str(x).strip()]
+                    if limit:
+                        items = items[:limit]
+                    return ",".join(items) or "-"
+                return str(v).strip() or "-"
+
+            row = {
+                "path":       path,  # always stamp the real path
+                "purpose":    norm(obj.get("purpose")),
+                "keyExports": norm(obj.get("keyExports"), limit=5),
+                "deps":       norm(obj.get("deps"), limit=5),
+            }
+            allRows.append(row)
 
     logger.write(logData)
 

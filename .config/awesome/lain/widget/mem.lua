@@ -26,23 +26,17 @@ local function factory(args)
 			for k, v in gmatch(line, "([%a]+):[%s]+([%d]+).+") do
 				if k == "MemTotal" then
 					mem_now.total = floor(v * bToGB)
-				elseif k == "MemFree" then
-					mem_now.free = floor(v * bToGB)
-				elseif k == "Buffers" then
-					mem_now.buf = floor(v * bToGB)
-				elseif k == "Cached" then
-					mem_now.cache = floor(v * bToGB)
+				elseif k == "MemAvailable" then
+					mem_now.available = floor(v * bToGB)
 				elseif k == "SwapTotal" then
 					mem_now.swap = floor(v * bToGB)
 				elseif k == "SwapFree" then
 					mem_now.swapf = floor(v * bToGB)
-				elseif k == "SReclaimable" then
-					mem_now.srec = floor(v * bToGB)
 				end
 			end
 		end
 
-		mem_now.used = mem_now.total - mem_now.free - mem_now.buf - mem_now.cache - mem_now.srec
+		mem_now.used = mem_now.total - mem_now.available
 		mem_now.swapused = mem_now.swap - mem_now.swapf
 		mem_now.perc = math.floor(mem_now.used / mem_now.total * 100)
 

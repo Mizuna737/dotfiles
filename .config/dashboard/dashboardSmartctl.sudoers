@@ -1,0 +1,1 @@
+max ALL=(root) NOPASSWD: /usr/bin/smartctl

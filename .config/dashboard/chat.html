@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --bg2: #1a1a1a;
+      --bg3: #222;
+      --fg: #e0e0e0;
+      --fgDim: #888;
+      --border: #333;
+      --accent: #7ecf8e;
+      --accent2: #cfb97e;
+      --accent3: #7eaecf;
+      --danger: #cf7e7e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--bg);
+      color: var(--fg);
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── top bar ── */
+    #topBar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      flex-shrink: 0;
+    }
+    #topBar h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.05em;
+      color: var(--fg);
+    }
+    #backBtn {
+      background: none;
+      border: none;
+      color: var(--fgDim);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 2px 6px;
+      display: none;
+    }
+    #sessionBadge {
+      font-size: 0.65rem;
+      padding: 2px 7px;
+      border-radius: 3px;
+      font-weight: 500;
+      display: none;
+    }
+    #sessionBadge.qwen  { background: var(--accent2); color: #000; }
+    #sessionBadge.claude { background: var(--accent3); color: #000; }
+    #topTitle { flex: 1; font-size: 0.8rem; color: var(--fgDim); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+    /* ── error banner ── */
+    #errorBanner {
+      display: none;
+      background: var(--danger);
+      color: #000;
+      font-size: 0.8rem;
+      padding: 6px 16px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    /* ── main content area ── */
+    #main { flex: 1; overflow: hidden; position: relative; }
+
+    /* ── session list ── */
+    #sessionList {
+      height: 100%;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    #sessionItems { flex: 1; overflow-y: auto; }
+    .sessionRow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .sessionRow:hover { background: var(--bg2); }
+    .sessionRow .badge {
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+    .sessionRow .badge.qwen { background: var(--accent2); color: #000; }
+    .sessionRow .badge.claude { background: var(--accent3); color: #000; }
+    .sessionRow .rowTitle { flex: 1; font-size: 0.85rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .sessionRow .rowTime  { font-size: 0.7rem; color: var(--fgDim); flex-shrink: 0; }
+    #newSessionArea {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+      background: var(--bg2);
+      flex-shrink: 0;
+    }
+    #newSessionArea p { font-size: 0.8rem; color: var(--fgDim); margin-bottom: 10px; }
+    .modelBtns { display: flex; gap: 10px; }
+    .modelBtn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      color: var(--fg);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .modelBtn:hover { border-color: var(--accent); }
+    .modelBtn.qwen:hover  { border-color: var(--accent2); }
+    .modelBtn.claude:hover { border-color: var(--accent3); }
+
+    /* ── chat thread ── */
+    #chatView {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      display: none;
+    }
+    #messageThread {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .msgBubble {
+      max-width: 85%;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .msgBubble.user  { align-self: flex-end; align-items: flex-end; }
+    .msgBubble.assistant { align-self: flex-start; align-items: flex-start; }
+    .msgBubble .roleLabel { font-size: 0.65rem; color: var(--fgDim); }
+    .msgBubble .bubbleText {
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid var(--border);
+    }
+    .msgBubble.user .bubbleText  { background: var(--accent); color: #000; border-color: var(--accent); }
+    .msgBubble.assistant .bubbleText { background: var(--bg2); }
+    .msgBubble .bubbleTime { font-size: 0.65rem; color: var(--fgDim); }
+    .cursor::after { content: '▌'; animation: blink 1s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .agentTurn {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-self: flex-start;
+      max-width: 90%;
+    }
+    .toolRow {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.75rem;
+      overflow: hidden;
+    }
+    .toolRowHeader {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px;
+      cursor: pointer;
+      user-select: none;
+      color: var(--fgDim);
+    }
+    .toolRowHeader:hover { background: var(--bg2); }
+    .toolRowName { color: var(--accent2); font-weight: 500; flex-shrink: 0; }
+    .toolRowPreview { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .toolRowToggle { flex-shrink: 0; }
+    .toolRowBody {
+      display: none;
+      padding: 8px 10px;
+      border-top: 1px solid var(--border);
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: var(--fg);
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 0.75rem;
+    }
+    .toolRow.expanded .toolRowBody { display: block; }
+    .thinkingBlock {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent3);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .thinkingHeader {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px;
+      cursor: pointer;
+      user-select: none;
+      color: var(--accent3);
+      font-size: 0.75rem;
+    }
+    .thinkingHeader:hover { background: var(--bg2); }
+    .thinkingToggle { flex-shrink: 0; }
+    .thinkingBody {
+      display: none;
+      padding: 8px 10px;
+      border-top: 1px solid var(--border);
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--fgDim);
+      font-style: italic;
+      font-size: 0.78rem;
+      line-height: 1.5;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .thinkingBlock.expanded .thinkingBody { display: block; }
+    .thinkingBlock.streaming .thinkingHeader { color: var(--accent3); }
+
+    /* ── input bar ── */
+    #inputBar {
+      display: flex;
+      gap: 8px;
+      padding: 10px 16px;
+      padding-bottom: calc(10px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--border);
+      background: var(--bg2);
+      flex-shrink: 0;
+    }
+    #msgInput {
+      flex: 1;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--fg);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      padding: 8px 10px;
+      resize: none;
+      max-height: 8em;
+      overflow-y: auto;
+      line-height: 1.4;
+    }
+    #msgInput:focus { outline: none; border-color: var(--accent); }
+    #sendBtn {
+      background: var(--accent);
+      border: none;
+      border-radius: 4px;
+      color: #000;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 0 14px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    #sendBtn:disabled { opacity: 0.4; cursor: default; }
+
+    /* ── auth modal ── */
+    #authModal {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.8);
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    #authModal.visible { display: flex; }
+    .authBox {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 24px;
+      width: 90%;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .authBox h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 0.05em; }
+    .authBox input {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--fg);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.9rem;
+      padding: 8px 10px;
+    }
+    .authBox input:focus { outline: none; border-color: var(--accent); }
+    .authBox button {
+      background: var(--accent);
+      border: none;
+      border-radius: 4px;
+      color: #000;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- auth modal -->
+  <div id="authModal">
+    <div class="authBox">
+      <h2>AUTHENTICATE</h2>
+      <input id="tokenInput" type="password" placeholder="Bearer token">
+      <button id="authConfirm">Connect</button>
+    </div>
+  </div>
+
+  <!-- top bar -->
+  <div id="topBar">
+    <button id="backBtn" title="Sessions">&#8592;</button>
+    <div id="sessionBadge"></div>
+    <h1 id="topTitle">CHAT</h1>
+  </div>
+
+  <!-- error banner -->
+  <div id="errorBanner"></div>
+
+  <!-- main -->
+  <div id="main">
+
+    <!-- session list -->
+    <div id="sessionList">
+      <div id="sessionItems"></div>
+      <div id="newSessionArea">
+        <p>Start a new conversation:</p>
+        <div class="modelBtns">
+          <button class="modelBtn qwen"  onclick="createSession('qwen')">Qwen</button>
+          <button class="modelBtn claude" onclick="createSession('claude')">Claude</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- chat view -->
+    <div id="chatView">
+      <div id="messageThread"></div>
+      <div id="inputBar">
+        <textarea id="msgInput" rows="1" placeholder="Message\u2026"></textarea>
+        <button id="sendBtn">Send</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+  let authToken = localStorage.getItem('authToken') || '';
+  let currentSessionId = null;
+  let currentModel = null;
+  let isStreaming = false;
+  let titleSet = false;
+
+  if (!authToken) {
+    document.getElementById('authModal').classList.add('visible');
+  } else {
+    init();
+  }
+
+  document.getElementById('authConfirm').addEventListener('click', function() {
+    var token = document.getElementById('tokenInput').value.trim();
+    if (token) {
+      authToken = token;
+      localStorage.setItem('authToken', token);
+      document.getElementById('authModal').classList.remove('visible');
+      init();
+    }
+  });
+
+  document.getElementById('tokenInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('authConfirm').click();
+    }
+  });
+
+  function init() {
+    var lastId = localStorage.getItem('lastSessionId');
+    if (lastId) {
+      openSession(lastId);
+    } else {
+      loadSessions();
+    }
+  }
+
+  function showSessionListView() {
+    document.getElementById('chatView').style.display = 'none';
+    document.getElementById('sessionList').style.display = 'flex';
+    document.getElementById('backBtn').style.display = 'none';
+    document.getElementById('sessionBadge').style.display = 'none';
+    document.getElementById('topTitle').textContent = 'CHAT';
+    currentSessionId = null;
+    titleSet = false;
+  }
+
+  function showChatView(sessionId, model, title) {
+    document.getElementById('sessionList').style.display = 'none';
+    document.getElementById('chatView').style.display = 'flex';
+    document.getElementById('backBtn').style.display = 'block';
+    var badge = document.getElementById('sessionBadge');
+    badge.textContent = model === 'qwen' ? 'Q' : 'C';
+    badge.className = 'badge ' + model;
+    badge.style.display = 'inline-block';
+    var displayTitle = title || sessionId;
+    document.getElementById('topTitle').textContent = displayTitle.slice(0, 30);
+    localStorage.setItem('lastSessionId', sessionId);
+  }
+
+  function makeFetch(url, opts) {
+    opts = opts || {};
+    opts.headers = opts.headers || {};
+    opts.headers['Authorization'] = 'Bearer ' + authToken;
+    if (opts.body && typeof opts.body === 'object') {
+      opts.headers['Content-Type'] = 'application/json';
+      opts.body = JSON.stringify(opts.body);
+    }
+    return fetch(url, opts);
+  }
+
+  async function loadSessions() {
+    try {
+      var res = await makeFetch('/chat/sessions');
+      if (!res.ok) throw new Error('unauthorized');
+      var sessions = await res.json();
+      var container = document.getElementById('sessionItems');
+      container.innerHTML = '';
+      for (var i = 0; i < sessions.length; i++) {
+        var s = sessions[i];
+        var row = document.createElement('div');
+        row.className = 'sessionRow';
+        var badgeText = s.model === 'qwen' ? 'Q' : 'C';
+        row.innerHTML = '<span class="badge ' + s.model + '">' + badgeText + '</span>' +
+          '<span class="rowTitle">' + escapeHtml(s.title || s.id) + '</span>' +
+          '<span class="rowTime">' + formatTime(s.createdAt) + '</span>';
+        (function(session) {
+          row.addEventListener('click', function() {
+            openSession(session.id, session.model, session.title);
+          });
+        })(s);
+        container.appendChild(row);
+      }
+    } catch(e) {
+      showError('Failed to load sessions');
+    }
+  }
+
+  async function createSession(model) {
+    try {
+      var res = await makeFetch('/chat/sessions', { method: 'POST', body: { model: model } });
+      if (!res.ok) throw new Error('failed');
+      var data = await res.json();
+      titleSet = false;
+      openSession(data.id, data.model, data.id);
+    } catch(e) {
+      showError('Failed to create session');
+    }
+  }
+
+  async function openSession(id, model, title) {
+    currentSessionId = id;
+    currentModel = model;
+    titleSet = false;
+    await loadHistory(id);
+    showChatView(id, model, title || id);
+  }
+
+  async function loadHistory(sessionId) {
+    try {
+      var res = await makeFetch('/chat/sessions/' + sessionId + '/history');
+      if (!res.ok) throw new Error('unauthorized');
+      var history = await res.json();
+      var thread = document.getElementById('messageThread');
+      thread.innerHTML = '';
+      for (var i = 0; i < history.length; i++) {
+        var msg = history[i];
+        if (msg.role === 'assistant' && msg.events) {
+          var events;
+          try { events = JSON.parse(msg.events); } catch(e) { events = null; }
+          if (events && events.length) {
+            var turnWrapper = document.createElement('div');
+            turnWrapper.className = 'agentTurn';
+            thread.appendChild(turnWrapper);
+            for (var j = 0; j < events.length; j++) {
+              var evt = events[j];
+              if (evt.type === 'thinking') {
+                var tw = createThinkingBlock(turnWrapper);
+                tw.append(evt.content);
+                tw.finish();
+              } else if (evt.type === 'tool') {
+                appendToolRow(turnWrapper, evt.tool, evt.input, evt.output);
+              } else if (evt.type === 'text') {
+                var textDiv = createTextBubble(turnWrapper);
+                textDiv.textContent = evt.content;
+                textDiv.classList.remove('cursor');
+              }
+            }
+            continue;
+          }
+        }
+        appendMessage(msg.role, msg.content, msg.createdAt, false);
+      }
+      thread.scrollTop = thread.scrollHeight;
+    } catch(e) {
+      showError('Failed to load history');
+    }
+  }
+
+  function appendMessage(role, content, ts, streaming) {
+    var bubble = document.createElement('div');
+    bubble.className = 'msgBubble ' + role;
+
+    var roleLabel = document.createElement('span');
+    roleLabel.className = 'roleLabel';
+    roleLabel.textContent = role === 'user' ? 'you' : (currentModel || 'assistant');
+
+    var textDiv = document.createElement('div');
+    textDiv.className = 'bubbleText';
+    textDiv.textContent = content;
+    if (streaming === true) textDiv.classList.add('cursor');
+
+    var timeSpan = document.createElement('span');
+    timeSpan.className = 'bubbleTime';
+    if (ts) timeSpan.textContent = formatTime(ts);
+
+    bubble.appendChild(roleLabel);
+    bubble.appendChild(textDiv);
+    bubble.appendChild(timeSpan);
+
+    document.getElementById('messageThread').appendChild(bubble);
+
+    var thread = document.getElementById('messageThread');
+    thread.scrollTop = thread.scrollHeight;
+
+    return textDiv;
+  }
+
+  async function sendMessage() {
+    if (isStreaming || !currentSessionId) return;
+
+    var input = document.getElementById('msgInput');
+    var content = input.value.trim();
+    if (!content) return;
+
+    isStreaming = true;
+    titleSet = false;
+    document.getElementById('sendBtn').disabled = true;
+    input.disabled = true;
+    input.value = '';
+    input.style.height = 'auto';
+
+    appendMessage('user', content, Date.now() / 1000, false);
+
+    var turnWrapper = document.createElement('div');
+    turnWrapper.className = 'agentTurn';
+    document.getElementById('messageThread').appendChild(turnWrapper);
+
+    var bubbleEl = null;
+    var fullText = '';
+    var thinkingWidget = null;
+    var currentBubbleText = '';
+
+    function scrollThread() {
+      var thread = document.getElementById('messageThread');
+      thread.scrollTop = thread.scrollHeight;
+    }
+
+    try {
+      var res = await makeFetch('/chat/sessions/' + currentSessionId + '/message', {
+        method: 'POST',
+        body: { content: content }
+      });
+
+      if (!res.ok) throw new Error('non-200');
+
+      var reader = res.body.getReader();
+      var decoder = new TextDecoder();
+      var buffer = '';
+
+      while (true) {
+        var result = await reader.read();
+        var done = result.done;
+        var value = result.value;
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        var lines = buffer.split('\n');
+        buffer = lines.pop();
+
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i];
+          if (line.startsWith('data: ')) {
+            try {
+              var obj = JSON.parse(line.slice(6));
+              if (obj.type === 'thinking') {
+                if (bubbleEl) { bubbleEl.classList.remove('cursor'); bubbleEl = null; currentBubbleText = ''; }
+                if (!thinkingWidget) thinkingWidget = createThinkingBlock(turnWrapper);
+                thinkingWidget.append(obj.content);
+                scrollThread();
+              } else if (obj.type === 'token') {
+                if (thinkingWidget) { thinkingWidget.finish(); thinkingWidget = null; }
+                if (!bubbleEl) { bubbleEl = createTextBubble(turnWrapper); currentBubbleText = ''; }
+                fullText += obj.content;
+                currentBubbleText += obj.content;
+                bubbleEl.textContent = currentBubbleText;
+                scrollThread();
+              } else if (obj.type === 'tool') {
+                if (thinkingWidget) { thinkingWidget.finish(); thinkingWidget = null; }
+                if (bubbleEl) { bubbleEl.classList.remove('cursor'); bubbleEl = null; currentBubbleText = ''; }
+                appendToolRow(turnWrapper, obj.tool, obj.input, obj.output);
+                scrollThread();
+              } else if (obj.type === 'done') {
+                if (thinkingWidget) { thinkingWidget.finish(); thinkingWidget = null; }
+                if (!bubbleEl) bubbleEl = createTextBubble(turnWrapper);
+                bubbleEl.classList.remove('cursor');
+                finalize(fullText);
+              } else if (obj.type === 'error') {
+                if (!bubbleEl) bubbleEl = createTextBubble(turnWrapper);
+                bubbleEl.textContent = obj.content;
+                bubbleEl.style.color = 'var(--danger)';
+                bubbleEl.classList.remove('cursor');
+                finalize('');
+              }
+            } catch(parseErr) {
+              // skip malformed SSE data
+            }
+          }
+        }
+      }
+    } catch(e) {
+      showError('Connection error');
+      if (bubbleEl) bubbleEl.classList.remove('cursor');
+      finalize('');
+    }
+
+    function finalize(text) {
+      isStreaming = false;
+      document.getElementById('sendBtn').disabled = false;
+      var msgInput = document.getElementById('msgInput');
+      msgInput.disabled = false;
+      msgInput.focus();
+      if (text && !titleSet) {
+        document.getElementById('topTitle').textContent = text.slice(0, 40);
+        titleSet = true;
+      }
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function createThinkingBlock(wrapper) {
+    var block = document.createElement('div');
+    block.className = 'thinkingBlock expanded';
+
+    var header = document.createElement('div');
+    header.className = 'thinkingHeader';
+    header.innerHTML = '<span style=\"flex:1\">thinking…</span><span class=\"thinkingToggle\">▾</span>';
+    header.onclick = function() {
+      block.classList.toggle('expanded');
+      header.querySelector('.thinkingToggle').textContent =
+        block.classList.contains('expanded') ? '▾' : '▸';
+    };
+
+    var body = document.createElement('div');
+    body.className = 'thinkingBody';
+
+    block.appendChild(header);
+    block.appendChild(body);
+    wrapper.appendChild(block);
+
+    return {
+      block: block,
+      body: body,
+      header: header,
+      append: function(text) {
+        body.textContent += text;
+        if (block.classList.contains('expanded')) {
+          body.scrollTop = body.scrollHeight;
+        }
+      },
+      finish: function() {
+        block.classList.remove('streaming');
+        block.classList.remove('expanded');
+        header.querySelector('span').textContent = 'thinking';
+        header.querySelector('.thinkingToggle').textContent = '▸';
+      }
+    };
+  }
+
+  function appendToolRow(wrapper, toolName, input, output) {
+    var preview = '';
+    if (input && typeof input === 'object') {
+      var vals = Object.values(input).filter(function(v){ return typeof v === 'string'; });
+      preview = vals.length ? vals[0].slice(0, 80) : JSON.stringify(input).slice(0, 80);
+    } else if (input) {
+      preview = String(input).slice(0, 80);
+    }
+    var inputStr = (input && typeof input === 'object') ? JSON.stringify(input, null, 2) : String(input || '');
+    var outputStr = String(output || '');
+    var bodyText = (inputStr ? inputStr + '\n\n' : '') + outputStr;
+
+    var row = document.createElement('div');
+    row.className = 'toolRow';
+
+    var header = document.createElement('div');
+    header.className = 'toolRowHeader';
+    header.innerHTML =
+      '<span class=\"toolRowName\">' + escapeHtml(toolName) + '</span>' +
+      '<span class=\"toolRowPreview\">' + escapeHtml(preview) + '</span>' +
+      '<span class=\"toolRowToggle\">▸</span>';
+    header.onclick = function() {
+      row.classList.toggle('expanded');
+      header.querySelector('.toolRowToggle').textContent =
+        row.classList.contains('expanded') ? '▾' : '▸';
+    };
+
+    var body = document.createElement('div');
+    body.className = 'toolRowBody';
+    body.textContent = bodyText;
+
+    row.appendChild(header);
+    row.appendChild(body);
+    wrapper.appendChild(row);
+  }
+
+  function createTextBubble(wrapper) {
+    var bubble = document.createElement('div');
+    bubble.className = 'msgBubble assistant';
+    var roleLabel = document.createElement('span');
+    roleLabel.className = 'roleLabel';
+    roleLabel.textContent = currentModel || 'assistant';
+    var textDiv = document.createElement('div');
+    textDiv.className = 'bubbleText cursor';
+    var timeSpan = document.createElement('span');
+    timeSpan.className = 'bubbleTime';
+    bubble.appendChild(roleLabel);
+    bubble.appendChild(textDiv);
+    bubble.appendChild(timeSpan);
+    wrapper.appendChild(bubble);
+    return textDiv;
+  }
+
+  function formatTime(unixSec) {
+    if (!unixSec) return '';
+    var d = new Date(unixSec * 1000);
+    var h = String(d.getHours()).padStart(2, '0');
+    var m = String(d.getMinutes()).padStart(2, '0');
+    return h + ':' + m;
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function showError(msg) {
+    var banner = document.getElementById('errorBanner');
+    banner.textContent = msg;
+    banner.style.display = 'block';
+    setTimeout(function() { banner.style.display = 'none'; }, 4000);
+  }
+
+  document.getElementById('backBtn').addEventListener('click', function() {
+    showSessionListView();
+    loadSessions();
+  });
+
+  document.getElementById('sendBtn').addEventListener('click', sendMessage);
+
+  document.getElementById('msgInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  document.getElementById('msgInput').addEventListener('input', function() {
+    var input = document.getElementById('msgInput');
+    input.style.height = 'auto';
+    input.style.height = input.scrollHeight + 'px';
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && currentSessionId) {
+      showSessionListView();
+      loadSessions();
+    }
+  });
+  </script>
+</body>
+</html>

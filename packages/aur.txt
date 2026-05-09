@@ -4,7 +4,6 @@ colorz
 curseforge
 downgrade
 droidcam
-fancontrol-gui
 ftb-app-bin
 gcc11
 hhpc-git
@@ -20,7 +19,6 @@ opencode-bin
 opendeck-git
 outlook-for-linux-bin
 paru
-pikaur
 protontricks-git
 python-haishoku
 rar
@@ -29,7 +27,6 @@ rofi-autorandr
 simplescreenrecorder
 smem
 steamcmd
-surf
 teams-for-linux-bin
 teamviewer
 todoist-appimage
@@ -41,5 +38,4 @@ vtop
 windscribe-v2-bin
 woeusb-ng
 yay
-yay-debug
 zoom

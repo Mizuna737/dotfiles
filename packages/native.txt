@@ -16,11 +16,13 @@ blueman
 bluez
 bluez-utils
 bottom
+caddy
 certbot
 copyq
 ctags
 cuda
 cups
+ddrescue
 dex
 dhcpcd
 dialog
@@ -52,11 +54,8 @@ grub-btrfs
 gst-plugins-ugly
 gvfs
 hdf5
-htop
-hyprland
 inotify-tools
 iotop
-isoimagewriter
 iwd
 jq
 jre21-openjdk-headless
@@ -156,7 +155,6 @@ ueberzug
 ufw
 usbmuxd
 v4l2loopback-dkms
-vim
 virt-manager
 vivaldi
 vlc
@@ -175,7 +173,6 @@ xorg-xev
 xorg-xinit
 xorg-xrandr
 xsel
-xterm
 yazi
 zip
 zoxide

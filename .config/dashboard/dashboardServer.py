@@ -19,6 +19,8 @@ import sys
 import socket
 import glob
 import time
+import sqlite3
+import uuid
 from datetime import date, timedelta
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 from urllib.parse import urlparse
@@ -29,9 +31,12 @@ import queue
 import gi
 import configparser
 import pynvml
+import requests
 
 sys.path.insert(0, os.path.dirname(__file__))
 from taskCreate import createTask, resolveDueDate
+from diskHealthRefresh import refreshDiskHealth
+from chatServer import initChatDb, ChatRequestHandler
 
 gi.require_version("GLib", "2.0")
 
@@ -49,6 +54,8 @@ def loadTodoistConfig():
 
 todoistConf = loadTodoistConfig()
 TODOIST_API_TOKEN = todoistConf.get("TODOIST_API_TOKEN", "")
+
+
 TODOIST_CLIENT_ID = todoistConf.get("TODOIST_CLIENT_ID", "")
 TODOIST_CLIENT_SECRET = todoistConf.get("TODOIST_CLIENT_SECRET", "")
 TODOIST_PROJECT_NAME = "Shopping List"
@@ -391,6 +398,21 @@ def toggleVpn():
 
     time.sleep(1)
     sseBroadcast("vpn-changed", getVpnState())
+
+
+def getQwenState():
+    out, _ = run(["systemctl", "--user", "is-active", "llamaServer.service"])
+    active = out.strip() == "active"
+    return {"active": active, "label": "Running" if active else "Stopped"}
+
+
+def toggleQwen():
+    state = getQwenState()
+    cmd = "stop" if state["active"] else "start"
+    run(["systemctl", "--user", cmd, "llamaServer.service"])
+    import time
+    time.sleep(1)
+    sseBroadcast("qwen-changed", getQwenState())
 
 
 # ── Audio Sink ────────────────────────────────────────────────────────────
@@ -1204,18 +1226,26 @@ class Handler(BaseHTTPRequestHandler):
         pass  # Suppress connection reset noise
 
     def do_OPTIONS(self):
-        self.send_response(204)
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
-        self.end_headers()
+        path = urlparse(self.path).path
+        if path.startswith("/chat/"):
+            self.send_response(200)
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Headers", "Authorization, Content-Type")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.end_headers()
+        else:
+            self.send_response(204)
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+            self.end_headers()
 
     def do_GET(self):
         path = urlparse(self.path).path
         if path == "/status/toggles":
             vpn = getVpnState()
             sink = getSinkState()
-            jsonResp(self, {"vpn": vpn, "sink": sink})
+            jsonResp(self, {"vpn": vpn, "sink": sink, "qwen": getQwenState()})
         elif path == "/status/media":
             jsonResp(self, getMediaState())
         elif path == "/status/tasks":
@@ -1226,6 +1256,26 @@ class Handler(BaseHTTPRequestHandler):
             jsonResp(self, getBgremoveState())
         elif path == "/status/sysstat":
             jsonResp(self, getSysStats())
+        elif path == "/status/diskhealth":
+            healthFile = os.path.expanduser("~/.cache/dashboard/diskHealth.json")
+            try:
+                mtime = os.path.getmtime(healthFile)
+                if time.time() - mtime > 1800:
+                    jsonResp(self, {"error": "stale or missing", "lastUpdated": None})
+                else:
+                    with open(healthFile) as f:
+                        jsonResp(self, json.load(f))
+            except FileNotFoundError:
+                jsonResp(self, {"error": "stale or missing", "lastUpdated": None})
+        elif path == "/status/diskhealth/events":
+            eventsFile = os.path.expanduser("~/.cache/dashboard/diskHealthEvents.json")
+            try:
+                with open(eventsFile) as f:
+                    allEvents = json.load(f)
+                pending = [e for e in allEvents if not e.get("acknowledged", False)]
+                jsonResp(self, pending)
+            except FileNotFoundError:
+                jsonResp(self, [])
         elif path == "/colors.css":
             try:
                 cssPath = os.path.expanduser("~/.cache/wal/colors.css")
@@ -1279,6 +1329,8 @@ class Handler(BaseHTTPRequestHandler):
                 pass
             finally:
                 sseUnsubscribe(q)
+        elif path == "/chat":
+            ChatRequestHandler(self, jsonResp).handleServeChatHtml()
         elif path == "/eisenhower":
             try:
                 htmlPath = os.path.join(os.path.dirname(__file__), "eisenhower.html")
@@ -1341,17 +1393,39 @@ class Handler(BaseHTTPRequestHandler):
                 eisenhowerUnsubscribe(q)
         elif path == "/shopping/items":
             jsonResp(self, getShoppingListItems())
+        elif path == "/chat/sessions":
+            ChatRequestHandler(self, jsonResp).handleGetSessions()
+        elif path.startswith("/chat/sessions/") and path.endswith("/history"):
+            sessionId = path[len("/chat/sessions/"):-len("/history")]
+            ChatRequestHandler(self, jsonResp).handleGetHistory(sessionId)
         else:
             self.send_response(404)
             self.end_headers()
 
     def do_POST(self):
         path = urlparse(self.path).path
-        if path == "/toggle/vpn":
+        if path == "/diskhealth/events/ack":
+            eventsFile = os.path.expanduser("~/.cache/dashboard/diskHealthEvents.json")
+            try:
+                with open(eventsFile) as f:
+                    allEvents = json.load(f)
+                for e in allEvents:
+                    e["acknowledged"] = True
+                tmpPath = eventsFile + ".tmp"
+                with open(tmpPath, "w") as f:
+                    json.dump(allEvents, f)
+                os.replace(tmpPath, eventsFile)
+            except FileNotFoundError:
+                pass
+            jsonResp(self, {"ok": True})
+        elif path == "/toggle/vpn":
             toggleVpn()
             jsonResp(self, {"ok": True})
         elif path == "/toggle/sink":
             cycleSink()
+            jsonResp(self, {"ok": True})
+        elif path == "/toggle/qwen":
+            toggleQwen()
             jsonResp(self, {"ok": True})
         elif path.startswith("/media/"):
             cmd = path.split("/media/")[-1]
@@ -1363,8 +1437,6 @@ class Handler(BaseHTTPRequestHandler):
         elif path == "/exit":
             jsonResp(self, {"ok": True})
             # Kill the qutebrowser dashboard window after responding
-            import threading
-
             def killDashboard():
                 import time
 
@@ -1592,6 +1664,14 @@ class Handler(BaseHTTPRequestHandler):
                     jsonResp(self, {"ok": False, "error": "Timeout"}, 500)
             else:
                 jsonResp(self, {"ok": False, "error": f"Unknown action: {action}"}, 400)
+        elif path == "/chat/sessions":
+            ChatRequestHandler(self, jsonResp).handlePostCreateSession()
+        elif path.startswith("/chat/sessions/") and path.endswith("/message"):
+            sessionId = path[len("/chat/sessions/"):-len("/message")]
+            ChatRequestHandler(self, jsonResp).handlePostMessage(sessionId)
+        elif path.startswith("/chat/sessions/") and path.endswith("/permission"):
+            sessionId = path[len("/chat/sessions/"):-len("/permission")]
+            ChatRequestHandler(self, jsonResp).handlePostPermission(sessionId)
         else:
             self.send_response(404)
             self.end_headers()
@@ -1615,6 +1695,18 @@ if __name__ == "__main__":
 
     todoistThread = threading.Thread(target=todoistPollLoop, daemon=True)
     todoistThread.start()
+
+    def diskHealthLoop():
+        # Warm cache immediately, then refresh every 15 min
+        while True:
+            try:
+                refreshDiskHealth()
+            except Exception as e:
+                print(f"diskHealthLoop error: {e}", file=sys.stderr)
+            time.sleep(900)
+
+    diskHealthThread = threading.Thread(target=diskHealthLoop, daemon=True)
+    diskHealthThread.start()
 
     server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
     print(f"Dashboard server running on port {PORT}")

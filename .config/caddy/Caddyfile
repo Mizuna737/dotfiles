@@ -1,0 +1,12 @@
+# Replace YOUR_DOMAIN with your DuckDNS (or other) hostname.
+# Install: sudo cp .config/caddy/Caddyfile /etc/caddy/Caddyfile && sudo systemctl enable --now caddy
+
+mizuna.tplinkdns.com {
+    reverse_proxy localhost:9876
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+    }
+}

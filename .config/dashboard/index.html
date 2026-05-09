@@ -24,6 +24,9 @@
     --font-mono:    'IBM Plex Mono', monospace;
     --h: 400px;
     --panel-radius: 4px;
+    --statGreen:  #7ecf8e;
+    --statYellow: #cfb97e;
+    --statRed:    #cf7e7e;
   }
 
   html, body {
@@ -131,6 +134,9 @@
     flex-direction: column;
     gap: 8px;
   }
+
+  .toggleRow { display: flex; gap: 8px; }
+  .toggleRow .toggle { flex: 1; min-width: 0; }
 
   .toggle {
     display: flex;
@@ -393,7 +399,7 @@
 
   .statGrid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 0 8px;
     width: 100%;
   }
@@ -432,6 +438,124 @@
   .ringFill.gpu {
     stroke: var(--accent2);
     filter: drop-shadow(0 0 7px var(--accent2)) drop-shadow(0 0 3px var(--accent2));
+  }
+
+  .ringFill.diskGreen {
+    stroke: var(--statGreen);
+    filter: drop-shadow(0 0 7px var(--statGreen)) drop-shadow(0 0 3px var(--statGreen));
+  }
+
+  .ringFill.diskYellow {
+    stroke: var(--statYellow);
+    filter: drop-shadow(0 0 7px var(--statYellow)) drop-shadow(0 0 3px var(--statYellow));
+  }
+
+  .ringFill.diskRed {
+    stroke: var(--statRed);
+    filter: drop-shadow(0 0 7px var(--statRed)) drop-shadow(0 0 3px var(--statRed));
+  }
+
+  .statItemDisk {
+    cursor: pointer;
+  }
+
+  .diskEventBanner {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 2000;
+    background: var(--statRed);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 14px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.5px;
+  }
+
+  .diskEventBanner.hidden { display: none; }
+
+  .diskEventBanner button {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.4);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 2px 10px;
+    cursor: pointer;
+    border-radius: var(--panel-radius);
+    letter-spacing: 2px;
+    margin-left: 14px;
+  }
+
+  .diskEventBanner button:hover { background: rgba(0,0,0,0.45); }
+
+  .diskModal {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    background: rgba(0,0,0,0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .diskModal.hidden { display: none; }
+
+  .diskModalBox {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--panel-radius);
+    padding: 20px 24px;
+    min-width: 720px;
+    max-width: 96vw;
+    max-height: 88vh;
+    overflow-y: auto;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--fg);
+  }
+
+  .diskModalTitle {
+    font-family: var(--font-display);
+    font-size: 18px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  .diskTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .diskTable th {
+    text-align: left;
+    color: var(--fg-dim);
+    letter-spacing: 2px;
+    font-size: 10px;
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+  }
+
+  .diskTable td {
+    padding: 6px 8px;
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
+    vertical-align: top;
+  }
+
+  .diskTable tr.statusGreen td { border-left: 3px solid var(--statGreen); }
+  .diskTable tr.statusYellow td { border-left: 3px solid var(--statYellow); }
+  .diskTable tr.statusRed td { border-left: 3px solid var(--statRed); }
+
+  .diskReasons {
+    font-size: 11px;
+    color: var(--fg-dim);
+    line-height: 1.5;
   }
 
   .ringTempTrack {
@@ -885,6 +1009,34 @@
 </style>
 </head>
 <body>
+<div id="diskEventBanner" class="diskEventBanner hidden">
+  <span id="diskEventBannerText"></span>
+  <button onclick="ackDiskEvents()">ack</button>
+</div>
+
+<div id="diskModal" class="diskModal hidden" onclick="closeDiskModalIfBg(event)">
+  <div class="diskModalBox">
+    <div class="diskModalTitle">Disk Health</div>
+    <table class="diskTable">
+      <thead>
+        <tr>
+          <th>Drive</th>
+          <th>Model</th>
+          <th>Status</th>
+          <th>%Used</th>
+          <th>Spare</th>
+          <th>Temp</th>
+          <th>Errors</th>
+          <th>Last Short</th>
+          <th>Last Long</th>
+        </tr>
+      </thead>
+      <tbody id="diskModalBody"></tbody>
+    </table>
+    <div id="diskModalReasons"></div>
+  </div>
+</div>
+
 <div id="app">
   <div id="dashButtons">
     <button class="dashBtn" onclick="window.location.reload()" title="Refresh">↺</button>
@@ -988,6 +1140,15 @@
               <text class="ringVal" id="statVramVal" x="44" y="53">—</text>
             </svg>
           </div>
+          <div class="statItem statItemDisk" onclick="openDiskModal()">
+            <svg class="statRing" viewBox="0 0 88 88">
+              <circle class="ringTrack" cx="44" cy="44" r="36"/>
+              <circle class="ringFill diskGreen" id="statDiskBar" cx="44" cy="44" r="36"/>
+              <text class="ringLabel" x="44" y="40">DISK</text>
+              <text class="ringVal" id="statDiskVal" x="44" y="55">—</text>
+              <text class="ringTempVal" id="statDiskTempVal" x="44" y="68">—</text>
+            </svg>
+          </div>
         </div>
         <div class="mediaMini" id="mediaMini">
           <button class="miniPlayBtn" id="miniPlayBtn" onclick="togglePlay()">▶</button>
@@ -1051,6 +1212,12 @@
               <text class="ringLabel" x="28" y="23">VRAM</text>
               <text class="ringVal" id="statVramVal2" x="28" y="33">—</text>
             </svg>
+            <svg class="statMini" viewBox="0 0 56 56" onclick="openDiskModal()" style="cursor:pointer">
+              <circle class="ringTrack" cx="28" cy="28" r="22"/>
+              <circle class="ringFill diskGreen" id="statDiskBar2" cx="28" cy="28" r="22" data-circ="138.23"/>
+              <text class="ringLabel" x="28" y="23">DISK</text>
+              <text class="ringVal" id="statDiskVal2" x="28" y="33">—</text>
+            </svg>
           </div>
         </div>
       </div>
@@ -1107,28 +1274,27 @@ async function apiPost(path, body = {}) {
 // ── Toggles ────────────────────────────────────────────────────────────────
 const toggleDefs = [
   { id: 'vpn',  icon: '⬡', name: 'VPN',         endpoint: '/toggle/vpn'  },
+  { id: 'qwen', icon: '◈', name: 'Qwen',        endpoint: '/toggle/qwen' },
   { id: 'sink', icon: '◎', name: 'Audio Sink',   endpoint: '/toggle/sink' },
 ];
 
 function renderToggles(states) {
   const grid = document.getElementById('toggleDynamic');
   grid.innerHTML = '';
-  grid.style.display = 'contents'; // makes it invisible to flex layout
-  toggleDefs.forEach(def => {
-    const state = states[def.id] || {};
+  grid.style.display = 'contents';
 
+  function buildToggle(def) {
+    const state = states[def.id] || {};
     let active, sub, pill;
     if (def.id === 'sink') {
-      // OFF = headphones, ON = speakers
       active = state.label === 'Speakers';
       sub  = state.label || '—';
-      pill = active ? 'ON' : 'OFF';
+      pill = active ? '🔊' : '🎧';
     } else {
       active = !!state.active;
       sub    = state.label || '';
       pill   = active ? 'ON' : 'OFF';
     }
-
     const el = document.createElement('div');
     el.className = 'toggle' + (active ? ' active' : '');
     el.innerHTML = `
@@ -1145,8 +1311,16 @@ function renderToggles(states) {
       await apiPost(def.endpoint);
       setTimeout(refreshToggles, 600);
     });
-    grid.appendChild(el);
-  });
+    return el;
+  }
+
+  const rowDiv = document.createElement('div');
+  rowDiv.className = 'toggleRow';
+  rowDiv.appendChild(buildToggle(toggleDefs[0]));
+  rowDiv.appendChild(buildToggle(toggleDefs[1]));
+  grid.appendChild(rowDiv);
+
+  grid.appendChild(buildToggle(toggleDefs[2]));
 }
 
 async function refreshToggles() {
@@ -1633,6 +1807,10 @@ function connectSSE() {
     refreshToggles();
   });
 
+  es.addEventListener('qwen-changed', e => {
+    refreshToggles();
+  });
+
   es.addEventListener('media-changed', e => {
     const d = JSON.parse(e.data);
     applyMediaState(d);
@@ -1650,6 +1828,162 @@ function connectSSE() {
 }
 connectSSE();
 
+// ── Disk health ───────────────────────────────────────────────────────────
+let _diskHealthData = null;
+
+function _diskStatusClass(status) {
+  if (status === 'red')    return 'diskRed';
+  if (status === 'yellow') return 'diskYellow';
+  return 'diskGreen';
+}
+
+function _setDiskRingColor(barId, status) {
+  const el = document.getElementById(barId);
+  if (!el) return;
+  el.classList.remove('diskGreen', 'diskYellow', 'diskRed');
+  el.classList.add(_diskStatusClass(status));
+}
+
+function _setDiskBar(barId, valId, pct, label) {
+  const circ = 226.19;
+  const bar = document.getElementById(barId);
+  if (bar) bar.style.strokeDashoffset = circ - (circ * Math.min(100, Math.max(0, pct)) / 100);
+  const val = document.getElementById(valId);
+  if (val) val.textContent = label;
+}
+
+function _setDiskBarMini(barId, valId, pct, label) {
+  const circ = 138.23;
+  const bar = document.getElementById(barId);
+  if (bar) bar.style.strokeDashoffset = circ - (circ * Math.min(100, Math.max(0, pct)) / 100);
+  const val = document.getElementById(valId);
+  if (val) val.textContent = label;
+}
+
+async function refreshDiskHealth() {
+  try {
+    const s = await apiGet('/status/diskhealth');
+    if (s.error) return;
+    _diskHealthData = s;
+
+    const worstStatus = s.worstStatus || 'green';
+
+    // Compute display percent — worst available_spare deficit or percentUsed across disks
+    let worstPct = 0;
+    let worstTempC = null;
+    for (const d of (s.disks || [])) {
+      let pct = 0;
+      if (d.availableSpare != null) {
+        pct = 100 - d.availableSpare;
+      } else if (d.percentUsed != null) {
+        pct = d.percentUsed;
+      }
+      if (pct > worstPct) worstPct = pct;
+      if (d.tempC != null && (worstTempC === null || d.tempC > worstTempC)) {
+        worstTempC = d.tempC;
+      }
+    }
+
+    const label = worstPct.toFixed(0) + '%';
+    const tempLabel = worstTempC != null ? worstTempC + 'C' : '—';
+
+    _setDiskBar('statDiskBar', 'statDiskVal', worstPct, label);
+    _setDiskRingColor('statDiskBar', worstStatus);
+    const tempEl = document.getElementById('statDiskTempVal');
+    if (tempEl) tempEl.textContent = tempLabel;
+
+    _setDiskBarMini('statDiskBar2', 'statDiskVal2', worstPct, label);
+    _setDiskRingColor('statDiskBar2', worstStatus);
+  } catch(e) {}
+}
+
+function openDiskModal() {
+  const modal = document.getElementById('diskModal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+
+  const tbody = document.getElementById('diskModalBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  const disks = (_diskHealthData && _diskHealthData.disks) || [];
+  if (!disks.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="color:var(--fg-dim);padding:12px">No disk data available</td></tr>';
+    return;
+  }
+
+  for (const d of disks) {
+    const tr = document.createElement('tr');
+    tr.className = 'status' + (d.status ? d.status.charAt(0).toUpperCase() + d.status.slice(1) : 'Green');
+
+    const spare = d.availableSpare != null ? d.availableSpare + '%' : '—';
+    const pctUsed = d.percentUsed != null ? d.percentUsed + '%' : '—';
+    const temp = d.tempC != null ? d.tempC + '°C' : '—';
+    const errors = d.mediaErrors != null ? d.mediaErrors
+                 : (d.reallocatedSectors != null
+                    ? `R:${d.reallocatedSectors} P:${d.pendingSectors} U:${d.uncorrectable}`
+                    : '—');
+    const shortTest = d.lastShortTest ? d.lastShortTest.result : '—';
+    const longTest  = d.lastLongTest  ? d.lastLongTest.result  : '—';
+    const model = (d.model || '—').substring(0, 28);
+
+    tr.innerHTML = `
+      <td>${d.name || '—'}</td>
+      <td>${model}</td>
+      <td style="color:var(--stat${d.status === 'red' ? 'Red' : d.status === 'yellow' ? 'Yellow' : 'Green'})">${d.status || '—'}</td>
+      <td>${pctUsed}</td>
+      <td>${spare}</td>
+      <td>${temp}</td>
+      <td>${errors}</td>
+      <td>${shortTest}</td>
+      <td>${longTest}</td>`;
+    tbody.appendChild(tr);
+
+    if (d.reasons && d.reasons.length) {
+      const reasonsTr = document.createElement('tr');
+      reasonsTr.innerHTML = `<td colspan="9" class="diskReasons">${d.reasons.join(' &nbsp;|&nbsp; ')}</td>`;
+      tbody.appendChild(reasonsTr);
+    }
+  }
+
+  // ESC to close
+  const onKey = e => { if (e.key === 'Escape') { closeDiskModal(); document.removeEventListener('keydown', onKey); } };
+  document.addEventListener('keydown', onKey);
+}
+
+function closeDiskModal() {
+  const modal = document.getElementById('diskModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function closeDiskModalIfBg(e) {
+  if (e.target === document.getElementById('diskModal')) closeDiskModal();
+}
+
+async function refreshDiskEvents() {
+  try {
+    const events = await apiGet('/status/diskhealth/events');
+    const banner = document.getElementById('diskEventBanner');
+    const bannerText = document.getElementById('diskEventBannerText');
+    if (!banner || !bannerText) return;
+    if (!events || !events.length) {
+      banner.classList.add('hidden');
+      return;
+    }
+    const latest = events[events.length - 1];
+    bannerText.textContent = `${events.length} disk warning${events.length > 1 ? 's' : ''}: ${latest.message || latest.failType || ''}`;
+    banner.classList.remove('hidden');
+  } catch(e) {}
+}
+
+async function ackDiskEvents() {
+  try {
+    await apiPost('/diskhealth/events/ack');
+    const banner = document.getElementById('diskEventBanner');
+    if (banner) banner.classList.add('hidden');
+  } catch(e) {}
+}
+
 // ── Poll loop (fallback + slower-changing data) ────────────────────────────
 refreshToggles();
 refreshMedia();
@@ -1657,13 +1991,17 @@ refreshTasks();
 refreshSysStats();
 refreshDroidcam();
 refreshBgremove();
+refreshDiskHealth();
+refreshDiskEvents();
 
-setInterval(refreshMedia,     10000);
-setInterval(refreshToggles,    5000);
-setInterval(refreshTasks,     30000);
-setInterval(refreshDroidcam,   5000);
-setInterval(refreshBgremove,  10000);
-setInterval(refreshSysStats,   3000);
+setInterval(refreshMedia,       10000);
+setInterval(refreshToggles,      5000);
+setInterval(refreshTasks,       30000);
+setInterval(refreshDroidcam,     5000);
+setInterval(refreshBgremove,    10000);
+setInterval(refreshSysStats,     3000);
+setInterval(refreshDiskHealth, 1200000);
+setInterval(refreshDiskEvents,   60000);
 </script>
 </body>
 </html>

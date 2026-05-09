@@ -51,11 +51,11 @@ scimitar.globalkeys = gears.table.join(
 
 	-- Key F4
 	sk({ modkey, ctrl }, "F4", function()
-		myFuncs.openLauncher()
-	end, "S4 tap => open launcher"),
+		stack.cycleStackBackward()
+	end, "S4 tap => cycle stack previous"),
 	sk({ modkey, ctrl, shft }, "F4", function()
-		naughty.notify({ text = "S4 mod pressed" })
-	end, "S4 mod => notify"),
+		myFuncs.viewPopulatedTag("previous")
+	end, "S4 mod => cycle tag previous"),
 
 	-- Key F5 (single layer only)
 	sk({ modkey, ctrl }, "F5", function()
@@ -64,11 +64,11 @@ scimitar.globalkeys = gears.table.join(
 
 	-- Key F6
 	sk({ modkey, ctrl }, "F6", function()
-		awful.spawn(defaultApps.filemgr)
-	end, "S6 tap => open file manager"),
+		stack.cycleStackForward()
+	end, "S6 tap => cycle stack next"),
 	sk({ modkey, ctrl, shft }, "F6", function()
-		naughty.notify({ text = "S6 mod pressed" })
-	end, "S6 mod => notify"),
+		myFuncs.viewPopulatedTag("next")
+	end, "S6 mod => cycle tag next"),
 
 	-- Key F7
 	sk({ modkey, ctrl }, "F7", function()

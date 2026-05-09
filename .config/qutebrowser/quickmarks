@@ -31,3 +31,6 @@ ppx https://powerpoint.cloud.microsoft/
 whatsapp https://web.whatsapp.com/
 loop https://loop.cloud.microsoft/
 dynamics https://captioncall.crm.dynamics.com/main.aspx?appid=d615e3d6-c039-eb11-a813-000d3a31ed09&forceUCI=1&pagetype=dashboard&id=65e050d3-8b71-4b53-acb5-bb9af83bf384&type=system&_canOverride=true
+myapps https://desktop.pingone.com/Indeo/Selection?cmd=selection
+homeassistant http://localhost:8123/home/overview
+ha http://localhost:8123/home/overview

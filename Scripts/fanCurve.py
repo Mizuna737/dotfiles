@@ -21,36 +21,37 @@ DEFAULT_CONFIG = """\
 # Tctl °C → pwm (0–255).
 
 [[points]]
-temp = 65
-pwm  = 63
-
-[[points]]
 temp = 70
-pwm  = 80
+pwm  = 0
 
 [[points]]
 temp = 75
-pwm  = 120
+pwm  = 80
 
 [[points]]
 temp = 80
-pwm  = 200
+pwm  = 120
 
 [[points]]
 temp = 85
+pwm  = 200
+
+[[points]]
+temp = 90
 pwm  = 255
 """
 
-POLL_INTERVAL = 2.0        # seconds
-EMA_ALPHA = 0.2            # ≈10s effective window at 2s poll
-HYSTERESIS = 2.0           # °C — minimum delta to act on
-TRIP_THRESHOLD = 90.0      # °C raw — safety floor, go full blast
-CURVE_CHANNEL = 3          # pwm3
+POLL_INTERVAL = 2.0  # seconds
+EMA_ALPHA = 0.2  # ≈10s effective window at 2s poll
+HYSTERESIS = 2.0  # °C — minimum delta to act on
+TRIP_THRESHOLD = 90.0  # °C raw — safety floor, go full blast
+CURVE_CHANNEL = 3  # pwm3
 FULL_CHANNELS = [1, 2, 4, 5, 6, 7, 8]
 NUM_CHANNELS = 8
 
 
 # ---------- hardware discovery ----------
+
 
 def findHwmonByName(targetName: str) -> Path:
     """Return the hwmon path whose 'name' file matches targetName."""
@@ -70,6 +71,7 @@ def writeSysInt(path: Path, value: int) -> None:
 
 
 # ---------- pwm helpers ----------
+
 
 def pwmPath(hwmon: Path, channel: int) -> Path:
     return hwmon / f"pwm{channel}"
@@ -106,6 +108,7 @@ def restoreOriginals(hwmon: Path, originals: dict) -> None:
 
 # ---------- config ----------
 
+
 def loadConfig(path: Path) -> list[dict]:
     """Parse curve.toml and return sorted list of {temp, pwm} dicts."""
     with open(path, "rb") as f:
@@ -128,6 +131,7 @@ def ensureConfig(path: Path) -> None:
 
 # ---------- curve math ----------
 
+
 def interpolatePwm(curvePoints: list[dict], temp: float) -> int:
     """Piecewise linear interpolation; clamp outside the curve endpoints."""
     if temp <= curvePoints[0]["temp"]:
@@ -143,6 +147,7 @@ def interpolatePwm(curvePoints: list[dict], temp: float) -> int:
 
 
 # ---------- main ----------
+
 
 def main() -> None:
     if os.geteuid() != 0:
@@ -219,7 +224,10 @@ def main() -> None:
                     newPoints = loadConfig(CONFIG_PATH)
                     curvePoints = newPoints
                     configMtime = curMtime
-                    print(f"[fanCurve] config reloaded ({len(curvePoints)} points)", flush=True)
+                    print(
+                        f"[fanCurve] config reloaded ({len(curvePoints)} points)",
+                        flush=True,
+                    )
             except Exception as exc:
                 print(f"[fanCurve] WARNING: config reload failed: {exc}", flush=True)
 
@@ -235,14 +243,21 @@ def main() -> None:
             if not readOk or rawTemp > TRIP_THRESHOLD:
                 if not inTrip:
                     inTrip = True
-                    reason = f"rawTemp={rawTemp:.1f}°C" if readOk else "sensor read failure"
-                    print(f"[fanCurve] TRIP: {reason} — forcing pwm{CURVE_CHANNEL}=255", flush=True)
+                    reason = (
+                        f"rawTemp={rawTemp:.1f}°C" if readOk else "sensor read failure"
+                    )
+                    print(
+                        f"[fanCurve] TRIP: {reason} — forcing pwm{CURVE_CHANNEL}=255",
+                        flush=True,
+                    )
                 writeSysInt(pwmPath(nctHwmon, CURVE_CHANNEL), 255)
                 time.sleep(POLL_INTERVAL)
                 continue
 
             if inTrip:
                 inTrip = False
+                lastAppliedTemp = None
+                lastAppliedPwm = None
                 print(f"[fanCurve] TRIP cleared, rawTemp={rawTemp:.1f}°C", flush=True)
 
             # --- EMA smoothing ---
@@ -252,7 +267,10 @@ def main() -> None:
                 smoothedTemp = EMA_ALPHA * rawTemp + (1 - EMA_ALPHA) * smoothedTemp
 
             # --- hysteresis gate ---
-            if lastAppliedTemp is not None and abs(smoothedTemp - lastAppliedTemp) < HYSTERESIS:
+            if (
+                lastAppliedTemp is not None
+                and abs(smoothedTemp - lastAppliedTemp) < HYSTERESIS
+            ):
                 time.sleep(POLL_INTERVAL)
                 continue
 

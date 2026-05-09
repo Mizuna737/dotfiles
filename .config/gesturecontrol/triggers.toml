@@ -1,9 +1,22 @@
 [settings]
 camera = 2
-dwell_ms = 50
+dwellMs = 50
 format = "GREY"
 fps = 30
-spread_threshold = 0.4
+gracePeriodMs = 200
+spreadThreshold = 0.4
+spread_threshold = 0.15
+
+[presence]
+enabled = true
+useMotionDetection = true
+idleSeconds = 30
+motionThreshold = 5
+checkHz = 2
+poseCheckMode = "fallback"
+pauseHandsWhenAbsent = true
+poseDetection = true
+poseMinConfidence = 0.3
 
 [[poses]]
 name = "FIST"
@@ -19,9 +32,9 @@ index = true
 middle = true
 ring = true
 pinky = true
-spread_index_middle = "close"
-spread_middle_ring = "apart"
-spread_ring_pinky = "close"
+spreadIndexMiddle = "close"
+spreadMiddleRing = "apart"
+spreadRingPinky = "close"
 
 [[poses]]
 name = "OPEN_PALM"
@@ -30,10 +43,10 @@ index = true
 middle = true
 ring = true
 pinky = true
-spread_thumb_index = "apart"
-spread_index_middle = "apart"
-spread_middle_ring = "apart"
-spread_ring_pinky = "apart"
+spreadThumbIndex = "apart"
+spreadIndexMiddle = "apart"
+spreadMiddleRing = "apart"
+spreadRingPinky = "apart"
 
 [[poses]]
 name = "FIVE"
@@ -42,7 +55,6 @@ index = true
 middle = true
 ring = true
 pinky = true
-spread_middle_ring = "close"
 
 [[poses]]
 name = "SIGN"
@@ -67,7 +79,6 @@ index = true
 middle = true
 ring = true
 pinky = true
-spread_middle_ring = "close"
 
 [[poses]]
 name = "THREE"
@@ -76,6 +87,7 @@ index = true
 middle = true
 ring = false
 pinky = false
+spreadIndexMiddle = "apart"
 
 [[poses]]
 name = "TWO"
@@ -119,32 +131,33 @@ pinky = true
 [[bindings]]
 name = "tag_cycle"
 require = [{hand = "left", pose = "THREE"}]
-trigger = { hand = "left", hysteresis = 0.15, metric = "pinch_distance", range = [0.1, 0.35], type = "continuous" }
+trigger = { hand = "left", hysteresis = 0.1, metric = "pinchDistance", range = [0.1, 0.2], type = "continuous" }
 
 [[bindings]]
 name = "set_volume"
-trigger = { type = "sequenced_continuous", prefix_steps = ["FIVE", "OPEN_PALM"], prefix_window_ms = 1500, prefix_dwell_ms = 100, metric = "pinch_distance", range = [0, 0.6], hand = "left" }
+require = [{hand = "either", pose = "OK"}]
+trigger = { type = "continuous", metric = "angle", range = [0.3, 0.9], hand = "left" }
 
 [[bindings]]
 name = "window_cycle"
 require = [{hand = "either", pose = "SIGN"}]
-trigger = { hand = "left", hysteresis = 0.15, metric = "pinch_distance", range = [0.1, 0.35], type = "continuous" }
+trigger = { hand = "left", hysteresis = 0.1, metric = "pinchDistance", range = [0.1, 0.2], type = "continuous" }
 
 [[bindings]]
 name = "play_pause"
-trigger = { hand = "left", step_dwell_ms = 1000, steps = ["FIST", "FIVE"], type = "sequence", window_ms = 3000 }
+trigger = { hand = "left", stepDwellMs = 1000, steps = ["FIST", "FIVE"], type = "sequence", windowMs = 3000 }
 
 [[bindings]]
 name = "browser_back"
 require = [{hand = "either", pose = "SIGN"}]
-trigger = { direction = "left", hand = "either", min_displacement = 0.1, type = "swipe" }
+trigger = { direction = "left", hand = "either", minDisplacement = 0.1, type = "swipe" }
 
 [[bindings]]
 name = "browser_forward"
 require = [{hand = "either", pose = "SIGN"}]
-trigger = { direction = "right", hand = "either", min_displacement = 0.1, type = "swipe" }
+trigger = { direction = "right", hand = "either", minDisplacement = 0.1, type = "swipe" }
 
 [[bindings]]
 name = "toggleGestureControl"
 require = [{hand = "right", pose = "OPEN_PALM"}]
-trigger = { hand = "left", step_dwell_ms = 80, steps = ["FOUR", "LLAP", "FOUR", "FIST"], type = "sequence", window_ms = 2500 }
+trigger = { hand = "left", stepDwellMs = 80, steps = ["FOUR", "LLAP", "FOUR", "FIST"], type = "sequence", windowMs = 2500 }

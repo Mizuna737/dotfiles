@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/home/max/dotfiles/Scripts/indexQuery.py *)",
+      "Bash(python3 /home/max/dotfiles/Scripts/indexQuery.py *)",
+      "Bash(python3 Scripts/indexQuery.py *)",
+      "Bash(python3 /home/max/dotfiles/Scripts/codeSearch.py *)",
+      "Bash(python3 Scripts/codeSearch.py *)",
+      "Bash(python3 /home/max/dotfiles/Scripts/fileSummary.py *)",
+      "Bash(python3 Scripts/fileSummary.py *)",
+      "Bash(python3 /home/max/dotfiles/Scripts/diffSummarize.py *)",
+      "Bash(python3 Scripts/diffSummarize.py *)",
+      "Bash(python /home/max/dotfiles/Scripts/diffSummarize.py *)",
+      "Bash(python3 /home/max/dotfiles/Scripts/qwenCodeStatus.py *)",
+      "Bash(nvidia-smi *)",
+      "Bash(systemctl --user status *)",
+      "Bash(systemctl --user cat *)",
+      "Bash(systemctl --user list-units *)",
+      "Bash(systemctl --user list-unit-files *)",
+      "Bash(systemctl --user is-active *)",
+      "Bash(systemctl --user is-enabled *)",
+      "Bash(curl -s http://localhost:8080/*)",
+      "Bash(curl http://localhost:8080/*)"
+    ]
+  }
+}
