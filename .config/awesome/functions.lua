@@ -675,7 +675,7 @@ function M.pasteFromHistory()
 end
 
 function M.startDroidCam()
-	awful.spawn.with_shell("droidcam-cli -size=3840x2160 192.168.0.156 4747")
+	awful.spawn.with_shell("droidcam-cli -size=3840x2160 192.168.0.169 4747")
 end
 
 function M.toggleVPN()

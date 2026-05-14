@@ -40,6 +40,15 @@ from chatServer import initChatDb, ChatRequestHandler
 
 gi.require_version("GLib", "2.0")
 
+# ── Monkey-patch to keep SSE connections alive after handler returns ─────
+_orig_finish = BaseHTTPRequestHandler.finish
+def _patched_finish(self):
+    if getattr(self, 'is_sse_stream', False):
+        self.wfile.flush()
+    else:
+        _orig_finish(self)
+BaseHTTPRequestHandler.finish = _patched_finish
+
 OBSIDIAN_VAULT = os.path.expanduser("~/Documents/The Vault")
 
 
@@ -781,7 +790,7 @@ def _droidcamHost():
         return _DROIDCAM_CACHE["host"], _DROIDCAM_CACHE["port"]
 
     conf_ip, conf_port = _loadDroidcamConf()
-    host = conf_ip or "192.168.0.106"  # last-resort fallback
+    host = conf_ip or "192.168.0.169"  # last-resort fallback
 
     # Try config IP first (fast path)
     try:
@@ -1233,6 +1242,12 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Access-Control-Allow-Headers", "Authorization, Content-Type")
             self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
             self.end_headers()
+        elif path.startswith("/status/") or path in ("/toggle/", "/media/", "/shopping/", "/eisenhower/", "/task/", "/obsidian/", "/droidcam/", "/bgremove/", "/webhook", "/reload", "/exit", "/parse/date", "/colors.css"):
+            self.send_response(204)
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+            self.end_headers()
         else:
             self.send_response(204)
             self.send_header("Access-Control-Allow-Origin", "*")
@@ -1331,6 +1346,31 @@ class Handler(BaseHTTPRequestHandler):
                 sseUnsubscribe(q)
         elif path == "/chat":
             ChatRequestHandler(self, jsonResp).handleServeChatHtml()
+        elif path == "/manifest.json":
+            try:
+                with open(os.path.join(os.path.dirname(__file__), "manifest.json"), "rb") as f:
+                    body = f.read()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", len(body))
+                self.end_headers()
+                self.wfile.write(body)
+            except Exception:
+                self.send_response(404)
+                self.end_headers()
+        elif path.startswith("/chat-icon-"):
+            try:
+                iconPath = os.path.join(os.path.dirname(__file__), os.path.basename(path))
+                with open(iconPath, "rb") as f:
+                    body = f.read()
+                self.send_response(200)
+                self.send_header("Content-Type", "image/png")
+                self.send_header("Content-Length", len(body))
+                self.end_headers()
+                self.wfile.write(body)
+            except FileNotFoundError:
+                self.send_response(404)
+                self.end_headers()
         elif path == "/eisenhower":
             try:
                 htmlPath = os.path.join(os.path.dirname(__file__), "eisenhower.html")
@@ -1398,6 +1438,13 @@ class Handler(BaseHTTPRequestHandler):
         elif path.startswith("/chat/sessions/") and path.endswith("/history"):
             sessionId = path[len("/chat/sessions/"):-len("/history")]
             ChatRequestHandler(self, jsonResp).handleGetHistory(sessionId)
+        elif path.startswith("/chat/sessions/") and path.endswith("/stream"):
+            prefix = "/chat/sessions/"
+            suffix = "/stream"
+            middle = path[len(prefix):-len(suffix)]
+            parts = middle.split("/messages/")
+            if len(parts) == 2:
+                ChatRequestHandler(self, jsonResp).handleGetStream(parts[0], parts[1])
         else:
             self.send_response(404)
             self.end_headers()
@@ -1672,6 +1719,19 @@ class Handler(BaseHTTPRequestHandler):
         elif path.startswith("/chat/sessions/") and path.endswith("/permission"):
             sessionId = path[len("/chat/sessions/"):-len("/permission")]
             ChatRequestHandler(self, jsonResp).handlePostPermission(sessionId)
+        elif path.startswith("/chat/sessions/") and "/messages/" in path and path.endswith("/cancel"):
+            prefix = "/chat/sessions/"
+            suffix = "/cancel"
+            middle = path[len(prefix):-len(suffix)]
+            parts = middle.split("/messages/")
+            if len(parts) == 2:
+                ChatRequestHandler(self, jsonResp).handlePostCancel(parts[0], parts[1])
+        elif path == "/chat/auth":
+            ChatRequestHandler(self, jsonResp).handlePostAuth()
+        elif path == "/chat/register":
+            ChatRequestHandler(self, jsonResp).handlePostRegister()
+        elif path == "/chat/change-password":
+            ChatRequestHandler(self, jsonResp).handlePostChangePassword()
         else:
             self.send_response(404)
             self.end_headers()

@@ -4,7 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Chat</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="manifest" href="/manifest.json">
+   <meta name="apple-mobile-web-app-capable" content="yes">
+   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+   <meta name="apple-mobile-web-app-title" content="Chat">
+   <link rel="apple-touch-icon" href="/chat-icon-192.png">
+   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -25,9 +30,11 @@
       background: var(--bg);
       color: var(--fg);
       height: 100dvh;
+      height: -webkit-fill-available;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      -webkit-text-size-adjust: 100%;
     }
 
     /* ── top bar ── */
@@ -39,6 +46,7 @@
       border-bottom: 1px solid var(--border);
       background: var(--bg2);
       flex-shrink: 0;
+      position: relative;
     }
     #topBar h1 {
       font-family: 'Bebas Neue', sans-serif;
@@ -66,6 +74,57 @@
     #sessionBadge.claude { background: var(--accent3); color: #000; }
     #topTitle { flex: 1; font-size: 0.8rem; color: var(--fgDim); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
+    /* ── user button ── */
+    #userBtn {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--fgDim);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 4px;
+      position: relative;
+    }
+    #userBtn:hover { background: var(--bg3); color: var(--fg); }
+    #userDropdown {
+      display: none;
+      position: fixed;
+      top: 46px;
+      right: 16px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      min-width: 180px;
+      z-index: 200;
+      overflow: hidden;
+    }
+    #userDropdown.open { display: block; }
+    #userDropdown .userLabel {
+      padding: 8px 12px;
+      font-size: 0.7rem;
+      color: var(--fgDim);
+      border-bottom: 1px solid var(--border);
+    }
+    #userDropdown .dropdownItem {
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      color: var(--fg);
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    #userDropdown .dropdownItem:hover { background: var(--bg3); }
+    #userDropdown .dropdownItem.danger { color: var(--danger); }
+    #userDropdown .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 2px 0;
+    }
+
     /* ── error banner ── */
     #errorBanner {
       display: none;
@@ -78,7 +137,7 @@
     }
 
     /* ── main content area ── */
-    #main { flex: 1; overflow: hidden; position: relative; }
+    #main { flex: 1; overflow: auto; position: relative; }
 
     /* ── session list ── */
     #sessionList {
@@ -106,6 +165,7 @@
     }
     .sessionRow .badge.qwen { background: var(--accent2); color: #000; }
     .sessionRow .badge.claude { background: var(--accent3); color: #000; }
+    .sessionRow .badge.llama { background: var(--accent); color: #000; }
     .sessionRow .rowTitle { flex: 1; font-size: 0.85rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
     .sessionRow .rowTime  { font-size: 0.7rem; color: var(--fgDim); flex-shrink: 0; }
     #newSessionArea {
@@ -131,6 +191,7 @@
     .modelBtn:hover { border-color: var(--accent); }
     .modelBtn.qwen:hover  { border-color: var(--accent2); }
     .modelBtn.claude:hover { border-color: var(--accent3); }
+    .modelBtn.llama:hover { border-color: var(--accent); }
 
     /* ── chat thread ── */
     #chatView {
@@ -170,6 +231,8 @@
     .msgBubble .bubbleTime { font-size: 0.65rem; color: var(--fgDim); }
     .cursor::after { content: '▌'; animation: blink 1s step-end infinite; }
     @keyframes blink { 50% { opacity: 0; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--fgDim); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-left: 6px; }
     .agentTurn {
       display: flex;
       flex-direction: column;
@@ -243,6 +306,20 @@
     }
     .thinkingBlock.expanded .thinkingBody { display: block; }
     .thinkingBlock.streaming .thinkingHeader { color: var(--accent3); }
+    .cancelBtn {
+      background: var(--danger);
+      border: none;
+      border-radius: 3px;
+      color: #fff;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      cursor: pointer;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+    .cancelBtn:hover { opacity: 0.8; }
+    .cancelBtn:disabled { opacity: 0.4; cursor: default; }
 
     /* ── input bar ── */
     #inputBar {
@@ -261,7 +338,7 @@
       border-radius: 4px;
       color: var(--fg);
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.85rem;
+      font-size: 16px;
       padding: 8px 10px;
       resize: none;
       max-height: 8em;
@@ -283,8 +360,8 @@
     }
     #sendBtn:disabled { opacity: 0.4; cursor: default; }
 
-    /* ── auth modal ── */
-    #authModal {
+    /* ── auth / password modals ── */
+    #authModal, #passwordModal {
       display: none;
       position: fixed; inset: 0;
       background: rgba(0,0,0,0.8);
@@ -292,7 +369,8 @@
       justify-content: center;
       z-index: 100;
     }
-    #authModal.visible { display: flex; }
+    #authModal.visible, #passwordModal.visible { display: flex; }
+
     .authBox {
       background: var(--bg2);
       border: 1px solid var(--border);
@@ -330,12 +408,36 @@
 </head>
 <body>
 
-  <!-- auth modal -->
+   <!-- auth modal -->
   <div id="authModal">
     <div class="authBox">
       <h2>AUTHENTICATE</h2>
-      <input id="tokenInput" type="password" placeholder="Bearer token">
-      <button id="authConfirm">Connect</button>
+      <div id="loginForm">
+        <input id="usernameInput" type="text" placeholder="Username" autocomplete="username">
+        <input id="passwordInput" type="password" placeholder="Password" autocomplete="current-password">
+        <button id="authConfirm">Login</button>
+        <div id="registerLink" style="display:none; margin-top: 8px;">
+          <a href="#" id="showRegister" style="color: var(--accent); font-size: 0.8rem; text-decoration: none;">No account? Register first user</a>
+        </div>
+      </div>
+      <div id="registerForm" style="display:none;">
+        <input id="regUsernameInput" type="text" placeholder="Username" autocomplete="username">
+        <input id="regPasswordInput" type="password" placeholder="Password (min 4 chars)" autocomplete="new-password">
+        <button id="regConfirm" style="background: var(--accent3);">Register</button>
+        <button id="backToLogin" style="background: var(--bg3); color: var(--fg); margin-top: 8px;">Back to login</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- change password modal -->
+  <div id="passwordModal">
+    <div class="authBox">
+      <h2>CHANGE PASSWORD</h2>
+      <input id="currentPasswordInput" type="password" placeholder="Current password">
+      <input id="newPasswordInput" type="password" placeholder="New password (min 4 chars)">
+      <input id="confirmPasswordInput" type="password" placeholder="Confirm new password">
+      <button id="passwordConfirm">Update Password</button>
+      <button id="passwordCancel" style="background: var(--bg3); color: var(--fg); margin-top: 8px;">Cancel</button>
     </div>
   </div>
 
@@ -344,6 +446,16 @@
     <button id="backBtn" title="Sessions">&#8592;</button>
     <div id="sessionBadge"></div>
     <h1 id="topTitle">CHAT</h1>
+    <button id="userBtn" title="Account">&#9881;</button>
+  </div>
+
+  <!-- user dropdown (positioned relative to userBtn) -->
+  <div id="userDropdown">
+    <div class="userLabel" id="userDropdownLabel"></div>
+    <button class="dropdownItem" id="dropdownChangeUser">Change User</button>
+    <button class="dropdownItem" id="dropdownChangePassword">Change Password</button>
+    <div class="divider"></div>
+    <button class="dropdownItem danger" id="dropdownLogout">Logout</button>
   </div>
 
   <!-- error banner -->
@@ -357,9 +469,7 @@
       <div id="sessionItems"></div>
       <div id="newSessionArea">
         <p>Start a new conversation:</p>
-        <div class="modelBtns">
-          <button class="modelBtn qwen"  onclick="createSession('qwen')">Qwen</button>
-          <button class="modelBtn claude" onclick="createSession('claude')">Claude</button>
+        <div class="modelBtns" id="modelBtns">
         </div>
       </div>
     </div>
@@ -375,12 +485,15 @@
 
   </div>
 
-  <script>
+ <script>
   let authToken = localStorage.getItem('authToken') || '';
+  let userRole = localStorage.getItem('userRole') || 'user';
   let currentSessionId = null;
   let currentModel = null;
   let isStreaming = false;
   let titleSet = false;
+  var activeStreamAbort = null;
+  var currentStreamingMsgId = null;
 
   if (!authToken) {
     document.getElementById('authModal').classList.add('visible');
@@ -388,33 +501,232 @@
     init();
   }
 
+  function showLoginForm() {
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('registerForm').style.display = 'none';
+  }
+
+  function showRegisterForm() {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'block';
+  }
+
   document.getElementById('authConfirm').addEventListener('click', function() {
-    var token = document.getElementById('tokenInput').value.trim();
-    if (token) {
-      authToken = token;
-      localStorage.setItem('authToken', token);
-      document.getElementById('authModal').classList.remove('visible');
-      init();
+    var username = document.getElementById('usernameInput').value.trim();
+    var password = document.getElementById('passwordInput').value;
+    if (!username || !password) {
+      showError('Username and password required');
+      return;
     }
+    fetch('/chat/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: username, password: password })
+    }).then(function(res) {
+      if (!res.ok) throw new Error('unauthorized');
+      return res.json();
+     }).then(function(data) {
+          authToken = data.token;
+          userRole = data.role;
+          localStorage.setItem('authToken', data.token);
+          localStorage.setItem('userRole', data.role);
+          localStorage.setItem('username', username);
+          document.getElementById('authModal').classList.remove('visible');
+          init();
+       }).catch(function(e) {
+         showError('Invalid credentials');
+       });
   });
 
-  document.getElementById('tokenInput').addEventListener('keydown', function(e) {
+  document.getElementById('passwordInput').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
       e.preventDefault();
       document.getElementById('authConfirm').click();
     }
   });
 
-  function init() {
-    var lastId = localStorage.getItem('lastSessionId');
-    if (lastId) {
-      openSession(lastId);
-    } else {
-      loadSessions();
+  document.getElementById('showRegister').addEventListener('click', function(e) {
+    e.preventDefault();
+    showRegisterForm();
+  });
+
+  document.getElementById('backToLogin').addEventListener('click', function() {
+    showLoginForm();
+  });
+
+  document.getElementById('regConfirm').addEventListener('click', function() {
+    var username = document.getElementById('regUsernameInput').value.trim();
+    var password = document.getElementById('regPasswordInput').value;
+    if (!username || password.length < 4) {
+      showError('Username required and password must be >= 4 chars');
+      return;
+    }
+    fetch('/chat/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: username, password: password })
+    }).then(function(res) {
+      if (!res.ok) throw new Error('registration failed');
+      return res.json();
+    }).then(function(data) {
+      if (data.ok) {
+        showError('Admin user created. Use the login form.');
+        showLoginForm();
+        document.getElementById('usernameInput').value = username;
+        document.getElementById('passwordInput').value = password;
+      } else {
+        showError(data.error || 'Registration failed');
+      }
+    }).catch(function(e) {
+      showError('Registration failed');
+    });
+  });
+
+  document.getElementById('regPasswordInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('regConfirm').click();
+    }
+  });
+
+  // Registration link is always visible — server rejects if users already exist
+  document.getElementById('registerLink').style.display = 'block';
+
+  // ── User button / dropdown ────────────────────────────────────────────
+
+  function updateUserLabel() {
+    var label = document.getElementById('userDropdownLabel');
+    if (label) {
+      label.textContent = userRole === 'admin' ? (authToken ? (localStorage.getItem('username') || 'admin') + ' (admin)' : '') : (authToken ? (localStorage.getItem('username') || 'user') + ' (user)' : '');
     }
   }
 
+  function closeDropdown() {
+    var dd = document.getElementById('userDropdown');
+    if (dd) dd.classList.remove('open');
+  }
+
+  document.getElementById('userBtn').addEventListener('click', function(e) {
+    e.stopPropagation();
+    var dd = document.getElementById('userDropdown');
+    dd.classList.toggle('open');
+    updateUserLabel();
+  });
+
+  document.addEventListener('click', function(e) {
+    var dd = document.getElementById('userDropdown');
+    var btn = document.getElementById('userBtn');
+    if (dd && !dd.contains(e.target) && !btn.contains(e.target)) {
+      closeDropdown();
+    }
+  });
+
+  document.getElementById('dropdownLogout').addEventListener('click', function() {
+    closeDropdown();
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('username');
+    localStorage.removeItem('lastSessionId');
+    authToken = '';
+    userRole = '';
+    document.getElementById('authModal').classList.add('visible');
+    showLoginForm();
+  });
+
+  document.getElementById('dropdownChangeUser').addEventListener('click', function() {
+    closeDropdown();
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('username');
+    authToken = '';
+    userRole = '';
+    document.getElementById('authModal').classList.add('visible');
+    showLoginForm();
+  });
+
+  document.getElementById('dropdownChangePassword').addEventListener('click', function() {
+    closeDropdown();
+    document.getElementById('passwordModal').classList.add('visible');
+    document.getElementById('currentPasswordInput').value = '';
+    document.getElementById('newPasswordInput').value = '';
+    document.getElementById('confirmPasswordInput').value = '';
+  });
+
+  document.getElementById('passwordConfirm').addEventListener('click', function() {
+    var oldPw = document.getElementById('currentPasswordInput').value;
+    var newPw = document.getElementById('newPasswordInput').value;
+    var confirmPw = document.getElementById('confirmPasswordInput').value;
+    if (!oldPw) { showError('Current password required'); return; }
+    if (newPw.length < 4) { showError('New password must be >= 4 chars'); return; }
+    if (newPw !== confirmPw) { showError('Passwords do not match'); return; }
+    makeFetch('/chat/change-password', {
+      method: 'POST',
+      body: { oldPassword: oldPw, newPassword: newPw }
+    }).then(function(res) {
+      if (!res.ok) return res.json().then(function(d) { throw new Error(d.error || 'failed'); });
+      document.getElementById('passwordModal').classList.remove('visible');
+      showError('Password updated successfully');
+    }).catch(function(e) {
+      showError(e.message || 'Failed to change password');
+    });
+  });
+
+  document.getElementById('passwordCancel').addEventListener('click', function() {
+    document.getElementById('passwordModal').classList.remove('visible');
+  });
+
+  document.getElementById('currentPasswordInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('passwordConfirm').click();
+  });
+
+  document.getElementById('newPasswordInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('passwordConfirm').click();
+  });
+
+  document.getElementById('confirmPasswordInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('passwordConfirm').click();
+  });
+
+  function init() {
+    document.getElementById('userBtn').style.display = 'block';
+    updateUserLabel();
+    renderModelButtons();
+    loadSessions();
+  }
+
+  function renderModelButtons() {
+    var container = document.getElementById('modelBtns');
+    container.innerHTML = '';
+    if (userRole === 'admin') {
+      var qwenBtn = document.createElement('button');
+      qwenBtn.className = 'modelBtn qwen';
+      qwenBtn.textContent = 'Qwen';
+      qwenBtn.onclick = function() { createSession('qwen'); };
+      container.appendChild(qwenBtn);
+      var claudeBtn = document.createElement('button');
+      claudeBtn.className = 'modelBtn claude';
+      claudeBtn.textContent = 'Claude';
+      claudeBtn.onclick = function() { createSession('claude'); };
+      container.appendChild(claudeBtn);
+    }
+    var llamaBtn = document.createElement('button');
+    llamaBtn.className = 'modelBtn llama';
+    llamaBtn.textContent = 'Llama';
+    llamaBtn.onclick = function() { createSession('llama'); };
+    container.appendChild(llamaBtn);
+  }
+
   function showSessionListView() {
+    if (activeStreamAbort) { activeStreamAbort.abort(); activeStreamAbort = null; }
+    currentStreamingMsgId = null;
+    isStreaming = false;
+    document.querySelectorAll('#inputBar .cancelBtn').forEach(function(b) { b.remove(); });
+    var sendBtn = document.getElementById('sendBtn');
+    if (sendBtn) sendBtn.disabled = false;
+    var msgInput = document.getElementById('msgInput');
+    if (msgInput) msgInput.disabled = false;
+    closeDropdown();
+    document.getElementById('passwordModal').classList.remove('visible');
     document.getElementById('chatView').style.display = 'none';
     document.getElementById('sessionList').style.display = 'flex';
     document.getElementById('backBtn').style.display = 'none';
@@ -425,11 +737,13 @@
   }
 
   function showChatView(sessionId, model, title) {
+    closeDropdown();
+    updateUserLabel();
     document.getElementById('sessionList').style.display = 'none';
     document.getElementById('chatView').style.display = 'flex';
     document.getElementById('backBtn').style.display = 'block';
     var badge = document.getElementById('sessionBadge');
-    badge.textContent = model === 'qwen' ? 'Q' : 'C';
+    badge.textContent = model === 'qwen' ? 'Q' : (model === 'claude' ? 'C' : 'L');
     badge.className = 'badge ' + model;
     badge.style.display = 'inline-block';
     var displayTitle = title || sessionId;
@@ -459,7 +773,7 @@
         var s = sessions[i];
         var row = document.createElement('div');
         row.className = 'sessionRow';
-        var badgeText = s.model === 'qwen' ? 'Q' : 'C';
+        var badgeText = s.model === 'qwen' ? 'Q' : (s.model === 'claude' ? 'C' : 'L');
         row.innerHTML = '<span class="badge ' + s.model + '">' + badgeText + '</span>' +
           '<span class="rowTitle">' + escapeHtml(s.title || s.id) + '</span>' +
           '<span class="rowTime">' + formatTime(s.createdAt) + '</span>';
@@ -488,11 +802,262 @@
   }
 
   async function openSession(id, model, title) {
+    if (activeStreamAbort) { activeStreamAbort.abort(); activeStreamAbort = null; }
+    currentStreamingMsgId = null;
+    isStreaming = false;
+    document.querySelectorAll('#inputBar .cancelBtn').forEach(function(b) { b.remove(); });
+    var sendBtn = document.getElementById('sendBtn');
+    if (sendBtn) sendBtn.disabled = false;
+    var msgInput = document.getElementById('msgInput');
+    if (msgInput) msgInput.disabled = false;
     currentSessionId = id;
     currentModel = model;
     titleSet = false;
     await loadHistory(id);
     showChatView(id, model, title || id);
+  }
+
+  function subscribeToStream(sessionId, messageId, sinceSeq, callbacks) {
+    var url = '/chat/sessions/' + sessionId + '/messages/' + messageId + '/stream?sinceSeq=' + sinceSeq;
+    var abortController = new AbortController();
+    var reader = null;
+    var decoder = new TextDecoder();
+    var buffer = '';
+
+    fetch(url, {
+      headers: { 'Authorization': 'Bearer ' + authToken },
+      signal: abortController.signal
+    }).then(function(res) {
+      if (!res.ok) {
+        callbacks.onError('stream error: ' + res.status);
+        return;
+      }
+      reader = res.body.getReader();
+      return readLoop();
+    }).catch(function(err) {
+      callbacks.onError(err.message || String(err));
+    });
+
+    function readLoop() {
+      if (!reader) return;
+      return reader.read().then(function(result) {
+        var done = result.done;
+        var value = result.value;
+        if (done) {
+          callbacks.onDone();
+          return;
+        }
+        buffer += decoder.decode(value, { stream: true });
+        var lines = buffer.split('\n');
+        buffer = lines.pop();
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i];
+          if (line.indexOf('data: ') === 0) {
+            try {
+              var obj = JSON.parse(line.slice(6));
+              if (obj.kind === 'committed') {
+                callbacks.onCommitted(obj.seq, obj.type, obj.payload);
+              } else if (obj.kind === 'delta') {
+                callbacks.onDelta(obj.blockIndex, obj.blockType, obj.textChunk);
+              } else if (obj.kind === 'status') {
+                callbacks.onStatus(obj.status);
+              }
+            } catch(e) {
+              // skip malformed
+            }
+          }
+        }
+        return readLoop();
+      }).catch(function(err) {
+        if (err.name !== 'AbortError') {
+          callbacks.onError(err.message || String(err));
+        }
+      });
+    }
+
+    activeStreamAbort = abortController;
+    return { abort: function() { activeStreamAbort = null; abortController.abort(); } };
+  }
+
+  function renderAssistantBubble(wrapper) {
+    var committedBlocks = [];
+    var liveBlocks = {};
+    var currentTextDiv = null;
+    var currentBubbleEl = null;
+    var thinkingWidget = null;
+    var bubbleCreated = false;
+    var highestSeq = 0;
+    var toolResultPending = null;
+    var finalStatus = null;
+    var cancelBtnEl = null;
+
+    function ensureBubble() {
+      if (!bubbleCreated) {
+        currentBubbleEl = document.createElement('div');
+        currentBubbleEl.className = 'msgBubble assistant';
+        var roleLabel = document.createElement('span');
+        roleLabel.className = 'roleLabel';
+        roleLabel.textContent = currentModel || 'assistant';
+        var textDiv = document.createElement('div');
+        textDiv.className = 'bubbleText';
+        var timeSpan = document.createElement('span');
+        timeSpan.className = 'bubbleTime';
+        timeSpan.textContent = formatTime(Math.floor(Date.now() / 1000));
+        currentBubbleEl.appendChild(roleLabel);
+        currentBubbleEl.appendChild(textDiv);
+        currentBubbleEl.appendChild(timeSpan);
+        wrapper.appendChild(currentBubbleEl);
+        currentTextDiv = textDiv;
+        bubbleCreated = true;
+      }
+    }
+
+    function scrollToBottom() {
+      var thread = document.getElementById('messageThread');
+      var isNearBottom = (thread.scrollHeight - thread.scrollTop - thread.clientHeight) < 100;
+      if (isNearBottom) {
+        thread.scrollTop = thread.scrollHeight;
+      }
+    }
+
+    function onDelta(blockIndex, blockType, textChunk) {
+      if (blockType === 'thinking') {
+        if (currentTextDiv) { currentTextDiv.classList.remove('cursor'); currentTextDiv = null; }
+        if (!thinkingWidget) thinkingWidget = createThinkingBlock(wrapper);
+        thinkingWidget.append(textChunk);
+        liveBlocks[blockIndex] = true;
+        scrollToBottom();
+      } else if (blockType === 'text') {
+        ensureBubble();
+        if (thinkingWidget) { thinkingWidget.finish(); thinkingWidget = null; }
+        currentTextDiv.textContent += textChunk;
+        currentTextDiv.classList.add('cursor');
+        liveBlocks[blockIndex] = true;
+        scrollToBottom();
+      } else if (blockType === 'tool') {
+        if (currentTextDiv) { currentTextDiv.classList.remove('cursor'); currentTextDiv = null; }
+        if (thinkingWidget) { thinkingWidget.finish(); thinkingWidget = null; }
+        var payload = textChunk;
+        if (typeof payload === 'string') payload = JSON.parse(payload);
+        appendToolRowLive(wrapper, payload.name, payload.input);
+      }
+    }
+
+    function onCommitted(seq, type, payload) {
+      if (seq > highestSeq) highestSeq = seq;
+      if (type === 'thinking') {
+        if (liveBlocks[seq]) {
+          delete liveBlocks[seq];
+          return;
+        }
+        var tw = createThinkingBlock(wrapper);
+        tw.append(payload.content || '');
+        tw.finish();
+      } else if (type === 'text') {
+        if (liveBlocks[seq]) {
+          ensureBubble();
+          currentTextDiv.textContent = payload.content || '';
+          delete liveBlocks[seq];
+          return;
+        }
+        ensureBubble();
+        currentTextDiv.textContent += (payload.content || '');
+      } else if (type === 'tool') {
+        appendToolRowLive(wrapper, payload.name, payload.input);
+      } else if (type === 'toolResult') {
+        appendToolResultLive(wrapper, payload.output || '');
+      } else if (type === 'error') {
+        ensureBubble();
+        var errSpan = document.createElement('span');
+        errSpan.style.color = 'var(--danger)';
+        errSpan.textContent = payload.reason || 'Error';
+        currentTextDiv.appendChild(errSpan);
+      }
+      committedBlocks.push({seq: seq, type: type, payload: payload});
+    }
+
+    function onStatus(status) {
+      finalStatus = status;
+      if (currentTextDiv) currentTextDiv.classList.remove('cursor');
+      if (thinkingWidget) { thinkingWidget.finish(); thinkingWidget = null; }
+      if (cancelBtnEl) cancelBtnEl.style.display = 'none';
+    }
+
+    function onError(reason) {
+      if (currentTextDiv) currentTextDiv.classList.remove('cursor');
+      if (cancelBtnEl) cancelBtnEl.style.display = 'none';
+      if (reason) showError(reason);
+    }
+
+    function onDone() {
+      if (finalStatus === 'streaming' || finalStatus === null) {
+        finalStatus = 'complete';
+        if (currentTextDiv) currentTextDiv.classList.remove('cursor');
+        if (cancelBtnEl) cancelBtnEl.style.display = 'none';
+      }
+    }
+
+    wrapper._streamState = {
+      onDelta: onDelta,
+      onCommitted: onCommitted,
+      onStatus: onStatus,
+      onError: onError,
+      onDone: onDone,
+      getHighestSeq: function() { return highestSeq; },
+      getCancelBtn: function() { return cancelBtnEl; },
+      isFinal: function() { return finalStatus !== null; }
+    };
+
+    return wrapper;
+  }
+
+  function appendToolRowLive(wrapper, toolName, input) {
+    var preview = '';
+    if (input && typeof input === 'object') {
+      var vals = Object.values(input).filter(function(v){ return typeof v === 'string'; });
+      preview = vals.length ? vals[0].slice(0, 80) : JSON.stringify(input).slice(0, 80);
+    } else if (input) {
+      preview = String(input).slice(0, 80);
+    }
+    var inputStr = (input && typeof input === 'object') ? JSON.stringify(input, null, 2) : String(input || '');
+
+    var row = document.createElement('div');
+    row.className = 'toolRow';
+
+    var header = document.createElement('div');
+    header.className = 'toolRowHeader';
+    header.innerHTML =
+      '<span class="toolRowName">' + escapeHtml(toolName) + '</span>' +
+      '<span class="toolRowPreview">' + escapeHtml(preview) + '</span>' +
+      '<span class="toolRowToggle">▸</span>';
+    header.onclick = function() {
+      row.classList.toggle('expanded');
+      header.querySelector('.toolRowToggle').textContent =
+        row.classList.contains('expanded') ? '▾' : '▸';
+    };
+
+    var body = document.createElement('div');
+    body.className = 'toolRowBody';
+    body.textContent = inputStr;
+
+    row.appendChild(header);
+    row.appendChild(body);
+    wrapper.appendChild(row);
+  }
+
+  function appendToolResultLive(wrapper, output) {
+    var row = document.createElement('div');
+    row.className = 'toolRow';
+    var header = document.createElement('div');
+    header.className = 'toolRowHeader';
+    header.innerHTML = '<span class="toolRowName">tool result</span><span class="toolRowToggle">▸</span>';
+    header.onclick = function() { row.classList.toggle('expanded'); header.querySelector('.toolRowToggle').textContent = row.classList.contains('expanded') ? '▾' : '▸'; };
+    var body = document.createElement('div');
+    body.className = 'toolRowBody';
+    body.textContent = String(output || '');
+    row.appendChild(header);
+    row.appendChild(body);
+    wrapper.appendChild(row);
   }
 
   async function loadHistory(sessionId) {
@@ -504,29 +1069,52 @@
       thread.innerHTML = '';
       for (var i = 0; i < history.length; i++) {
         var msg = history[i];
-        if (msg.role === 'assistant' && msg.events) {
+        if (msg.role === 'user') {
+          appendMessage('user', msg.content, msg.createdAt, false);
+          continue;
+        }
+        if (msg.role === 'assistant') {
           var events;
           try { events = JSON.parse(msg.events); } catch(e) { events = null; }
+          var wrapper = document.createElement('div');
+          wrapper.className = 'agentTurn';
+          thread.appendChild(wrapper);
+          renderAssistantBubble(wrapper);
           if (events && events.length) {
-            var turnWrapper = document.createElement('div');
-            turnWrapper.className = 'agentTurn';
-            thread.appendChild(turnWrapper);
             for (var j = 0; j < events.length; j++) {
               var evt = events[j];
-              if (evt.type === 'thinking') {
-                var tw = createThinkingBlock(turnWrapper);
-                tw.append(evt.content);
-                tw.finish();
-              } else if (evt.type === 'tool') {
-                appendToolRow(turnWrapper, evt.tool, evt.input, evt.output);
-              } else if (evt.type === 'text') {
-                var textDiv = createTextBubble(turnWrapper);
-                textDiv.textContent = evt.content;
-                textDiv.classList.remove('cursor');
+              var evtPayload = { content: evt.content || '', name: evt.tool || evt.name || '', input: evt.input || {}, output: evt.output || '', reason: evt.content || evt.reason || '' };
+              var evtType = evt.type;
+              var evtSeq = evt.seq || j;
+              if (evtType === 'toolResult') {
+                wrapper._streamState.onCommitted(evtSeq, 'toolResult', { output: evt.output || '' });
+              } else if (evtType === 'error') {
+                wrapper._streamState.onCommitted(evtSeq, 'error', { reason: evt.reason || evt.content || '' });
+              } else {
+                wrapper._streamState.onCommitted(evtSeq, evtType, evtPayload);
               }
             }
-            continue;
           }
+          var highestSeq = wrapper._streamState.getHighestSeq();
+          if (msg.status === 'streaming') {
+            subscribeToStream(sessionId, msg.id, highestSeq, {
+              onDelta: function(bi, bt, tc) { wrapper._streamState.onDelta(bi, bt, tc); },
+              onCommitted: function(s, t, p) { wrapper._streamState.onCommitted(s, t, p); },
+              onStatus: function(st) { wrapper._streamState.onStatus(st); },
+              onError: function(err) { showError(err); },
+              onDone: function() {}
+            });
+            var cancelBtn = document.createElement('button');
+            cancelBtn.className = 'cancelBtn';
+            cancelBtn.textContent = 'Stop';
+            cancelBtn.style.marginLeft = '8px';
+            cancelBtn.style.position = 'absolute';
+            cancelBtn.style.right = '16px';
+            cancelBtn.style.top = '10px';
+            cancelBtn.onclick = function() { cancelStream(sessionId, msg.id, cancelBtn); };
+            document.getElementById('inputBar').appendChild(cancelBtn);
+          }
+          continue;
         }
         if (msg.content) appendMessage(msg.role, msg.content, msg.createdAt, false);
       }
@@ -581,19 +1169,19 @@
 
     appendMessage('user', content, Date.now() / 1000, false);
 
-    var turnWrapper = document.createElement('div');
-    turnWrapper.className = 'agentTurn';
-    document.getElementById('messageThread').appendChild(turnWrapper);
+    var wrapper = document.createElement('div');
+    wrapper.className = 'agentTurn';
+    document.getElementById('messageThread').appendChild(wrapper);
+    renderAssistantBubble(wrapper);
 
-    var bubbleEl = null;
-    var fullText = '';
-    var thinkingWidget = null;
-    var currentBubbleText = '';
-
-    function scrollThread() {
-      var thread = document.getElementById('messageThread');
-      thread.scrollTop = thread.scrollHeight;
-    }
+    // Add cancel button
+    var cancelBtn = document.createElement('button');
+    cancelBtn.className = 'cancelBtn';
+    cancelBtn.textContent = 'Stop';
+    cancelBtn.style.position = 'absolute';
+    cancelBtn.style.right = '16px';
+    cancelBtn.style.top = '10px';
+    cancelBtn.onclick = function() { cancelCurrentStream(); };
 
     try {
       var res = await makeFetch('/chat/sessions/' + currentSessionId + '/message', {
@@ -601,79 +1189,100 @@
         body: { content: content }
       });
 
-      if (!res.ok) throw new Error('non-200');
+      if (!res.ok) {
+        var errBody = await res.json().catch(function() { return {}; });
+        throw new Error(errBody.error || ('HTTP ' + res.status));
+      }
 
-      var reader = res.body.getReader();
-      var decoder = new TextDecoder();
-      var buffer = '';
+      var data = await res.json();
+      var assistantMsgId = data.assistantMessageId;
+      currentStreamingMsgId = assistantMsgId;
 
-      while (true) {
-        var result = await reader.read();
-        var done = result.done;
-        var value = result.value;
-        if (done) break;
+      // Show cancel button
+      document.getElementById('inputBar').appendChild(cancelBtn);
 
-        buffer += decoder.decode(value, { stream: true });
-        var lines = buffer.split('\n');
-        buffer = lines.pop();
-
-        for (var i = 0; i < lines.length; i++) {
-          var line = lines[i];
-          if (line.startsWith('data: ')) {
-            try {
-              var obj = JSON.parse(line.slice(6));
-              if (obj.type === 'thinking') {
-                if (bubbleEl) { bubbleEl.classList.remove('cursor'); bubbleEl = null; currentBubbleText = ''; }
-                if (!thinkingWidget) thinkingWidget = createThinkingBlock(turnWrapper);
-                thinkingWidget.append(obj.content);
-                scrollThread();
-              } else if (obj.type === 'token') {
-                if (thinkingWidget) { thinkingWidget.finish(); thinkingWidget = null; }
-                if (!bubbleEl) { bubbleEl = createTextBubble(turnWrapper); currentBubbleText = ''; }
-                fullText += obj.content;
-                currentBubbleText += obj.content;
-                bubbleEl.textContent = currentBubbleText;
-                scrollThread();
-              } else if (obj.type === 'tool') {
-                if (thinkingWidget) { thinkingWidget.finish(); thinkingWidget = null; }
-                if (bubbleEl) { bubbleEl.classList.remove('cursor'); bubbleEl = null; currentBubbleText = ''; }
-                appendToolRow(turnWrapper, obj.tool, obj.input, obj.output);
-                scrollThread();
-              } else if (obj.type === 'done') {
-                if (thinkingWidget) { thinkingWidget.finish(); thinkingWidget = null; }
-                if (!bubbleEl) bubbleEl = createTextBubble(turnWrapper);
-                bubbleEl.classList.remove('cursor');
-                finalize(fullText);
-              } else if (obj.type === 'error') {
-                if (!bubbleEl) bubbleEl = createTextBubble(turnWrapper);
-                bubbleEl.textContent = obj.content;
-                bubbleEl.style.color = 'var(--danger)';
-                bubbleEl.classList.remove('cursor');
-                finalize('');
-              }
-            } catch(parseErr) {
-              // skip malformed SSE data
-            }
+      subscribeToStream(currentSessionId, assistantMsgId, 0, {
+        onDelta: function(bi, bt, tc) { wrapper._streamState.onDelta(bi, bt, tc); },
+        onCommitted: function(s, t, p) { wrapper._streamState.onCommitted(s, t, p); },
+        onStatus: function(st) {
+          wrapper._streamState.onStatus(st);
+          if (st === 'complete' || st === 'canceled' || st === 'error') {
+            cancelBtn.style.display = 'none';
+            onStreamDone(st);
+          }
+        },
+        onError: function(err) {
+          cancelBtn.style.display = 'none';
+          showError(err);
+          onStreamDone('error');
+        },
+        onDone: function() {
+          cancelBtn.style.display = 'none';
+          if (!wrapper._streamState.isFinal()) {
+            wrapper._streamState.onStatus('complete');
+            onStreamDone('complete');
           }
         }
-      }
-    } catch(e) {
-      showError('Connection error');
-      if (bubbleEl) bubbleEl.classList.remove('cursor');
-      finalize('');
-    }
+      });
 
-    function finalize(text) {
+      function onStreamDone(finalStatus) {
+        isStreaming = false;
+        currentStreamingMsgId = null;
+        document.getElementById('sendBtn').disabled = false;
+        var msgInput = document.getElementById('msgInput');
+        msgInput.disabled = false;
+        msgInput.focus();
+        var thread = document.getElementById('messageThread');
+        thread.scrollTop = thread.scrollHeight;
+      }
+
+    } catch(e) {
       isStreaming = false;
       document.getElementById('sendBtn').disabled = false;
       var msgInput = document.getElementById('msgInput');
       msgInput.disabled = false;
       msgInput.focus();
-      if (text && !titleSet) {
-        document.getElementById('topTitle').textContent = text.slice(0, 40);
-        titleSet = true;
-      }
+      showError(e.message || 'Connection error');
+      cancelBtn.style.display = 'none';
     }
+  }
+
+  function cancelCurrentStream() {
+    if (activeStreamAbort) {
+      activeStreamAbort.abort();
+      activeStreamAbort = null;
+    }
+    if (!currentSessionId || !currentStreamingMsgId) return;
+    var thread = document.getElementById('messageThread');
+    var bubbles = thread.querySelectorAll('.agentTurn');
+    var lastBubble = bubbles[bubbles.length - 1];
+    if (!lastBubble || !lastBubble._streamState || lastBubble._streamState.isFinal()) return;
+
+    var cancelBtnEl = document.getElementById('inputBar').querySelector('.cancelBtn');
+
+    if (cancelBtnEl) cancelBtnEl.disabled = true;
+
+    makeFetch('/chat/sessions/' + currentSessionId + '/messages/' + currentStreamingMsgId + '/cancel', { method: 'POST' })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (cancelBtnEl) cancelBtnEl.disabled = false;
+      })
+      .catch(function(e) {
+        showError('Cancel failed: ' + e.message);
+        if (cancelBtnEl) cancelBtnEl.disabled = false;
+      });
+  }
+
+  function cancelStream(sessionId, messageId, cancelBtn) {
+    makeFetch('/chat/sessions/' + sessionId + '/messages/' + messageId + '/cancel', { method: 'POST' })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (cancelBtn) cancelBtn.style.display = 'none';
+      })
+      .catch(function(e) {
+        showError('Cancel failed: ' + e.message);
+        if (cancelBtn) { cancelBtn.disabled = false; }
+      });
   }
 
   function escapeHtml(s) {
@@ -780,12 +1389,6 @@
     return h + ':' + m;
   }
 
-  function escapeHtml(str) {
-    var div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
   function showError(msg) {
     var banner = document.getElementById('errorBanner');
     banner.textContent = msg;
@@ -814,11 +1417,16 @@
   });
 
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && currentSessionId) {
-      showSessionListView();
-      loadSessions();
+     if (e.key === 'Escape' && currentSessionId) {
+       showSessionListView();
+       loadSessions();
+     }
+   });
+
+    // Register service worker for PWA install
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(function() {});
     }
-  });
-  </script>
+    </script>
 </body>
 </html>

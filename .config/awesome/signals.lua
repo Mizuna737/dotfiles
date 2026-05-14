@@ -198,8 +198,30 @@ onEnd("tag_cycle", function(hand)
 end)
 
 -- Volume
+local _volumeBaseline = nil
+onStart("set_volume", function()
+	-- Capture current system volume as percentage
+	local f = io.popen("pactl get-sink-volume @DEFAULT_SINK@ | grep -oP '\\d+(?=%)'")
+	if f then
+		_volumeBaseline = tonumber(f:read("*n")) or 50
+		f:close()
+	end
+	-- Also capture gesture angle baseline for delta calculation
+	-- (will be set on first onUpdate)
+end)
+local _gestureBaseline = nil
 onUpdate("set_volume", function(hand, value)
-	myFuncs.volumeControl("set", myFuncs.roundToNearest(5, value * 200))
+	if not _gestureBaseline then
+		_gestureBaseline = value
+	end
+	-- delta in gesture space, normalized to full gesture range
+	local normalizedDelta = (value - _gestureBaseline) / 0.6
+	local newVol = math.floor(_volumeBaseline + normalizedDelta * 100)
+	myFuncs.volumeControl("set", math.max(0, math.min(100, newVol)))
+end)
+onEnd("set_volume", function()
+	_volumeBaseline = nil
+	_gestureBaseline = nil
 end)
 
 -- Window stacking
