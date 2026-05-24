@@ -1,5 +1,6 @@
 symbol	file	line	kind	language
 permissions	.claude/settings.json	2		
+Commit Draft Skill	.claude/skills/commit-draft/SKILL.md	1		
 run	.config/autostart/autorun.sh	3		
 settings	.config/awesome/bar.lua	66		
 settings	.config/awesome/bar.lua	76		
@@ -1426,6 +1427,21 @@ getDiff	Scripts/diffSummarize.py	60
 main	Scripts/diffSummarize.py	80		
 notify	Scripts/dpmsInhibit.sh	11		
 setDpms	Scripts/dpmsInhibit.sh	17		
+NOISE_PATTERNS	Scripts/draftCommit.py	30		
+NOISE_COMPILED	Scripts/draftCommit.py	42		
+is_noise	Scripts/draftCommit.py	45		
+filter_paths	Scripts/draftCommit.py	52		
+COMPONENT_ORDER	Scripts/draftCommit.py	59		
+group_by_component	Scripts/draftCommit.py	69		
+get_diff_text	Scripts/draftCommit.py	96		
+get_tracked_diff_with_filter	Scripts/draftCommit.py	108		
+COMMIT_SYSTEM	Scripts/draftCommit.py	180		
+generate_commit_message	Scripts/draftCommit.py	222		
+_toon_escape	Scripts/draftCommit.py	269		
+toon_encode_changes	Scripts/draftCommit.py	277		
+SECRET_SCAN_SYSTEM	Scripts/draftCommit.py	296		
+secret_scan_diff	Scripts/draftCommit.py	314		
+main	Scripts/draftCommit.py	344		
 _scanWithPython	Scripts/droidCamDaemon.sh	20		
 _scanBash	Scripts/droidCamDaemon.sh	39		
 _findReachable	Scripts/droidCamDaemon.sh	63		
