@@ -33,9 +33,11 @@ todoist-appimage
 upd8all
 uxplay
 via-bin
+vieb
 vscodium-bin
 vtop
 windscribe-v2-bin
 woeusb-ng
 yay
+zen-browser-bin
 zoom

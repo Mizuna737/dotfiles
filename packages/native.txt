@@ -36,6 +36,7 @@ docker-compose
 dosfstools
 easyeffects
 efibootmgr
+electron42
 ethtool
 fd
 feh

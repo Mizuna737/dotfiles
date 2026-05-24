@@ -16,7 +16,7 @@ end
 -- the buffer. inotifywait keeps watching /tmp/ so no watcher restart is needed.
 local function refreshDailyNoteBuffer()
 	local today = os.date("%Y-%m-%d")
-	local vault = os.getenv("HOME") .. "/Documents/The Vault"
+	local vault = os.getenv("HOME") .. "/Vault"
 	local dailyNote = vault .. "/Daily Notes/" .. today .. ".md"
 	local activeFile = "/tmp/quicknotes-" .. today .. ".md"
 

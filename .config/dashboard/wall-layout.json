@@ -1,0 +1,162 @@
+{
+  "canvas": {
+    "width": 1920,
+    "height": 1080
+  },
+  "background": {
+    "type": "image",
+    "value": "/wall/uploads/15f9415581de491e9830ce1b8b8665d3.jpg"
+  },
+  "widgets": [
+    {
+      "id": "74a942a0-8e93-4bf9-a3f6-0eec9dedd388",
+      "type": "clock",
+      "x": 960,
+      "y": 0,
+      "width": 960,
+      "height": 180,
+      "config": {
+        "format": "12h",
+        "fontSize": "64",
+        "color": "#ffffff",
+        "fontFamily": "Playfair Display",
+        "showDate": true,
+        "timezone": "America/Denver",
+        "showSeconds": false
+      }
+    },
+    {
+      "id": "0f3da5da-a032-4529-87e8-2ff67345919a",
+      "type": "countdown",
+      "x": 800,
+      "y": 580,
+      "width": 560,
+      "height": 500,
+      "config": {
+        "fontSize": "60",
+        "color": "#ffffff",
+        "accentColor": "#ff6b6b",
+        "label": "Vancouver!",
+        "showSeconds": false,
+        "targetDate": "2026-06-04T08:00",
+        "display": "pie",
+        "fillColor": "#ff0000",
+        "fillAlpha": "0.5",
+        "emptyColor": "#ffffff",
+        "emptyAlpha": "0.05",
+        "showTime": true,
+        "configuredAt": 1779570867933,
+        "fontFamily": ""
+      }
+    },
+    {
+      "id": "9c0fa8f5-793a-45d2-94d5-2a3e48826957",
+      "type": "timer",
+      "x": 1360,
+      "y": 580,
+      "width": 560,
+      "height": 500,
+      "config": {
+        "fillColor": "#ff6b6b",
+        "fillAlpha": "0.8",
+        "emptyColor": "#ffffff",
+        "emptyAlpha": "0.15",
+        "durationMinutes": 120,
+        "targetDate": "",
+        "label": "Laundry",
+        "showTime": true,
+        "textColor": "#ffffff",
+        "startedAt": 1779477653094,
+        "display": "pie",
+        "fontSize": "72"
+      }
+    },
+    {
+      "id": "c9ad89f2-fb4d-4869-973d-f750fcede7dc",
+      "type": "calendar",
+      "x": 0,
+      "y": 240,
+      "width": 1920,
+      "height": 340,
+      "config": {
+        "fontSize": 24,
+        "textColor": "#ffffff",
+        "accentColor": "#6bceff",
+        "eventCount": 5,
+        "title": "Upcoming",
+        "icsUrl": "https://calendar.google.com/calendar/ical/thehefburns%40gmail.com/private-cd47bd8b7757324b7928176a18bebbc2/basic.ics",
+        "view": "this-week",
+        "nextDays": 7,
+        "nextWeeks": 1,
+        "weekStartsOn": "mon",
+        "wrapText": true
+      }
+    },
+    {
+      "id": "af6db853-af99-49db-83d4-f41cc665ecba",
+      "type": "list",
+      "x": 400,
+      "y": 580,
+      "width": 400,
+      "height": 500,
+      "config": {
+        "source": "todoist",
+        "title": "Shopping List",
+        "fontSize": 18,
+        "textColor": "#ffffff",
+        "accentColor": "#6bceff",
+        "maxItems": 20,
+        "showCompleted": false,
+        "todoistFilter": "",
+        "todoistProject": "Shopping List",
+        "obsidianFile": "Notes/Tasks.md",
+        "obsidianFilter": "incomplete",
+        "wrapText": true
+      }
+    },
+    {
+      "id": "5ba9b038-699a-48ea-a640-5bb7d5dbbeb1",
+      "type": "list",
+      "x": 0,
+      "y": 580,
+      "width": 400,
+      "height": 500,
+      "config": {
+        "source": "todoist",
+        "title": "Household Priorities",
+        "fontSize": 18,
+        "textColor": "#ffffff",
+        "accentColor": "#6bceff",
+        "maxItems": 20,
+        "showCompleted": false,
+        "todoistFilter": "",
+        "todoistProject": "Household priorities",
+        "obsidianFile": "Notes/Tasks.md",
+        "obsidianFilter": "incomplete",
+        "wrapText": true
+      }
+    },
+    {
+      "id": "99285e98-949f-4e94-8fe3-2e5e21a9d905",
+      "type": "calendar",
+      "x": 0,
+      "y": 0,
+      "width": 960,
+      "height": 180,
+      "config": {
+        "icsUrl": "",
+        "view": "month-name",
+        "nextDays": 7,
+        "nextWeeks": 2,
+        "wrapText": false,
+        "weekStartsOn": "sun",
+        "eventCount": 3,
+        "fontSize": 18,
+        "textColor": "#ffffff",
+        "accentColor": "#6bceff",
+        "title": "",
+        "fontFamily": ""
+      }
+    }
+  ]
+}

@@ -477,6 +477,8 @@ end
 M.dropdownClasses = {
 	["Dropdown"] = true,
 	["Quick Notes"] = true,
+	["Concord"] = true,
+	["eisenhower"] = true,
 	-- add more here later
 }
 local function hideOtherDropdowns(except_class)
@@ -604,6 +606,26 @@ function M.toggleQuickNotes()
 		},
 		spawn_props = { floating = true, tag = awful.screen.focused().selected_tag },
 	})
+end
+
+function M.toggleConcord()
+	M.toggleDropdownApp({
+		class = "Concord",
+		spawn_cmd = {
+			"kitty",
+			"--class",
+			"Concord",
+			"--override",
+			"confirm_os_window_close=0",
+			"-e",
+			os.getenv("HOME") .. "/.cargo/bin/concord",
+		},
+		spawn_props = { floating = true, tag = awful.screen.focused().selected_tag },
+	})
+end
+
+function M.moveWindowToTag()
+	require("tagMover").show()
 end
 
 --------------------------------

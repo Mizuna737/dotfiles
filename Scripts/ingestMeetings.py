@@ -9,7 +9,7 @@ import subprocess
 import requests
 from datetime import datetime
 
-VAULT = "/home/max/Documents/The Vault"
+VAULT = "/home/max/Vault"
 MEETINGS_DIR = os.path.join(VAULT, "Meetings")
 OLLAMA_URL = "http://localhost:11434/api/generate"
 OLLAMA_MODEL = "qwen2.5:14b"

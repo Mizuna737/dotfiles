@@ -136,6 +136,10 @@ normalKeys.globalkeys = gears.table.join(
 		myFuncs.nextLayoutForTag()
 	end, { description = "cycle layouts for current tag", group = "layout" }),
 
+	awful.key({ modkey, altkey }, "space", function()
+		myFuncs.moveWindowToTag()
+	end, { description = "move window to tag", group = "client" }),
+
 	-- Tag navigation
 
 	awful.key({ modkey }, "Left", awful.tag.viewprev, { description = "view previous tag", group = "tag" }),

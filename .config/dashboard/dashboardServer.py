@@ -49,7 +49,7 @@ def _patched_finish(self):
         _orig_finish(self)
 BaseHTTPRequestHandler.finish = _patched_finish
 
-OBSIDIAN_VAULT = os.path.expanduser("~/Documents/The Vault")
+OBSIDIAN_VAULT = os.path.expanduser("~/Vault")
 
 
 def loadTodoistConfig():
@@ -206,6 +206,70 @@ def getTodoistProjectId(projectName=None):
 def getTodoistTasks(projectId):
     resp = todoistRequest("GET", f"/tasks?project_id={projectId}")
     return resp.get("results", resp) if isinstance(resp, dict) else resp
+
+
+def getWallTodoistTasks(filterStr, projectName, limit):
+    """Fetch tasks for the wall list widget using existing token/helper."""
+    path = "/tasks?"
+    params = []
+    if projectName:
+        pid = getTodoistProjectId(projectName)
+        if pid:
+            params.append(f"project_id={pid}")
+    if filterStr:
+        import urllib.parse as _up
+        params.append("filter=" + _up.quote(filterStr))
+    if params:
+        path += "&".join(params)
+    resp = todoistRequest("GET", path)
+    tasks = resp.get("results", resp) if isinstance(resp, dict) else resp
+    if not isinstance(tasks, list):
+        return []
+    out = []
+    for t in tasks[:limit]:
+        due = None
+        if t.get("due"):
+            due = t["due"].get("date") or t["due"].get("datetime")
+        out.append({
+            "content": t.get("content", ""),
+            "due": due,
+            "priority": t.get("priority", 1),
+            "isCompleted": t.get("is_completed", False),
+            "id": t.get("id", ""),
+        })
+    return out
+
+
+def getWallObsidianTasks(relPath, filterMode, limit):
+    """Read tasks from an Obsidian markdown file."""
+    import re as _re
+    fullPath = os.path.join(OBSIDIAN_VAULT, relPath)
+    try:
+        with open(fullPath, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+    except Exception:
+        return []
+    tasks = []
+    for line in lines:
+        m = _re.match(r'\s*-\s+\[([ xX])\]\s+(.*)', line)
+        if not m:
+            continue
+        completed = m.group(1).lower() == 'x'
+        text = m.group(2).strip()
+        # Extract due date from Obsidian Tasks plugin format: 📅 YYYY-MM-DD
+        due = None
+        dueMatch = _re.search(r'📅\s*(\d{4}-\d{2}-\d{2})', text)
+        if dueMatch:
+            due = dueMatch.group(1)
+            text = text[:dueMatch.start()].strip()
+        if filterMode == 'incomplete' and completed:
+            continue
+        if filterMode == 'complete' and not completed:
+            continue
+        tasks.append({"content": text, "due": due, "completed": completed})
+        if len(tasks) >= limit:
+            break
+    return tasks
 
 
 def createTodoistTask(content, projectId):
@@ -687,6 +751,12 @@ def sseBroadcast(event, data):
 _eisenhowerClients = []
 _eisenhowerLock = threading.Lock()
 
+_wallClients = []
+_wallLock = threading.Lock()
+_icsCache = {}
+_wallUploadsDir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "wall-uploads")
+_wallLayoutPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "wall-layout.json")
+
 
 def eisenhowerSubscribe():
     q = queue.Queue()
@@ -711,6 +781,276 @@ def eisenhowerBroadcast(data):
                 q.put_nowait(msg)
             except queue.Full:
                 pass
+
+
+def wallSubscribe():
+    q = queue.Queue(maxsize=10)
+    with _wallLock:
+        _wallClients.append(q)
+    return q
+
+
+def wallUnsubscribe(q):
+    with _wallLock:
+        try:
+            _wallClients.remove(q)
+        except ValueError:
+            pass
+
+
+def wallBroadcast(eventName, data):
+    msg = f"event: {eventName}\ndata: {json.dumps(data)}\n\n"
+    with _wallLock:
+        for q in list(_wallClients):
+            try:
+                q.put_nowait(msg)
+            except queue.Full:
+                pass
+
+
+def getWallLayout():
+    if not os.path.exists(_wallLayoutPath):
+        return {}
+    try:
+        with open(_wallLayoutPath, "r") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def saveWallLayout(data):
+    os.makedirs(os.path.dirname(_wallLayoutPath), exist_ok=True)
+    with open(_wallLayoutPath, "w") as f:
+        json.dump(data, f, indent=2)
+    wallBroadcast("layoutUpdated", {})
+
+
+def fetchIcs(url):
+    import time
+    now = time.time()
+    cached = _icsCache.get(url)
+    if cached and now - cached["ts"] < 900:
+        return cached["events"]
+    try:
+        with urllib.request.urlopen(url, timeout=10) as resp:
+            rawBytes = resp.read()
+        raw = rawBytes.decode("utf-8", errors="replace")
+    except Exception as e:
+        return []
+    events = parseIcs(raw)
+    _icsCache[url] = {"ts": now, "events": events}
+    return events
+
+
+def parseIcs(raw):
+    import re as _re
+    from datetime import datetime, timezone, timedelta, date as _date
+
+    try:
+        from zoneinfo import ZoneInfo
+    except ImportError:
+        ZoneInfo = None
+
+    raw = _re.sub(r'\r\n[ \t]', '', raw)
+    raw = _re.sub(r'\n[ \t]', '', raw)
+
+    today = datetime.now(timezone.utc)
+    windowStart = today - timedelta(days=60)
+    windowEnd   = today + timedelta(days=180)
+
+    def parseDtLine(block, name):
+        """Return (isoStr, allDay, tzid) for a DTSTART or DTEND line."""
+        m = _re.search(rf'^{name}(;[^:]+)?:(.+)$', block, _re.MULTILINE)
+        if not m:
+            return None, False, None
+        params = m.group(1) or ''
+        val = m.group(2).strip()
+        tzidMatch = _re.search(r'TZID=([^;:]+)', params)
+        tzid = tzidMatch.group(1) if tzidMatch else None
+
+        if _re.match(r'^\d{8}$', val):
+            # All-day: return bare date string so client parses as local date, not UTC midnight
+            return val[:4] + '-' + val[4:6] + '-' + val[6:8], True, None
+
+        val = val.rstrip('Z')
+        try:
+            dt = datetime.strptime(val[:15], '%Y%m%dT%H%M%S')
+        except Exception:
+            return None, False, None
+
+        if tzid and ZoneInfo:
+            try:
+                tz = ZoneInfo(tzid)
+                dt = dt.replace(tzinfo=tz).astimezone(timezone.utc)
+            except Exception:
+                dt = dt.replace(tzinfo=timezone.utc)
+        else:
+            dt = dt.replace(tzinfo=timezone.utc)
+
+        return dt.isoformat(), False, tzid
+
+    def expandRrule(rrule, dtstart_iso, allDay, summary, dtend_iso):
+        """Expand an RRULE string into event dicts within the window."""
+        instances = []
+        try:
+            start = datetime.fromisoformat(dtstart_iso)
+            if not start.tzinfo:
+                start = start.replace(tzinfo=timezone.utc)
+            dur = timedelta(hours=1)
+            if dtend_iso:
+                end = datetime.fromisoformat(dtend_iso)
+                if not end.tzinfo:
+                    end = end.replace(tzinfo=timezone.utc)
+                dur = end - start
+        except Exception:
+            return instances
+
+        parts = {}
+        for part in rrule.split(';'):
+            if '=' in part:
+                k, v = part.split('=', 1)
+                parts[k.strip()] = v.strip()
+
+        freq = parts.get('FREQ', '')
+        count = int(parts['COUNT']) if 'COUNT' in parts else None
+        until = None
+        if 'UNTIL' in parts:
+            u = parts['UNTIL'].rstrip('Z')
+            try:
+                until = datetime.strptime(u[:15], '%Y%m%dT%H%M%S').replace(tzinfo=timezone.utc)
+            except Exception:
+                try:
+                    until = datetime.strptime(u[:8], '%Y%m%d').replace(tzinfo=timezone.utc)
+                except Exception:
+                    pass
+
+        interval = int(parts.get('INTERVAL', 1))
+
+        # BYDAY for weekly recurrence: e.g. MO,WE,FR
+        byDay = []
+        if 'BYDAY' in parts:
+            dayMap = {'MO':0,'TU':1,'WE':2,'TH':3,'FR':4,'SA':5,'SU':6}
+            for d in parts['BYDAY'].split(','):
+                d = d.strip()[-2:]
+                if d in dayMap:
+                    byDay.append(dayMap[d])
+
+        cur = start
+        i = 0
+        maxIter = 2000
+        while cur <= windowEnd and maxIter > 0:
+            maxIter -= 1
+            if until and cur > until:
+                break
+            if count is not None and i >= count:
+                break
+
+            candidates = []
+            if freq == 'DAILY':
+                candidates = [cur]
+            elif freq == 'WEEKLY':
+                if byDay:
+                    # Generate all matching days in this week
+                    weekStart = cur - timedelta(days=cur.weekday())
+                    for wd in byDay:
+                        cand = weekStart + timedelta(days=wd)
+                        cand = cand.replace(hour=start.hour, minute=start.minute, second=start.second, tzinfo=start.tzinfo)
+                        if cand >= start:
+                            candidates.append(cand)
+                    candidates.sort()
+                else:
+                    candidates = [cur]
+            elif freq == 'MONTHLY':
+                candidates = [cur]
+            else:
+                break  # unsupported freq
+
+            for cand in candidates:
+                if until and cand > until:
+                    continue
+                if count is not None and i >= count:
+                    break
+                if windowStart <= cand <= windowEnd:
+                    endCand = cand + dur
+                    instances.append({
+                        "summary": summary,
+                        "start": cand.strftime('%Y-%m-%d') if allDay else cand.isoformat(),
+                        "end": endCand.strftime('%Y-%m-%d') if allDay else endCand.isoformat(),
+                        "allDay": allDay
+                    })
+                i += 1
+
+            # Advance to next occurrence
+            if freq == 'DAILY':
+                cur += timedelta(days=interval)
+            elif freq == 'WEEKLY':
+                if byDay:
+                    # Jump to next week
+                    cur += timedelta(weeks=interval)
+                    cur = cur - timedelta(days=cur.weekday())  # back to Monday of that week
+                else:
+                    cur += timedelta(weeks=interval)
+            elif freq == 'MONTHLY':
+                month = cur.month + interval
+                year = cur.year + (month - 1) // 12
+                month = (month - 1) % 12 + 1
+                try:
+                    cur = cur.replace(year=year, month=month)
+                except ValueError:
+                    import calendar as _cal
+                    lastDay = _cal.monthrange(year, month)[1]
+                    cur = cur.replace(year=year, month=month, day=lastDay)
+            else:
+                break
+
+        return instances
+
+    events = []
+    for block in _re.findall(r'BEGIN:VEVENT(.*?)END:VEVENT', raw, _re.DOTALL):
+        def getField(name):
+            m = _re.search(rf'^{name}(?:;[^:]+)?:(.+)$', block, _re.MULTILINE)
+            return m.group(1).strip() if m else ''
+
+        summary = getField('SUMMARY')
+        if not summary:
+            continue
+
+        startIso, allDay, _ = parseDtLine(block, 'DTSTART')
+        endIso, _, _         = parseDtLine(block, 'DTEND')
+        if not startIso:
+            continue
+
+        rrule = getField('RRULE')
+        if rrule:
+            events.extend(expandRrule(rrule, startIso, allDay, summary, endIso))
+        else:
+            events.append({"summary": summary, "start": startIso, "end": endIso, "allDay": allDay})
+
+    events.sort(key=lambda e: e["start"] or "")
+    return events
+
+
+def parseMultipartFile(headers, rfile):
+    contentType = headers.get('Content-Type', '')
+    length = int(headers.get('Content-Length', 0))
+    body = rfile.read(length)
+    m = re.search(r'boundary=([^\s;]+)', contentType)
+    if not m:
+        return None, None
+    boundary = m.group(1).strip('"').encode()
+    parts = body.split(b'--' + boundary)
+    for part in parts[1:]:
+        if part.strip() in (b'--', b''):
+            break
+        if b'\r\n\r\n' not in part:
+            continue
+        headerSection, fileData = part.split(b'\r\n\r\n', 1)
+        fileData = fileData.rstrip(b'\r\n')
+        headersStr = headerSection.decode('utf-8', errors='replace')
+        filenameMatch = re.search(r'filename="([^"]+)"', headersStr)
+        if filenameMatch:
+            return filenameMatch.group(1), fileData
+    return None, None
 
 
 def syncCompletedShoppingItems():
@@ -1431,6 +1771,128 @@ class Handler(BaseHTTPRequestHandler):
                 pass
             finally:
                 eisenhowerUnsubscribe(q)
+        elif path == "/wall":
+            htmlPath = os.path.join(os.path.dirname(__file__), "wall.html")
+            try:
+                with open(htmlPath, "rb") as f:
+                    content = f.read()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(content)))
+                self.end_headers()
+                self.wfile.write(content)
+            except FileNotFoundError:
+                self.send_error(404, "wall.html not found")
+
+        elif path == "/wall/edit":
+            htmlPath = os.path.join(os.path.dirname(__file__), "wall-edit.html")
+            try:
+                with open(htmlPath, "rb") as f:
+                    content = f.read()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(content)))
+                self.end_headers()
+                self.wfile.write(content)
+            except FileNotFoundError:
+                self.send_error(404, "wall-edit.html not found")
+
+        elif path == "/wall/layout":
+            layout = getWallLayout()
+            body = json.dumps(layout).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        elif path == "/wall/events":
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream")
+            self.send_header("Cache-Control", "no-cache")
+            self.send_header("Connection", "keep-alive")
+            self.end_headers()
+            q = wallSubscribe()
+            try:
+                self.wfile.write(b": ping\n\n")
+                self.wfile.flush()
+                while True:
+                    try:
+                        msg = q.get(timeout=30)
+                        self.wfile.write(msg.encode())
+                        self.wfile.flush()
+                    except queue.Empty:
+                        self.wfile.write(b": keepalive\n\n")
+                        self.wfile.flush()
+            except Exception:
+                pass
+            finally:
+                wallUnsubscribe(q)
+
+        elif path.startswith("/wall/uploads/"):
+            filename = os.path.basename(path[len("/wall/uploads/"):])
+            filePath = os.path.join(_wallUploadsDir, filename)
+            if not os.path.exists(filePath):
+                self.send_error(404)
+                return
+            ext = filename.rsplit(".", 1)[-1].lower()
+            mimeMap = {"png": "image/png", "jpg": "image/jpeg", "jpeg": "image/jpeg", "gif": "image/gif", "webp": "image/webp"}
+            mime = mimeMap.get(ext, "application/octet-stream")
+            with open(filePath, "rb") as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header("Content-Type", mime)
+            self.send_header("Content-Length", str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+
+        elif path.startswith("/wall/ics"):
+            from urllib.parse import urlparse as _urlparse, parse_qs, unquote
+            qs = parse_qs(_urlparse(self.path).query)
+            icsUrl = qs.get("url", [""])[0]
+            icsUrl = unquote(icsUrl)
+            if not icsUrl:
+                self.send_error(400, "Missing url parameter")
+                return
+            events = fetchIcs(icsUrl)
+            body = json.dumps(events).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        elif path.startswith("/wall/list/todoist"):
+            from urllib.parse import urlparse as _up2, parse_qs as _pqs2
+            qs2 = _pqs2(_up2(self.path).query)
+            filterStr = qs2.get("filter", [""])[0]
+            projectName = qs2.get("project", [""])[0]
+            limit = int(qs2.get("limit", ["50"])[0])
+            tasks = getWallTodoistTasks(filterStr, projectName, limit)
+            body = json.dumps(tasks).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        elif path.startswith("/wall/list/obsidian"):
+            from urllib.parse import urlparse as _up3, parse_qs as _pqs3, unquote as _uq3
+            qs3 = _pqs3(_up3(self.path).query)
+            relPath = _uq3(qs3.get("file", [""])[0])
+            filterMode = qs3.get("filter", ["incomplete"])[0]
+            limit = int(qs3.get("limit", ["100"])[0])
+            if not relPath:
+                self.send_error(400, "Missing file parameter")
+                return
+            tasks = getWallObsidianTasks(relPath, filterMode, limit)
+            body = json.dumps(tasks).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
         elif path == "/shopping/items":
             jsonResp(self, getShoppingListItems())
         elif path == "/chat/sessions":
@@ -1501,6 +1963,49 @@ class Handler(BaseHTTPRequestHandler):
                 run(["xdotool", "search", "--classname", "eisenhower", "windowkill"])
 
             threading.Thread(target=killWindow, daemon=True).start()
+        elif path == "/wall/layout":
+            length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(length)
+            try:
+                data = json.loads(body)
+                saveWallLayout(data)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(b'{"ok": true}')
+            except Exception as e:
+                self.send_response(400)
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": str(e)}).encode())
+
+        elif path == "/wall/upload":
+            import uuid as uuidMod
+            os.makedirs(_wallUploadsDir, exist_ok=True)
+            contentType = self.headers.get("Content-Type", "")
+            if "multipart/form-data" not in contentType:
+                self.send_response(400)
+                self.end_headers()
+                self.wfile.write(b'{"error":"Expected multipart/form-data"}')
+                return
+            filename, fileData = parseMultipartFile(self.headers, self.rfile)
+            if not filename or fileData is None:
+                self.send_response(400)
+                self.end_headers()
+                self.wfile.write(b'{"error":"No file found in upload"}')
+                return
+            ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else "png"
+            safeExt = ext if ext in ("png", "jpg", "jpeg", "gif", "webp") else "png"
+            newName = uuidMod.uuid4().hex + "." + safeExt
+            destPath = os.path.join(_wallUploadsDir, newName)
+            with open(destPath, "wb") as f:
+                f.write(fileData)
+            url = "/wall/uploads/" + newName
+            respBody = json.dumps({"url": url}).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(respBody)))
+            self.end_headers()
+            self.wfile.write(respBody)
         elif path == "/todoist/webhook":
             length = int(self.headers.get("Content-Length", 0))
             rawBody = self.rfile.read(length)
@@ -1767,6 +2272,8 @@ if __name__ == "__main__":
 
     diskHealthThread = threading.Thread(target=diskHealthLoop, daemon=True)
     diskHealthThread.start()
+
+    os.makedirs(_wallUploadsDir, exist_ok=True)
 
     server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
     print(f"Dashboard server running on port {PORT}")

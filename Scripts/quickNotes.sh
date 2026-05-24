@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VAULT="/home/max/Documents/The Vault"
+VAULT="/home/max/Vault"
 QUICKNOTES_DATE="$(date +%Y-%m-%d)"
 export QUICKNOTES_DATE
 DAILY_NOTE="$VAULT/Daily Notes/$QUICKNOTES_DATE.md"

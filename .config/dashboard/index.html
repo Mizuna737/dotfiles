@@ -1557,7 +1557,7 @@ function renderTasks(tasks) {
     textEl.className = 'taskText';
     textEl.textContent = cleanText;
     textEl.addEventListener('click', () => {
-      const vault = encodeURIComponent('The Vault');
+      const vault = encodeURIComponent('Vault');
       const file = encodeURIComponent(task.relPath.split('\\').join('/'));
       const line = task.line ? `&line=${task.line}` : '';
       fetch('/obsidian/open', {

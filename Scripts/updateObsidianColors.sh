@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OUT="/home/max/Documents/The Vault/.obsidian/snippets/pywalColors.css"
+OUT="/home/max/Vault/.obsidian/snippets/pywalColors.css"
 SRC="$HOME/.cache/wal/colors.env"
 
 # Load pywal vars

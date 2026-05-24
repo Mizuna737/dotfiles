@@ -7,7 +7,7 @@ PRIORITY="${3:-skip}"
 
 [ -z "$TASK" ] && exit 1
 
-VAULT="/home/max/Documents/The Vault"
+VAULT="/home/max/Vault"
 TODAY=$(date +%Y-%m-%d)
 DAILY_NOTE="$VAULT/Daily Notes/$TODAY.md"
 

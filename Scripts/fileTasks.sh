@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VAULT="/home/max/Documents/The Vault"
+VAULT="/home/max/Vault"
 DAILY_DIR="$VAULT/Daily Notes"
 PROJECTS_DIR="$VAULT/Projects"
 PEOPLE_DIR="$VAULT/People"

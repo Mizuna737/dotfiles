@@ -905,7 +905,7 @@
       }
 
       function openInObsidian(task) {
-        const vault = encodeURIComponent("The Vault");
+        const vault = encodeURIComponent("Vault");
         const file = encodeURIComponent(task.relPath.split("\\").join("/"));
         const line = task.line ? `&line=${task.line}` : "";
         apiPost("/obsidian/open", {

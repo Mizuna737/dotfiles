@@ -226,7 +226,9 @@ local clientbuttons = awful.util.table.join(
 	awful.button({ "Mod4" }, 1, awful.mouse.client.move),
 
 	-- Resize window on Meta + Right Click
-	awful.button({ "Mod4" }, 3, awful.mouse.client.resize)
+	awful.button({ "Mod4" }, 3, awful.mouse.client.resize),
+
+	awful.button({ "Mod4" }, 2, function() myFuncs.moveWindowToTag() end)
 )
 
 root.keys(globalkeys)
@@ -366,6 +368,10 @@ awesome.connect_signal("wal::reload", function()
 end)
 
 client.connect_signal("manage", function(c)
+	if awesome.startup and myFuncs.dropdownClasses and myFuncs.dropdownClasses[c.class] then
+		c.hidden = true
+		return
+	end
 	if awesome.startup and not c.size_hints.user_position and not c.size_hints.program_position then
 		awful.placement.no_offscreen(c)
 	end

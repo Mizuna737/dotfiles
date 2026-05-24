@@ -15,7 +15,7 @@ import os
 import subprocess
 from datetime import date, timedelta
 
-VAULT = os.path.expanduser("~/Documents/The Vault")
+VAULT = os.path.expanduser("~/Vault")
 TEMPLATE = os.path.join(VAULT, "Templates/Daily Notes Template.md")
 DAILY_NOTES = os.path.join(VAULT, "Daily Notes")
 PARSEDATE = os.path.expanduser("~/Scripts/parsedate")
