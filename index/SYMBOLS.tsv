@@ -942,12 +942,6 @@ x-cdm-persistent-license-support	.config/obs-studio/plugin_config/obs-browser/Wi
 x-cdm-supported-encryption-schemes	.config/obs-studio/plugin_config/obs-browser/WidevineCdm/4.10.2891.0/manifest.json	13		
 icons	.config/obs-studio/plugin_config/obs-browser/WidevineCdm/4.10.2891.0/manifest.json	17		
 platforms	.config/obs-studio/plugin_config/obs-browser/WidevineCdm/4.10.2891.0/manifest.json	21		
-alerts_enabled	.config/obs-studio/plugin_config/obs-websocket/config.json	2		
-auth_required	.config/obs-studio/plugin_config/obs-websocket/config.json	3		
-first_load	.config/obs-studio/plugin_config/obs-websocket/config.json	4		
-server_enabled	.config/obs-studio/plugin_config/obs-websocket/config.json	5		
-server_password	.config/obs-studio/plugin_config/obs-websocket/config.json	6		
-server_port	.config/obs-studio/plugin_config/obs-websocket/config.json	7		
 0	.config/obs-studio/plugin_manager/modules.json	2		
 0	.config/obs-studio/updates/whatsnew.json	2		
 window	.config/pavucontrol.ini	1		
@@ -1003,7 +997,7 @@ Service	.config/systemd/user/bgremove.service	5
 Install	.config/systemd/user/bgremove.service	21		
 Unit	.config/systemd/user/dashboard.service	1		
 Service	.config/systemd/user/dashboard.service	5		
-Install	.config/systemd/user/dashboard.service	15		
+Install	.config/systemd/user/dashboard.service	16		
 Unit	.config/systemd/user/droidCamDaemon.service	1		
 Service	.config/systemd/user/droidCamDaemon.service	6		
 Install	.config/systemd/user/droidCamDaemon.service	14		
