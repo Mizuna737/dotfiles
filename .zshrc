@@ -97,6 +97,3 @@ export OLLAMA_KEEP_ALIVE=30
 # Load pywal colors for new terminal sessions
 (cat ~/.cache/wal/sequences &)
 export PATH=/home/max/.local/bin:$HOME/Scripts:$HOME/.cargo/bin:$PATH
-export NTFY_URL="https://mizuna.tplinkdns.com/ntfy"
-export NTFY_USER="ntfy"
-export NTFY_PASS="lIc8cnhHIAwC70dTaumE74x154Fhpgc/"
