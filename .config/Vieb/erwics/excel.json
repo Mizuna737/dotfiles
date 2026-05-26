@@ -1,0 +1,10 @@
+{
+    "name": "Excel",
+    "icon": "./icons/ms-excel.png",
+    "apps": [
+        {
+            "container": "excel",
+            "url": "https://excel.cloud.microsoft/"
+        }
+    ]
+}

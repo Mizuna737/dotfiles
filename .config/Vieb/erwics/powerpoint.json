@@ -1,0 +1,10 @@
+{
+    "name": "PowerPoint",
+    "icon": "./icons/ms-powerpoint.png",
+    "apps": [
+        {
+            "container": "powerpoint",
+            "url": "https://powerpoint.cloud.microsoft/"
+        }
+    ]
+}

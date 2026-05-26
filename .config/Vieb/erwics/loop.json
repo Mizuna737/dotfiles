@@ -1,0 +1,10 @@
+{
+    "name": "Loop",
+    "icon": "./icons/ms-loop.png",
+    "apps": [
+        {
+            "container": "loop",
+            "url": "https://loop.cloud.microsoft/"
+        }
+    ]
+}

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=PowerPoint
+GenericName=Presentation (Microsoft 365)
+Comment=Microsoft PowerPoint via Vieb (Erwic)
+Exec=/home/max/dotfiles/Scripts/viebErwic.sh --erwic=/home/max/.config/Vieb/erwics/powerpoint.json --datafolder=/home/max/.local/share/vieb-erwic/powerpoint/
+Icon=ms-powerpoint
+Terminal=false
+StartupNotify=true
+Categories=Office;Presentation;
+StartupWMClass=MSPowerpoint

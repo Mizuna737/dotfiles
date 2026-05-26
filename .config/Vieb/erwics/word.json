@@ -1,0 +1,10 @@
+{
+    "name": "Word",
+    "icon": "./icons/ms-word.png",
+    "apps": [
+        {
+            "container": "word",
+            "url": "https://word.cloud.microsoft/"
+        }
+    ]
+}

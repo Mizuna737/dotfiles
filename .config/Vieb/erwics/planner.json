@@ -1,0 +1,10 @@
+{
+    "name": "Planner",
+    "icon": "./icons/ms-planner.png",
+    "apps": [
+        {
+            "container": "planner",
+            "url": "https://planner.cloud.microsoft/"
+        }
+    ]
+}
