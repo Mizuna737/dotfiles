@@ -1563,6 +1563,10 @@ SYSTEM_PROMPT	Scripts/logDigest.py	16
 readLog	Scripts/logDigest.py	32		
 preCount	Scripts/logDigest.py	49		
 main	Scripts/logDigest.py	60		
+LOG_PATH	Scripts/opusReview.py	16		
+FRAMING	Scripts/opusReview.py	18		
+log	Scripts/opusReview.py	48		
+main	Scripts/opusReview.py	53		
 WEEKDAYS	Scripts/parsedate	13		
 preprocess	Scripts/parsedate	15		
 main	Scripts/parsedate	53		
