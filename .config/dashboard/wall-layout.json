@@ -40,12 +40,12 @@
         "showSeconds": false,
         "targetDate": "2026-06-04T08:00",
         "display": "pie",
-        "fillColor": "#ff0000",
+        "fillColor": "#ff5500",
         "fillAlpha": "0.5",
         "emptyColor": "#ffffff",
         "emptyAlpha": "0.05",
         "showTime": true,
-        "configuredAt": 1779570867933,
+        "configuredAt": 1777615200000,
         "fontFamily": ""
       }
     },
