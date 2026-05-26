@@ -1599,6 +1599,7 @@ checkReboot	Scripts/updateSystem.sh	24
 fmt_pkg_line	Scripts/updateSystem.sh	147		
 runWithBars	Scripts/updateSystem.sh	221		
 EOF	Scripts/updateTMUXColors.sh	22		
+EOF	Scripts/updateViebColors.sh	18		
 EOF	Scripts/updateYaziColors.sh	23		
 COLORS_JSON	Scripts/updateZenColors.py	17		
 TEMPLATE	Scripts/updateZenColors.py	18		
