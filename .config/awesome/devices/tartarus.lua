@@ -17,6 +17,16 @@ local altkey = "Mod1"
 local shft = "Shift"
 local mutePttHeld = false
 
+-- Returns true when the focused client is a terminal that has tmux running
+-- (kitty bare shell or kitty-with-neovim — both wrap tmux). Used to route
+-- WASD/Q/E/X bindings to tmux pane/window/kill ops when the user is in a
+-- terminal but NOT focused on a stack.
+local function inTmux()
+	local c = client.focus
+	if not c then return false end
+	return c.class == "kitty" or c.class == "neovim"
+end
+
 local tartarus = {}
 
 --------------------------------
@@ -171,8 +181,12 @@ tartarus.globalkeys = gears.table.join(
 
 	-- Key q
 	tk({ modkey, ctrl }, "q", function()
-		stack.cycleStackForward()
-	end, "Q tap => cycle stack forward"),
+		if stack.stackFrameSize() > 0 then
+			stack.cycleStackForward()
+		elseif inTmux() then
+			awful.spawn.with_shell("tmux previous-window")
+		end
+	end, "Q tap => stack: cycle fwd / tmux: prev window"),
 
 	tk({ modkey, ctrl, altkey }, "q", function()
 		myFuncs.prevLayoutForTag()
@@ -188,8 +202,12 @@ tartarus.globalkeys = gears.table.join(
 
 	-- Key w
 	tk({ modkey, ctrl }, "w", function()
-		stack.unstackCurrent()
-	end, "W tap => unstack current"),
+		if stack.stackFrameSize() > 0 then
+			stack.unstackCurrent()
+		elseif inTmux() then
+			awful.spawn.with_shell("tmux select-pane -U")
+		end
+	end, "W tap => stack: unstack / tmux: pane up"),
 
 	tk({ modkey, ctrl, altkey }, "w", function()
 		naughty.notify({ title = "T w", text = "tap+hold pressed" })
@@ -205,8 +223,12 @@ tartarus.globalkeys = gears.table.join(
 
 	-- Key e
 	tk({ modkey, ctrl }, "e", function()
-		stack.cycleStackBackward()
-	end, "E tap => cycle stack backward"),
+		if stack.stackFrameSize() > 0 then
+			stack.cycleStackBackward()
+		elseif inTmux() then
+			awful.spawn.with_shell("tmux next-window")
+		end
+	end, "E tap => stack: cycle back / tmux: next window"),
 
 	tk({ modkey, ctrl, altkey }, "e", function()
 		myFuncs.nextLayoutForTag()
@@ -258,8 +280,12 @@ tartarus.globalkeys = gears.table.join(
 
 	-- Key a
 	tk({ modkey, ctrl }, "a", function()
-		naughty.notify({ title = "T a", text = "tap pressed" })
-	end, "A tap => (unassigned)"),
+		if inTmux() then
+			awful.spawn.with_shell("tmux select-pane -L")
+		else
+			naughty.notify({ title = "T a", text = "tap pressed" })
+		end
+	end, "A tap => tmux: pane left / else notify"),
 	tk({ modkey, ctrl, altkey }, "a", function()
 		naughty.notify({ title = "T a", text = "tap+hold pressed" })
 	end, "A hold => (unassigned)"),
@@ -272,8 +298,12 @@ tartarus.globalkeys = gears.table.join(
 
 	-- Key s
 	tk({ modkey, ctrl }, "s", function()
-		myFuncs.toggleEisenhower()
-	end, "S tap => eisenhower matrix"),
+		if inTmux() then
+			awful.spawn.with_shell("tmux select-pane -D")
+		else
+			myFuncs.toggleEisenhower()
+		end
+	end, "S tap => tmux: pane down / else eisenhower"),
 	tk({ modkey, ctrl, altkey }, "s", function()
 		myFuncs.toggleQuickNotes()
 	end, "S hold => quick notes"),
@@ -286,8 +316,12 @@ tartarus.globalkeys = gears.table.join(
 
 	-- Key d
 	tk({ modkey, ctrl }, "d", function()
-		naughty.notify({ title = "T d", text = "tap pressed" })
-	end, "D tap => (unassigned)"),
+		if inTmux() then
+			awful.spawn.with_shell("tmux select-pane -R")
+		else
+			naughty.notify({ title = "T d", text = "tap pressed" })
+		end
+	end, "D tap => tmux: pane right / else notify"),
 	tk({ modkey, ctrl, altkey }, "d", function()
 		naughty.notify({ title = "T d", text = "tap+hold pressed" })
 	end, "D hold => (unassigned)"),
@@ -374,8 +408,12 @@ tartarus.globalkeys = gears.table.join(
 
 	-- Key x
 	tk({ modkey, ctrl }, "x", function()
-		naughty.notify({ title = "T x", text = "tap pressed" })
-	end, "X tap => notify"),
+		if inTmux() then
+			awful.spawn.with_shell("tmux kill-pane")
+		else
+			naughty.notify({ title = "T x", text = "tap pressed" })
+		end
+	end, "X tap => tmux: kill pane / else notify"),
 	tk({ modkey, ctrl, altkey }, "x", function()
 		naughty.notify({ title = "T x", text = "tap+hold pressed" })
 	end, "X hold => notify"),

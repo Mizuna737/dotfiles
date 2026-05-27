@@ -11,8 +11,8 @@ from datetime import datetime
 
 VAULT = "/home/max/Vault"
 MEETINGS_DIR = os.path.join(VAULT, "Meetings")
-OLLAMA_URL = "http://localhost:11434/api/generate"
-OLLAMA_MODEL = "qwen2.5:14b"
+LLM_URL = "http://localhost:8080/v1/chat/completions"
+LLM_MODEL = "Qwen3.6-35B-A3B-UD-Q6_K.gguf"
 TODAY = datetime.now().strftime("%Y-%m-%d")
 
 SKIP_EXACT = {
@@ -200,6 +200,73 @@ def extractMeetings(text):
     return meetings
 
 
+def parseFrontmatterAttendees(text):
+    fmMatch = re.match(r'^---\s*\n(.*?)\n---', text, re.DOTALL)
+    if not fmMatch:
+        return []
+    fm = fmMatch.group(1)
+
+    inlineMatch = re.search(r'^attendees:\s*\[(.*?)\]', fm, re.MULTILINE)
+    if inlineMatch:
+        raw = inlineMatch.group(1)
+        names = re.findall(r'"([^"]*)"', raw)
+        return [re.sub(r'\[\[|\]\]', '', n).strip() for n in names]
+
+    listMatch = re.search(r'^attendees:\s*\n((?:\s+-.*\n?)*)', fm, re.MULTILINE)
+    if listMatch:
+        raw = listMatch.group(1)
+        names = re.findall(r'-\s*"([^"]*)"', raw)
+        return [re.sub(r'\[\[|\]\]', '', n).strip() for n in names]
+
+    return []
+
+
+def extractSection(text, header):
+    pattern = r'^## ' + re.escape(header) + r'\n(.*?)(?=^## |\Z)'
+    match = re.search(pattern, text, re.MULTILINE | re.DOTALL)
+    if not match:
+        return ""
+    content = match.group(1).strip()
+    return content if content else ""
+
+
+def loadPastMeetings():
+    results = []
+    if not os.path.exists(MEETINGS_DIR):
+        return results
+    for fname in os.listdir(MEETINGS_DIR):
+        if not fname.endswith(".md"):
+            continue
+        try:
+            with open(os.path.join(MEETINGS_DIR, fname)) as f:
+                content = f.read()
+        except OSError:
+            continue
+        dateMatch = re.search(r'^date:\s*"?\[?\[?(\d{4}-\d{2}-\d{2})', content, re.MULTILINE)
+        if not dateMatch:
+            continue
+        attendees = parseFrontmatterAttendees(content)
+        if not attendees:
+            continue
+        results.append({
+            "title": fname[:-3],
+            "date": dateMatch.group(1),
+            "attendees": [a.lower() for a in attendees],
+            "agenda": extractSection(content, "Agenda"),
+            "notes": extractSection(content, "Notes"),
+            "tasks": extractSection(content, "Tasks"),
+        })
+    return results
+
+
+def findPastMeetings(pastMeetings, attendeeNames, currentDate, limit=3):
+    nameSet = {n.lower() for n in attendeeNames}
+    matches = [m for m in pastMeetings if m["date"] < currentDate and set(m["attendees"]) & nameSet]
+    matches.sort(key=lambda m: m["title"])
+    matches.sort(key=lambda m: m["date"], reverse=True)
+    return matches[:limit]
+
+
 def getExistingPeople():
     peopleDir = os.path.join(VAULT, "People")
     if not os.path.exists(peopleDir):
@@ -260,7 +327,7 @@ def getExistingMeetingKeys():
     return keys
 
 
-def generateAgenda(meeting, context, existingPeople):
+def generateAgenda(meeting, context, existingPeople, pastMeetings=None):
     requiredNames = meeting["required"]
     optionalNames = meeting["optional"]
 
@@ -270,25 +337,52 @@ def generateAgenda(meeting, context, existingPeople):
         "Each bullet should be actionable and specific."
     )
 
+    pastContext = ""
+    if pastMeetings:
+        matches = findPastMeetings(pastMeetings, requiredNames + optionalNames, meeting["date"])
+        if matches:
+            blocks = []
+            for m in matches:
+                agenda = (m["agenda"] or "(none)")[:300]
+                if len(m["agenda"]) > 300:
+                    agenda += "…"
+                notes = (m["notes"] or "(none)")[:300]
+                if len(m["notes"]) > 300:
+                    notes += "…"
+                tasks = (m["tasks"] or "(none)")[:300]
+                if len(m["tasks"]) > 300:
+                    tasks += "…"
+                blocks.append(
+                    f"--- {m['title']} ({m['date']}) ---\n"
+                    f"Agenda: {agenda}\n"
+                    f"Notes: {notes}\n"
+                    f"Tasks: {tasks}"
+                )
+            pastContext = "\n\n".join(blocks)
+
     userPrompt = f"""Meeting: {meeting['title']}
 Date: {meeting['date']} at {meeting['start']}–{meeting['end']}
 Organizer: {meeting['organizer'] or 'Unknown'}
 Required attendees: {', '.join(requiredNames) if requiredNames else 'Unknown'}
 {('Optional attendees: ' + ', '.join(optionalNames)) if optionalNames else ''}
 {('Meeting description: ' + meeting['body'][:400]) if meeting['body'].strip() else ''}
+{('Past meetings with these participants:\n' + pastContext) if pastContext else ''}
 User context: {context if context else 'None provided.'}
 
 Generate the agenda bullet points now:"""
 
     try:
-        resp = requests.post(OLLAMA_URL, json={
-            "model": OLLAMA_MODEL,
-            "prompt": f"{systemPrompt}\n\n{userPrompt}",
+        resp = requests.post(LLM_URL, json={
+            "model": LLM_MODEL,
+            "messages": [
+                {"role": "system", "content": systemPrompt},
+                {"role": "user", "content": userPrompt},
+            ],
+            "temperature": 0.3,
             "stream": False,
-            "options": {"temperature": 0.3},
         }, timeout=90)
         resp.raise_for_status()
-        return resp.json()["response"].strip()
+        return resp.json()["choices"][0]["message"]["content"].strip()
     except Exception as e:
         print(f"\n  Warning: AI request failed ({e}). Using placeholder.")
         return "- (agenda items)"
@@ -383,6 +477,7 @@ def main():
 
     existingPeople = getExistingPeople()
     existingMeetingKeys = getExistingMeetingKeys()
+    pastMeetings = loadPastMeetings()
     print(f"Found {len(meetings)} meetings (auto-skipped: Busy, OOO, Cancelled, All-day, etc.)\n")
 
     created = 0
@@ -427,7 +522,7 @@ def main():
             context = ""
 
         print("  Generating agenda...", end="", flush=True)
-        agenda = generateAgenda(meeting, context, existingPeople)
+        agenda = generateAgenda(meeting, context, existingPeople, pastMeetings)
         print(" done.")
 
         filepath = createNote(meeting, agenda, existingPeople)

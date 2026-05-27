@@ -68,7 +68,7 @@ awful.spawn.with_shell("zsh ~/Scripts/dpmsInhibit.sh")
 -- Theme & Layout
 --------------------------------
 
-beautiful.init("/home/max/.config/awesome/themes/powerarrow/theme.lua")
+beautiful.init("/home/max/.config/awesome/themes/pywal/theme.lua")
 --------------------------------
 -- Wibar
 --------------------------------
@@ -357,7 +357,7 @@ awful.rules.rules = {
 --------------------------------
 
 awesome.connect_signal("wal::reload", function()
-	beautiful.init("/home/max/.config/awesome/themes/powerarrow/theme.lua")
+	beautiful.init("/home/max/.config/awesome/themes/pywal/theme.lua")
 	beautiful.useless_gap = 6
 	for s in screen do
 		if s ~= screen.primary then

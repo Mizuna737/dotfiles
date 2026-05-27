@@ -1,5 +1,4 @@
--- powerarrow theme.lua
--- Updated to use Ayu Mirage colors (only colors edited, sizes/spacings unchanged)
+-- pywal theme.lua
 
 local gears = require("gears")
 local lain = require("lain")
@@ -12,7 +11,7 @@ local bar = require("bar") -- Adjust path if needed
 local math, string, os = math, string, os
 
 local theme = {}
-theme.dir = os.getenv("HOME") .. "/.config/awesome/themes/powerarrow"
+theme.dir = os.getenv("HOME") .. "/.config/awesome/themes/pywal"
 theme.wallpaper = theme.dir .. "/wall.png"
 theme.font = "Terminus 9"
 
@@ -143,7 +142,7 @@ theme.titlebar_maximized_button_normal_inactive = theme.dir .. "/icons/titlebar/
 
 local markup = lain.util.markup
 local separators = lain.util.separators
-local binclock = require("themes.powerarrow.binclock")({
+local binclock = require("themes.pywal.binclock")({
 	height = dpi(32),
 	show_seconds = true,
 	color_active = theme.fg_normal,
