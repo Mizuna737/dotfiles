@@ -9,4 +9,4 @@ Icon=ms-loop
 Terminal=false
 StartupNotify=true
 Categories=Office;
-StartupWMClass=MSLoop
+StartupWMClass=Loop

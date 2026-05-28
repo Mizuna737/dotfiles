@@ -9,4 +9,4 @@ Icon=ms-excel
 Terminal=false
 StartupNotify=true
 Categories=Office;Spreadsheet;
-StartupWMClass=MSExcel
+StartupWMClass=Excel

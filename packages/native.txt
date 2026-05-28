@@ -46,6 +46,7 @@ freerdp
 ghostscript
 gimp
 git
+git-filter-repo
 github-cli
 gnome-disk-utility
 gopass
@@ -106,6 +107,7 @@ pavucontrol
 pianobar
 picom
 pipewire
+pipewire-alsa
 pipewire-pulse
 playerctl
 prismlauncher

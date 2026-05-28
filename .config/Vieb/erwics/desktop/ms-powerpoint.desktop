@@ -9,4 +9,4 @@ Icon=ms-powerpoint
 Terminal=false
 StartupNotify=true
 Categories=Office;Presentation;
-StartupWMClass=MSPowerpoint
+StartupWMClass=PowerPoint

@@ -5,6 +5,7 @@
 set -euo pipefail
 
 droidcamConf="${HOME}/.config/droidcam"
+DAEMON_CONF="${HOME}/.config/droidcamDaemon.yaml"
 CONF_IP="${HOST:-$(grep '^ip='   "$droidcamConf" 2>/dev/null | cut -d= -f2)}"
 PORT="${PORT:-$(grep '^port=' "$droidcamConf" 2>/dev/null | cut -d= -f2)}"
 CONF_IP="${CONF_IP:-}"
@@ -19,18 +20,29 @@ SCAN_RESULT_PORT=""
 
 _scanWithPython() {
   local ip="$1" port="$2"
-  local scanDir
   SCAN_LIB="$(dirname "$0")/lib/droidcamScan.py"
-  # Try relative path first, then fallback
   if [[ ! -f "$SCAN_LIB" ]]; then
     SCAN_LIB="${HOME}/Scripts/lib/droidcamScan.py"
   fi
   local result
   result=$(python3 -c "
-import sys; sys.path.insert(0, '$(dirname "$SCAN_LIB")')
-from droidcamScan import find_droidcam
-h, p = find_droidcam('$ip', $port)
-print(f'{h} {p}')
+import sys, os
+sys.path.insert(0, '$(dirname "$SCAN_LIB")')
+from droidcamScan import findFirstReachable, findDevice
+
+daemonConf = os.path.expanduser('$DAEMON_CONF')
+if os.path.exists(daemonConf):
+    r = findFirstReachable(daemonConf)
+    if r:
+        print(f'{r[0]} {r[1]}')
+        sys.exit(0)
+
+# Fallback: single-device mode from legacy config
+r = findDevice({'mac': None, 'ip': '$ip', 'port': $port})
+if r:
+    print(f'{r[0]} {r[1]}')
+    sys.exit(0)
+sys.exit(1)
 " 2>/dev/null) || return 1
   SCAN_RESULT_HOST="${result%% *}"
   SCAN_RESULT_PORT="${result##* }"
@@ -51,7 +63,7 @@ _scanBash() {
   # Scan subnet
   local i
   for i in $(seq 1 254); do
-    local host="${prefix%.*}.$i"
+    local host="${prefix}.$i"
     if nc -z -w1 "$host" "$port" >/dev/null 2>&1; then
       SCAN_RESULT_HOST="$host"
       return 0
@@ -63,7 +75,8 @@ _scanBash() {
 _findReachable() {
   local ip="$1" port="$2"
   if [[ -f "$SCAN_LIB" || -f "${HOME}/Scripts/lib/droidcamScan.py" ]]; then
-    _scanWithPython "$ip" "$port" && return 0
+    _scanWithPython "$ip" "$port"
+    return $?
   fi
   _scanBash "$ip" "$port"
 }
@@ -149,6 +162,9 @@ while :; do
   droidcam-cli -nocontrols -dev=/dev/video20 -size=1920x1080 "$HOST" "$PORT" &
   DC_PID=$!
   echo "[droidcam-watch] Connected (pid $DC_PID)"
+  if [[ ! -f /tmp/workAssistant-record.pid ]]; then
+    /home/max/Projects/workAssistant/recordToggle.sh && echo "[droidcam-watch] Recording started" || echo "[droidcam-watch] Recording toggle failed"
+  fi
 
   # Monitor: exit inner loop when phone unreachable or process died
   while kill -0 "$DC_PID" 2>/dev/null && nc -z -w1 "$HOST" "$PORT" >/dev/null 2>&1; do
@@ -157,5 +173,8 @@ while :; do
 
   kill "$DC_PID" 2>/dev/null || true
   echo "[droidcam-watch] Disconnected; waiting for reconnect…"
+  if [[ -f /tmp/workAssistant-record.pid ]]; then
+    /home/max/Projects/workAssistant/recordToggle.sh && echo "[droidcam-watch] Recording stopped" || echo "[droidcam-watch] Recording toggle failed"
+  fi
   sleep 1
 done

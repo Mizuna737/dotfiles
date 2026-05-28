@@ -9,4 +9,4 @@ Icon=ms-planner
 Terminal=false
 StartupNotify=true
 Categories=Office;ProjectManagement;
-StartupWMClass=MSPlanner
+StartupWMClass=Planner

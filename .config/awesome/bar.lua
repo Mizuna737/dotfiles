@@ -330,6 +330,58 @@ local systray = wibox.widget({
 })
 
 --------------------------------
+-- 8) workAssistant status widget
+--------------------------------
+
+local waSpinnerFrames = {"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"}
+local waSpinnerIdx = 1
+local waState = "idle"
+
+local waWidget = wibox.widget({
+    widget = wibox.widget.textbox,
+    font   = beautiful.font,
+})
+
+local function waFileExists(path)
+    local f = io.open(path)
+    if f then f:close(); return true end
+    return false
+end
+
+local function waUpdateWidget()
+    if waState == "recording" then
+        waWidget:set_markup('<span color="' .. (beautiful.fg_urgent or "#FF5555") .. '"> ● REC </span>')
+    elseif waState == "transcribing" then
+        local frame = waSpinnerFrames[waSpinnerIdx]
+        waWidget:set_markup('<span color="' .. (beautiful.fg_focus or "#FFB86C") .. '"> ' .. frame .. ' Transcribing </span>')
+    elseif waState == "notes" then
+        local frame = waSpinnerFrames[waSpinnerIdx]
+        waWidget:set_markup('<span color="' .. (beautiful.fg_focus or "#8BE9FD") .. '"> ' .. frame .. ' Notes </span>')
+    else
+        waWidget:set_markup("")
+    end
+end
+
+gears.timer({
+    timeout   = 0.15,
+    autostart = true,
+    call_now  = true,
+    callback  = function()
+        waSpinnerIdx = (waSpinnerIdx % #waSpinnerFrames) + 1
+        if waFileExists("/tmp/workAssistant-record.pid") then
+            waState = "recording"
+        elseif waFileExists("/tmp/workAssistant-transcribe.lock") then
+            waState = "transcribing"
+        elseif waFileExists("/tmp/workAssistant-notes.lock") then
+            waState = "notes"
+        else
+            waState = "idle"
+        end
+        waUpdateWidget()
+    end,
+})
+
+--------------------------------
 -- bar.setupWibar
 --------------------------------
 
@@ -397,6 +449,7 @@ function bar.setupWibar()
 				layout = wibox.layout.fixed.horizontal,
 				wibox.container.margin(s.mytaglist, dpi(10), 0, 0, 0), -- Adds 10dpi of left margin
 				s.mypromptbox,
+				wibox.container.margin(waWidget, dpi(8), 0, 0, 0),
 			},
 
 			-- Middle widget: a centered "Focused Window Class"

@@ -9,4 +9,4 @@ Icon=ms-word
 Terminal=false
 StartupNotify=true
 Categories=Office;WordProcessor;
-StartupWMClass=MSWord
+StartupWMClass=Word

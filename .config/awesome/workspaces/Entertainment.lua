@@ -1,11 +1,11 @@
 return {
   ["slots"] = {
     {
+      ["name"] = "(1548) Is There An Actual Purpose to Marriage? | QTCinderella Asks Hank Anything - YouTube — Zen Browser",
       ["class"] = "zen",
-      ["name"] = "(1544) How Many Author Times Can We Beat in 1 Day? - YouTube — Zen Browser",
     },
   },
-  ["master_width_factor"] = 0.71279069767442,
-  ["workspace"] = "Entertainment",
   ["layoutName"] = "centerwork",
+  ["workspace"] = "Entertainment",
+  ["master_width_factor"] = 0.72267441860465,
 }

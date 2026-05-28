@@ -14,12 +14,14 @@ minigalaxy
 nct6687d-dkms-git
 neofetch
 nitrogen
+ntfysh-bin
 nvm-git
 opencode-bin
 opendeck-git
 outlook-for-linux-bin
 paru
 protontricks-git
+python313
 python-haishoku
 rar
 rimpy-bin
