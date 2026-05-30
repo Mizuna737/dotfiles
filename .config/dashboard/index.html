@@ -1395,6 +1395,7 @@ function applyMediaState(d) {
   }
 
   // Update all media content (both active panel and mini strip)
+  const prevTitle = document.getElementById('mediaTitle').textContent;
   document.getElementById('mediaTitle').textContent  = d.title  || '—';
   document.getElementById('mediaArtist').textContent = d.artist || '—';
   document.getElementById('mediaAlbum').textContent  = d.album  || '';
@@ -1404,8 +1405,13 @@ function applyMediaState(d) {
   document.getElementById('playBtn').textContent     = isPlaying ? '⏸' : '▶';
   document.getElementById('miniPlayBtn').textContent = isPlaying ? '⏸' : '▶';
   if (d.length > 0) mediaLength = d.length;
-  mediaPos = d.position || 0;
-  lastPosSyncTime = performance.now() / 1000;
+  // Guard: don't reset position to 0 during active playback (Firefox MPRIS bug).
+  // Only reset on new track (title changed), valid position, or when not playing.
+  const titleChanged = d.title && d.title !== prevTitle;
+  if (titleChanged || d.position > 0 || !isPlaying) {
+    mediaPos = d.position;
+    lastPosSyncTime = performance.now() / 1000;
+  }
   updateProgress();
 
   if (isPlaying) {

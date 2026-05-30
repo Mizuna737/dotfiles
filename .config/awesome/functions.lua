@@ -478,7 +478,7 @@ M.dropdownClasses = {
 	["Dropdown"] = true,
 	["Quick Notes"] = true,
 	["Concord"] = true,
-	["eisenhower"] = true,
+	["Eisenhower"] = true,
 	-- add more here later
 }
 local function hideOtherDropdowns(except_class)
@@ -577,7 +577,7 @@ end
 
 function M.toggleEisenhower()
 	M.toggleDropdownApp({
-		class = "eisenhower",
+		class = "Eisenhower",
 		spawn_cmd = "bash /home/max/Scripts/eisenhower.sh",
 		spawn_props = {
 			floating = true,

@@ -16,7 +16,7 @@ checkHz = 2
 poseCheckMode = "fallback"
 pauseHandsWhenAbsent = true
 poseDetection = true
-poseMinConfidence = 0.7
+poseMinConfidence = 0.5
 
 [[poses]]
 name = "FIST"

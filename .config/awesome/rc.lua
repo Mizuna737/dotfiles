@@ -36,6 +36,18 @@ do
 	end)
 end
 
+-- BG Teams instance: suppress all (notifWatcher.py captures via D-Bus; digest re-fires urgent ones).
+-- Primary Teams instance: suppress Workflows channel (forwarded emails only).
+naughty.config.notify_callback = function(args)
+	if args.appname == "teams-for-notif" then
+		return nil
+	end
+	if args.appname == "teams-for-linux" and args.title == "Workflows" then
+		return nil
+	end
+	return args
+end
+
 --------------------------------
 -- Autostart
 --------------------------------
@@ -63,6 +75,19 @@ awful.spawn.with_shell(
 )
 
 awful.spawn.with_shell("zsh ~/Scripts/dpmsInhibit.sh")
+
+-- Notification-capture Teams instance: hidden on dashboard tag, never focused
+gears.timer.start_new(5, function()
+	local dashTag = dashboardScreen and awful.tag.find_by_name(dashboardScreen, "Dashboard")
+	awful.spawn("teams-for-linux-notif", {
+		tag          = dashTag,
+		focus        = false,
+		hidden       = true,
+		skip_taskbar = true,
+		switchtotag  = false,
+	})
+	return false  -- don't repeat
+end)
 
 --------------------------------
 -- Theme & Layout
@@ -142,7 +167,7 @@ local function setupDashboardScreen(s)
 
 		local existingDash = nil
 		for _, c in ipairs(client.get()) do
-			if c.class == "dashboard" then
+			if c.class == "Dashboard" then
 				existingDash = c
 				break
 			end
@@ -253,7 +278,7 @@ awful.rules.rules = {
 		},
 	},
 	{
-		rule = { class = "dashboard" },
+		rule = { class = "Dashboard" },
 		properties = {
 			border_width = 0,
 		},
@@ -261,7 +286,12 @@ awful.rules.rules = {
 			if dashboardScreen and dashboardScreen.valid then
 				local dashTag = awful.tag.find_by_name(dashboardScreen, "Dashboard")
 				if dashTag then
-					c:move_to_tag(dashTag)
+					gears.timer.delayed_call(function()
+						if c.valid then
+							c.screen = dashboardScreen
+							c:move_to_tag(dashTag)
+						end
+					end)
 				end
 			end
 		end,
@@ -326,9 +356,11 @@ awful.rules.rules = {
 		},
 	},
 	{
-		rule = { class = "eisenhower" },
+		rule = { class = "Eisenhower" },
 		properties = {
 			ontop = true,
+			floating = true,
+			skip_taskbar = true,
 		},
 	},
 	{ rule = { class = "windowDressing" },
@@ -374,6 +406,19 @@ client.connect_signal("manage", function(c)
 	end
 	if awesome.startup and not c.size_hints.user_position and not c.size_hints.program_position then
 		awful.placement.no_offscreen(c)
+	end
+	-- Keep notif Teams always hidden; relaunch if it exits
+	if c.class == "teams-for-notif" then
+		c.hidden = true
+	end
+end)
+
+client.connect_signal("unmanage", function(c)
+	if c.class == "teams-for-notif" then
+		gears.timer.start_new(5, function()
+			awful.spawn("teams-for-linux-notif")
+			return false
+		end)
 	end
 end)
 

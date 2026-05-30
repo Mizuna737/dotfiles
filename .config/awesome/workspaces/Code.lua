@@ -1,19 +1,19 @@
 return {
+  ["layoutName"] = "centerwork",
+  ["workspace"] = "Code",
   ["slots"] = {
     {
+      ["name"] = "tmux",
       ["class"] = "kitty",
-      ["name"] = "tmux",
     },
     {
+      ["name"] = "Zen Browser",
+      ["class"] = "zen",
+    },
+    {
+      ["name"] = "tmux",
       ["class"] = "neovim",
-      ["name"] = "tmux",
-    },
-    {
-      ["class"] = "qutebrowser",
-      ["name"] = "intake case fan really loud - Google Search - qutebrowser",
     },
   },
-  ["workspace"] = "Code",
-  ["layoutName"] = "centerwork",
   ["master_width_factor"] = 0.5,
 }

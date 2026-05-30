@@ -1506,11 +1506,17 @@ def startMediaWatcher():
             if not relevant.intersection(set(changed.keys()) | set(invalidated)):
                 return
 
-            # Get full state from playerctl
-            state = getMediaState()
+            changed_keys = set(changed.keys()) | set(invalidated)
+            status_changed = "PlaybackStatus" in changed_keys
 
-            # Override length directly from D-Bus signal payload if present
-            # This bypasses the playerctl stale-cache issue entirely
+            if status_changed:
+                state = getMediaState()
+                state["status"] = changed.get("PlaybackStatus", "Unknown")
+            else:
+                state = {}
+
+            # Extract metadata from signal payload (avoids getMediaState()
+            # reading position=0 from Firefox's broken D-Bus Position prop).
             if "Metadata" in changed:
                 meta = changed["Metadata"]
                 if "mpris:length" in meta:

@@ -32,3 +32,9 @@ SORT start ASC
 
 ## Notes
 <-- Anything else — observations, thoughts, context -->
+
+## Morning Digest
+_Not yet generated._
+
+## Evening Digest
+_Not yet generated._
