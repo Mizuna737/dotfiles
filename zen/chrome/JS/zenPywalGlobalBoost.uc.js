@@ -117,6 +117,20 @@
   let lastMtime     = 0;
   let lastCfgMtime  = 0;
   let cfg           = { ...DEFAULTS };
+  let fontSheetUri  = null;
+
+  const sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
+
+  function applyFontSheet() {
+    if (fontSheetUri && sss.sheetRegistered(fontSheetUri, sss.AGENT_SHEET)) {
+      sss.unregisterSheet(fontSheetUri, sss.AGENT_SHEET);
+    }
+    fontSheetUri = null;
+    if (!cfg.font) return;
+    const css = `body *:not(.google-symbols,gf-load-icon-font,mat-icon,.google-material-icons,.material-icons,[class*="icon"]){font-family:"${cfg.font}",monospace!important;}`;
+    fontSheetUri = Services.io.newURI(`data:text/css;charset=utf-8,${encodeURIComponent(css)}`);
+    sss.loadAndRegisterSheet(fontSheetUri, sss.AGENT_SHEET);
+  }
 
   // ── apply ────────────────────────────────────────────────────────────────────
 
@@ -174,7 +188,7 @@
       if (!changed) return;
       await loadConfig();
       await loadWalColors();
-      broadcastFont();
+      applyFontSheet();
       applyToAllTabs();
     } catch (_) {}
   }, POLL_MS);
@@ -206,30 +220,8 @@
 
   const frameScript = `data:application/javascript,${encodeURIComponent(`
 (function() {
-  if (this._zenPywalInit) return;
-  this._zenPywalInit = true;
-
-  let fontName = null;
-  let fontSheetUri = null;
-  const AGENT_SHEET = 0; // nsIDOMWindowUtils.AGENT_SHEET
-
-  function applyFont() {
-    if (fontSheetUri) {
-      try { content.windowUtils.removeSheet(fontSheetUri, AGENT_SHEET); } catch (_) {}
-      fontSheetUri = null;
-    }
-    if (!fontName) return;
-    const css = 'body *:not(.google-symbols,gf-load-icon-font,mat-icon,.google-material-icons,.material-icons,[class*="icon"]){font-family:"' + fontName + '",monospace!important;}';
-    try {
-      fontSheetUri = Services.io.newURI("data:text/css;charset=utf-8," + encodeURIComponent(css));
-      content.windowUtils.loadSheet(fontSheetUri, AGENT_SHEET);
-    } catch (_) {}
-  }
-
-  addMessageListener("zenPywal:setFont", function(msg) {
-    fontName = msg.data.font;
-    applyFont();
-  });
+  if (this._zenPywalInvertInit) return;
+  this._zenPywalInvertInit = true;
 
   addEventListener("DOMContentLoaded", function() {
     if (content.window !== content.window.top) return;
@@ -252,8 +244,6 @@
       isLight = lum > 0.5;
     }
     sendAsyncMessage("zenPywal:pageTheme", { isLight });
-
-    applyFont();
   }, false);
 })();
 `)}`;
@@ -271,11 +261,8 @@
     } catch (_) {}
   });
 
-  function broadcastFont() {
-    Services.mm.broadcastAsyncMessage("zenPywal:setFont", { font: cfg.font });
-  }
 
   // ── init ─────────────────────────────────────────────────────────────────────
 
-  loadConfig().then(() => loadWalColors()).then(() => { broadcastFont(); applyToAllTabs(); });
+  loadConfig().then(() => loadWalColors()).then(() => { applyFontSheet(); applyToAllTabs(); });
 })();
