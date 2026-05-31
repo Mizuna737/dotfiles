@@ -1,5 +1,6 @@
 {
   "contrast": 0.75,
   "saturation": 0.15,
-  "invert": true
+  "invert": true,
+  "font": "Fira Code"
 }

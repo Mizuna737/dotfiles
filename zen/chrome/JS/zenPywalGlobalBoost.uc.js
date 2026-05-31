@@ -13,7 +13,7 @@
   // Defaults — overridden by pywalBoost.json if present.
   // contrast  0→1: lower = stronger tint blend
   // saturation 0→1: lower = more vivid accent color
-  const DEFAULTS = { contrast: 0.75, saturation: null, invert: true };
+  const DEFAULTS = { contrast: 0.75, saturation: null, invert: true, font: null };
 
   const { gZenBoostsManager } = ChromeUtils.importESModule(
     "resource:///modules/zen/boosts/ZenBoostsManager.sys.mjs"
@@ -103,6 +103,7 @@
         contrast:   typeof parsed.contrast   === "number"  ? parsed.contrast   : DEFAULTS.contrast,
         saturation: typeof parsed.saturation === "number"  ? parsed.saturation : DEFAULTS.saturation,
         invert:     typeof parsed.invert     === "boolean" ? parsed.invert     : DEFAULTS.invert,
+        font:       typeof parsed.font       === "string"  ? parsed.font       : DEFAULTS.font,
       };
     } catch (_) {
       cfg = { ...DEFAULTS };
@@ -116,6 +117,7 @@
   let lastMtime     = 0;
   let lastCfgMtime  = 0;
   let cfg           = { ...DEFAULTS };
+  let fontSheetUri  = null;
 
   // ── apply ────────────────────────────────────────────────────────────────────
 
@@ -173,6 +175,7 @@
       if (!changed) return;
       await loadConfig();
       await loadWalColors();
+      applyFontSheet();
       applyToAllTabs();
     } catch (_) {}
   }, POLL_MS);
@@ -240,16 +243,22 @@
   });
 
   // ── global font override ─────────────────────────────────────────────────────
-  // Excludes icon font classes so Google/Material icons don't render as text.
+  // cfg.font = "Font Name" enables; null disables. Live-reloads on config change.
 
-  (() => {
-    const css = `body *:not(.google-symbols, gf-load-icon-font, mat-icon, .google-material-icons, .material-icons, [class*="icon"]) { font-family: "Fira Code", monospace !important; }`;
-    const uri = Services.io.newURI(`data:text/css;charset=utf-8,${encodeURIComponent(css)}`);
-    const sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
-    sss.loadAndRegisterSheet(uri, sss.AGENT_SHEET);
-  })();
+  const sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
+
+  function applyFontSheet() {
+    if (fontSheetUri && sss.sheetRegistered(fontSheetUri, sss.AGENT_SHEET)) {
+      sss.unregisterSheet(fontSheetUri, sss.AGENT_SHEET);
+    }
+    fontSheetUri = null;
+    if (!cfg.font) return;
+    const css = `body *:not(.google-symbols, gf-load-icon-font, mat-icon, .google-material-icons, .material-icons, [class*="icon"]) { font-family: "${cfg.font}", monospace !important; }`;
+    fontSheetUri = Services.io.newURI(`data:text/css;charset=utf-8,${encodeURIComponent(css)}`);
+    sss.loadAndRegisterSheet(fontSheetUri, sss.AGENT_SHEET);
+  }
 
   // ── init ─────────────────────────────────────────────────────────────────────
 
-  loadConfig().then(() => loadWalColors()).then(() => applyToAllTabs());
+  loadConfig().then(() => loadWalColors()).then(() => { applyFontSheet(); applyToAllTabs(); });
 })();
