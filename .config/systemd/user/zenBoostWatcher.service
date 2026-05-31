@@ -1,0 +1,12 @@
+[Unit]
+Description=Watch Zen Browser boosts and sync pywal colors
+After=default.target
+
+[Service]
+Type=simple
+ExecStart=%h/Scripts/watchZenBoosts.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
