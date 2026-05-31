@@ -117,7 +117,6 @@
   let lastMtime     = 0;
   let lastCfgMtime  = 0;
   let cfg           = { ...DEFAULTS };
-  let fontSheetUri  = null;
 
   // ── apply ────────────────────────────────────────────────────────────────────
 
@@ -175,7 +174,7 @@
       if (!changed) return;
       await loadConfig();
       await loadWalColors();
-      applyFontSheet();
+      broadcastFont();
       applyToAllTabs();
     } catch (_) {}
   }, POLL_MS);
@@ -199,10 +198,38 @@
   // for light pages (luminance > 0.5). Reset to false happens in applyToTab on
   // each navigation, so dark pages are always corrected back cleanly.
 
+  // ── frame script (runs in content process) ───────────────────────────────────
+  // Handles both smart-invert luminance detection and font injection.
+  // Font is injected via windowUtils.loadSheet (content-side) because
+  // nsIStyleSheetService registered from the parent process doesn't reach
+  // content processes.
+
   const frameScript = `data:application/javascript,${encodeURIComponent(`
 (function() {
-  if (this._zenPywalInvertInit) return;
-  this._zenPywalInvertInit = true;
+  if (this._zenPywalInit) return;
+  this._zenPywalInit = true;
+
+  let fontName = null;
+  let fontSheetUri = null;
+  const AGENT_SHEET = 0; // nsIDOMWindowUtils.AGENT_SHEET
+
+  function applyFont() {
+    if (fontSheetUri) {
+      try { content.windowUtils.removeSheet(fontSheetUri, AGENT_SHEET); } catch (_) {}
+      fontSheetUri = null;
+    }
+    if (!fontName) return;
+    const css = 'body *:not(.google-symbols,gf-load-icon-font,mat-icon,.google-material-icons,.material-icons,[class*="icon"]){font-family:"' + fontName + '",monospace!important;}';
+    try {
+      fontSheetUri = Services.io.newURI("data:text/css;charset=utf-8," + encodeURIComponent(css));
+      content.windowUtils.loadSheet(fontSheetUri, AGENT_SHEET);
+    } catch (_) {}
+  }
+
+  addMessageListener("zenPywal:setFont", function(msg) {
+    fontName = msg.data.font;
+    applyFont();
+  });
 
   addEventListener("DOMContentLoaded", function() {
     if (content.window !== content.window.top) return;
@@ -214,17 +241,19 @@
       const m = bg.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);
       if (!m) return null;
       const alpha = bg.match(/rgba\\(.*,\\s*([\\d.]+)\\)/);
-      if (alpha && +alpha[1] < 0.05) return null; // treat near-transparent as unknown
+      if (alpha && +alpha[1] < 0.05) return null;
       return [+m[1], +m[2], +m[3]];
     }
 
     const rgb = parseBg(doc.documentElement) || parseBg(doc.body);
-    let isLight = true; // default to light (invert) when background is unset/transparent
+    let isLight = true;
     if (rgb) {
       const lum = 0.2126 * (rgb[0] / 255) + 0.7152 * (rgb[1] / 255) + 0.0722 * (rgb[2] / 255);
       isLight = lum > 0.5;
     }
     sendAsyncMessage("zenPywal:pageTheme", { isLight });
+
+    applyFont();
   }, false);
 })();
 `)}`;
@@ -242,23 +271,11 @@
     } catch (_) {}
   });
 
-  // ── global font override ─────────────────────────────────────────────────────
-  // cfg.font = "Font Name" enables; null disables. Live-reloads on config change.
-
-  const sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
-
-  function applyFontSheet() {
-    if (fontSheetUri && sss.sheetRegistered(fontSheetUri, sss.AGENT_SHEET)) {
-      sss.unregisterSheet(fontSheetUri, sss.AGENT_SHEET);
-    }
-    fontSheetUri = null;
-    if (!cfg.font) return;
-    const css = `body *:not(.google-symbols, gf-load-icon-font, mat-icon, .google-material-icons, .material-icons, [class*="icon"]) { font-family: "${cfg.font}", monospace !important; }`;
-    fontSheetUri = Services.io.newURI(`data:text/css;charset=utf-8,${encodeURIComponent(css)}`);
-    sss.loadAndRegisterSheet(fontSheetUri, sss.AGENT_SHEET);
+  function broadcastFont() {
+    Services.mm.broadcastAsyncMessage("zenPywal:setFont", { font: cfg.font });
   }
 
   // ── init ─────────────────────────────────────────────────────────────────────
 
-  loadConfig().then(() => loadWalColors()).then(() => { applyFontSheet(); applyToAllTabs(); });
+  loadConfig().then(() => loadWalColors()).then(() => { broadcastFont(); applyToAllTabs(); });
 })();
