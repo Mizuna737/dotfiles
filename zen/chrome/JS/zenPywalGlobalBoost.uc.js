@@ -158,6 +158,16 @@
     applyToAllTabs();
   }, "zen-boosts-update");
 
+  // ── global font override ─────────────────────────────────────────────────────
+  // Excludes icon font classes so Google/Material icons don't render as text.
+
+  (() => {
+    const css = `body *:not(.google-symbols, gf-load-icon-font, mat-icon, .google-material-icons, .material-icons, [class*="icon"]) { font-family: "Fira Code", monospace !important; }`;
+    const uri = Services.io.newURI(`data:text/css;charset=utf-8,${encodeURIComponent(css)}`);
+    const sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
+    sss.loadAndRegisterSheet(uri, sss.AGENT_SHEET);
+  })();
+
   // ── init ─────────────────────────────────────────────────────────────────────
 
   loadWalColors().then(() => applyToAllTabs());
