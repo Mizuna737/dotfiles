@@ -1,4 +1,5 @@
 {
-  "contrast": 0.45,
-  "saturation": 0.15
+  "contrast": 0.75,
+  "saturation": 0.15,
+  "invert": true
 }

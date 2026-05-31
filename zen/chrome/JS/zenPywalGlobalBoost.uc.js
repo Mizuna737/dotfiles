@@ -13,7 +13,7 @@
   // Defaults — overridden by pywalBoost.json if present.
   // contrast  0→1: lower = stronger tint blend
   // saturation 0→1: lower = more vivid accent color
-  const DEFAULTS = { contrast: 0.75, saturation: null };
+  const DEFAULTS = { contrast: 0.75, saturation: null, invert: true };
 
   const { gZenBoostsManager } = ChromeUtils.importESModule(
     "resource:///modules/zen/boosts/ZenBoostsManager.sys.mjs"
@@ -100,8 +100,9 @@
       const raw = await IOUtils.readUTF8(WAL_CONFIG_PATH);
       const parsed = JSON.parse(raw);
       cfg = {
-        contrast:   typeof parsed.contrast   === "number" ? parsed.contrast   : DEFAULTS.contrast,
-        saturation: typeof parsed.saturation === "number" ? parsed.saturation : DEFAULTS.saturation,
+        contrast:   typeof parsed.contrast   === "number"  ? parsed.contrast   : DEFAULTS.contrast,
+        saturation: typeof parsed.saturation === "number"  ? parsed.saturation : DEFAULTS.saturation,
+        invert:     typeof parsed.invert     === "boolean" ? parsed.invert     : DEFAULTS.invert,
       };
     } catch (_) {
       cfg = { ...DEFAULTS };
@@ -129,7 +130,7 @@
       if (!bc) return;
       bc.zenBoostsData = pywalNsColor;
       bc.zenBoostsComplementaryRotation = pywalDelta;
-      bc.isZenBoostsInverted = false;
+      bc.isZenBoostsInverted = cfg.invert;
     } catch (e) {
       // browsing context may be dead (tab closing, etc.)
     }
