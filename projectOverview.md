@@ -12,10 +12,26 @@ A deeply integrated "second brain" combining:
 
 - **Obsidian** — notes, tasks, knowledge base ("The Vault" at `~/Documents/The Vault`)
 - **AwesomeWM** — window manager with custom Lua config at `~/.config/awesome/`
-- **Dashboard server** — Python/HTTP/SSE server at `localhost:9876`, source at `~/.config/dashboard/dashboardServer.py`
+- **Dashboard server** — Python/HTTP/SSE server at `localhost:9876`, source at `~/Projects/dashboard/dashboardServer.py`
 - **Dashboard UI** — `~/.config/dashboard/index.html`, rendered in luakit on a secondary 1280×400 monitor
 - **Eisenhower Matrix** — `~/.config/dashboard/eisenhower.html`, rendered in a luakit dropdown window
 - **Theming** — pywal, colors served via `/colors.css` endpoint
+
+### Repo Structure
+
+The dotfiles system is split across 7 repos:
+
+| Repo | Location | Purpose |
+|------|----------|---------|
+| [dotfiles](https://github.com/Mizuna737/dotfiles) | `~/dotfiles/` | Personal config only — rc files, `.config/`, packages |
+| [dotfiles-tools](https://github.com/Mizuna737/dotfiles-tools) | `~/Projects/dotfiles-tools/` | All scripts (`~/Scripts/` symlinks here) + index + lib |
+| [dashboard](https://github.com/Mizuna737/dashboard) | `~/Projects/dashboard/` | Dashboard server, UIs; `~/.config/dashboard/` symlinks here |
+| [bgremove](https://github.com/Mizuna737/bgremove) | `~/Projects/bgremove/` | GPU background removal pipeline |
+| [gesturecontrol](https://github.com/Mizuna737/gesturecontrol) | `~/gesturecontrol/` | Hand-tracking engine (AUR-published) |
+| [homeassistant](https://github.com/Mizuna737/homeassistant) | `~/Projects/homeassistant/` | Home Assistant Docker config |
+| [adguard](https://github.com/Mizuna737/adguard) | `~/Projects/adguard/` | AdGuard Home Docker config |
+
+Personal config for gesturecontrol (triggers.toml, actions.toml) stays in dotfiles at `.config/gesturecontrol/`.
 
 ---
 
@@ -30,10 +46,10 @@ A deeply integrated "second brain" combining:
 
 ### Dashboard Server
 
-- `~/.config/dashboard/dashboardServer.py` — main server (port 9876)
+- `~/Projects/dashboard/dashboardServer.py` — main server (port 9876); `~/.config/dashboard/` symlinks to `~/Projects/dashboard/`
 - `~/.config/dashboard/index.html` — dashboard UI
 - `~/.config/dashboard/eisenhower.html` — Eisenhower matrix + shopping list SPA
-- `~/.config/dashboard/todoist.conf` — Todoist credentials (ini format, no section header)
+- `~/.config/dashboard/todoist.conf` — Todoist credentials (ini format, no section header; gitignored)
 - `~/Scripts/dashboardLaunch.sh` — kills and restarts the server, logs to `~/.cache/dashboard-server.log`
 
 ### Obsidian Vault Structure
@@ -52,6 +68,8 @@ The Vault/
 
 ### Shell Scripts (`~/Scripts/`)
 
+`~/Scripts/` is a symlink to `~/Projects/dotfiles-tools/Scripts/`. All scripts are managed in the dotfiles-tools repo.
+
 - `captureTask.sh` — rofi task capture (interactive + headless via args)
 - `fileTasks.sh` — rofi-based task filing loop
 - `quickNotes.sh` — opens daily note ## Notes section in nvim dropdown
@@ -62,8 +80,6 @@ The Vault/
 - `chooseWallpaper.sh` — wallpaper picker (pass `true` for random), triggers pywal
 - `pasteFromHistory.sh` — CopyQ clipboard history via rofi
 - `droidCamDaemon.sh` — DroidCam background daemon helper
-- `bgremove.py` — GPU background removal virtual camera (RVM ONNX model, CUDA EP)
-- `bgremove-setup.sh` — one-time setup: installs v4l2loopback, downloads RVM model, creates venv
 
 ---
 
@@ -230,8 +246,8 @@ GPU-accelerated background removal pipeline for video calls (Teams, etc.).
 
 ### Key Files
 
-- `~/Scripts/bgremove.py` — main loop: reads v4l2 input, runs RVM inference, composites, writes to v4l2loopback output. Stays alive when DroidCam is off (outputs black placeholder so apps keep enumerating the device).
-- `~/Scripts/bgremove-setup.sh` — one-time setup: installs v4l2loopback-dkms, downloads RVM MobileNetV3 ONNX model, creates Python venv at `~/.local/share/bgremove/venv`, patches pyfakewebcam for NumPy 2.x.
+- `~/Projects/bgremove/bgremove.py` — main loop: reads v4l2 input, runs RVM inference, composites, writes to v4l2loopback output. Stays alive when DroidCam is off (outputs black placeholder so apps keep enumerating the device).
+- `~/Projects/bgremove/bgremove-setup.sh` — one-time setup: installs v4l2loopback-dkms, downloads RVM MobileNetV3 ONNX model, creates Python venv at `~/.local/share/bgremove/venv`, patches pyfakewebcam for NumPy 2.x.
 - `~/.config/systemd/user/bgremove.service` — user service; sets `LD_LIBRARY_PATH` for CUDA shims.
 - `/etc/modprobe.d/v4l2loopback.conf` — `devices=2 video_nr=20,21 card_label="DroidCam,VirtualCam-BG" exclusive_caps=1,1` — both devices persistent on boot.
 
@@ -318,7 +334,7 @@ All write tools require user confirmation (Apply/Cancel UI).
 
 ## Gesture Control System
 
-MediaPipe hand tracking → D-Bus signals → AwesomeWM/shell actions.
+Custom ONNX hand-pose tracking → D-Bus signals → AwesomeWM/shell actions. Published on AUR as `gesturecontrol`.
 
 ### Architecture
 
@@ -329,12 +345,12 @@ gestureControl.py  →  D-Bus session bus  →  gestureControl-actions.py  (shel
 
 ### Key Files
 
-- `~/Scripts/gestureControl.py` — engine: reads webcam via OpenCV/MediaPipe, detects poses/swipes/sequences/continuous metrics, emits D-Bus signals on `org.gesturecontrol.Engine`
-- `~/Scripts/gestureControl-actions.py` — actions daemon: subscribes to D-Bus, dispatches shell commands per `actions.toml`
+- `~/gesturecontrol/gestureControl.py` — engine: ONNX palm detection + landmark regression, detects poses/swipes/sequences/continuous metrics, emits D-Bus signals on `org.gesturecontrol.Engine`
+- `~/gesturecontrol/gestureControl-actions.py` — actions daemon: subscribes to D-Bus, dispatches shell commands per `actions.toml`
 - `~/.config/awesome/signals.lua` — AwesomeWM signal handler: subscribes to D-Bus, routes to Lua functions (volume, stack cycling)
-- `~/.config/gestureControl/triggers.toml` — gesture definitions: poses, bindings, cross-hand conditions
-- `~/.config/gestureControl/actions.toml` — shell action bindings for the actions daemon
-- `~/Scripts/gestureControl-setup.sh` — one-time setup script
+- `~/.config/gesturecontrol/triggers.toml` — **personal config** (in dotfiles repo): gesture definitions, poses, bindings
+- `~/.config/gesturecontrol/actions.toml` — **personal config** (in dotfiles repo): shell action bindings for the actions daemon
+- `~/gesturecontrol/gesturecontrol-setup.sh` — one-time setup script (installs venv, downloads ONNX models)
 
 ### Systemd Services
 
@@ -343,7 +359,7 @@ Both run as systemd user services under `graphical-session.target`:
 - `gestureControl.service` — engine; `PartOf=graphical-session.target`
 - `gestureControl-actions.service` — daemon; `BindsTo=gestureControl.service`
 
-Venv: `~/.local/share/gestureControl/venv/` (mediapipe, opencv-python, dbus-python)
+Venv: `~/.local/share/gesturecontrol/venv/` (onnxruntime, opencv-python, dbus-python)
 
 Logs: `~/.cache/gestureControl.log`, `~/.cache/gestureControl-actions.log`
 
@@ -421,7 +437,7 @@ Both engine and actions daemon watch their config files via mtime polling (1s in
 - **Media:** playerctl, D-Bus, MPRIS
 - **Audio:** PipeWire/PulseAudio via pactl; two named sinks: "Headphones" (USB Audio CODEC) and "Speakers" (PCI onboard), cycled by `/toggle/sink`
 - **Theming:** pywal
-- **Dotfiles:** GNU Stow → `~/dotfiles` → GitHub
+- **Dotfiles:** 7 repos — see Repo Structure section above. `~/Scripts/` → `~/Projects/dotfiles-tools/Scripts/` (symlink); `~/.config/dashboard/` → `~/Projects/dashboard/` (symlink)
 - **Dashboard:** Python stdlib HTTPServer, SSE, inotifywait vault watcher
 - **Camera:** DroidCam CLI + HTTP API; GPU background removal via bgremove virtual camera
 - **VPN:** Windscribe CLI
