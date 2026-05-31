@@ -6,8 +6,14 @@
 
 (function () {
   const POLL_MS = 1000;
-  const WAL_COLORS_PATH = Services.dirsvc.get("Home", Ci.nsIFile).path + "/.cache/wal/colors.json";
-  const BOOST_CONTRAST = 0.75;
+  const HOME = Services.dirsvc.get("Home", Ci.nsIFile).path;
+  const WAL_COLORS_PATH  = HOME + "/.cache/wal/colors.json";
+  const WAL_CONFIG_PATH  = HOME + "/dotfiles/zen/pywalBoost.json";
+
+  // Defaults — overridden by pywalBoost.json if present.
+  // contrast  0→1: lower = stronger tint blend
+  // saturation 0→1: lower = more vivid accent color
+  const DEFAULTS = { contrast: 0.75, saturation: null };
 
   const { gZenBoostsManager } = ChromeUtils.importESModule(
     "resource:///modules/zen/boosts/ZenBoostsManager.sys.mjs"
@@ -81,18 +87,34 @@
     const [hue6, sat6, light6] = rgbToHsl(r6, g6, b6);
     const [hue3] = rgbToHsl(r3, g3, b3);
 
-    const boostSat   = 1 - sat6;
+    // cfg.saturation overrides pywal-derived value when set; lower = more vivid
+    const boostSat    = cfg.saturation !== null ? cfg.saturation : 1 - sat6;
     const boostBright = clamp((light6 - 0.1) / 0.9, 0, 1);
-    const delta      = (hue3 - hue6 + 360) % 360;
-    const nsColor    = buildNsColor(hue6, boostSat, boostBright, BOOST_CONTRAST);
+    const delta       = (hue3 - hue6 + 360) % 360;
+    const nsColor     = buildNsColor(hue6, boostSat, boostBright, cfg.contrast);
     return { nsColor, delta };
+  }
+
+  async function loadConfig() {
+    try {
+      const raw = await IOUtils.readUTF8(WAL_CONFIG_PATH);
+      const parsed = JSON.parse(raw);
+      cfg = {
+        contrast:   typeof parsed.contrast   === "number" ? parsed.contrast   : DEFAULTS.contrast,
+        saturation: typeof parsed.saturation === "number" ? parsed.saturation : DEFAULTS.saturation,
+      };
+    } catch (_) {
+      cfg = { ...DEFAULTS };
+    }
   }
 
   // ── state ────────────────────────────────────────────────────────────────────
 
-  let pywalNsColor = 0;
-  let pywalDelta   = 55;
-  let lastMtime    = 0;
+  let pywalNsColor  = 0;
+  let pywalDelta    = 55;
+  let lastMtime     = 0;
+  let lastCfgMtime  = 0;
+  let cfg           = { ...DEFAULTS };
 
   // ── apply ────────────────────────────────────────────────────────────────────
 
@@ -137,9 +159,18 @@
 
   setInterval(async () => {
     try {
-      const { lastModified } = await IOUtils.stat(WAL_COLORS_PATH);
-      if (lastModified === lastMtime) return;
-      lastMtime = lastModified;
+      let changed = false;
+
+      const { lastModified: colorsMtime } = await IOUtils.stat(WAL_COLORS_PATH);
+      if (colorsMtime !== lastMtime) { lastMtime = colorsMtime; changed = true; }
+
+      try {
+        const { lastModified: cfgMtime } = await IOUtils.stat(WAL_CONFIG_PATH);
+        if (cfgMtime !== lastCfgMtime) { lastCfgMtime = cfgMtime; changed = true; }
+      } catch (_) {}
+
+      if (!changed) return;
+      await loadConfig();
       await loadWalColors();
       applyToAllTabs();
     } catch (_) {}
@@ -170,5 +201,5 @@
 
   // ── init ─────────────────────────────────────────────────────────────────────
 
-  loadWalColors().then(() => applyToAllTabs());
+  loadConfig().then(() => loadWalColors()).then(() => applyToAllTabs());
 })();
