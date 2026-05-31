@@ -72,6 +72,7 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
 
 # Aliases
+alias claude='claude --dangerously-load-development-channels server:qwenCode'
 alias ls="ls --color -a"
 alias pac="sudo pacman"
 alias teams="/opt/teams-for-linux/teams-for-linux"

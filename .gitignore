@@ -20,11 +20,14 @@ Documents/The Vault/.obsidian/plugins/claude-assistant/data.json
 # VLC window state
 .config/vlc/vlc-qt-interface.conf
 
+# Vieb runtime package manifest
+package.json
+
 # Python bytecode
 __pycache__/
 *.pyc
 *.pyo
 
-# Services with local secrets
-adguard/
-homeassistant/
+# Infrastructure services (moved to own repos)
+# adguard → https://github.com/Mizuna737/adguard
+# homeassistant → https://github.com/Mizuna737/homeassistant

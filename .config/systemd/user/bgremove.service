@@ -5,7 +5,7 @@ After=network.target v4l2loopback-reload.service
 [Service]
 Type=simple
 Environment=LD_LIBRARY_PATH=/home/max/.local/share/bgremove/cuda_shims:/opt/cuda/lib64
-ExecStart=/home/max/.local/share/bgremove/venv/bin/python3 /home/max/dotfiles/Scripts/bgremove.py \
+ExecStart=/home/max/.local/share/bgremove/venv/bin/python3 /home/max/Projects/bgremove/bgremove.py \
     --input /dev/video20 \
     --output /dev/video21 \
     --width 1920 \

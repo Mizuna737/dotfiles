@@ -6,8 +6,8 @@
 local defaultApps = {
 	terminalCommand = "kitty --override confirm_os_window_close=0 -e tmux new-session -A -s kitty",
 	terminal = "kitty",
-	browserCommand = "qutebrowser",
-	browser = "qutebrowser",
+	browserCommand = "zen-browser",
+	browser = "zen",
 	editor = "neovim",
 	-- somewhere near your other commands…
 	editorCommand = [[

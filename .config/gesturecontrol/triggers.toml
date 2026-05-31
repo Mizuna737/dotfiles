@@ -10,7 +10,7 @@ spread_threshold = 0.15
 [presence]
 enabled = true
 useMotionDetection = false
-idleSeconds = 30
+idleSeconds = 120
 motionThreshold = 5
 checkHz = 2
 poseCheckMode = "fallback"

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "qwenCode": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "/home/max/dotfiles/Scripts/qwenCodeMcp.py"
+      ],
+      "env": {}
+    }
+  }
+}
