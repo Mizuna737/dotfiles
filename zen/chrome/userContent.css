@@ -1,0 +1,13 @@
+/* TEST: chrome targeting from userContent.css */
+@-moz-document url-prefix(chrome://browser/) {
+  #navigator-toolbox {
+    background: red !important;
+  }
+}
+
+/* Also test newtab */
+@-moz-document domain(newtab), domain(about) {
+  body, #home, .wrapper {
+    background-color: blue !important;
+  }
+}
