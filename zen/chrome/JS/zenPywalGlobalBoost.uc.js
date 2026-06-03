@@ -9,6 +9,8 @@
   const HOME = Services.dirsvc.get("Home", Ci.nsIFile).path;
   const WAL_COLORS_PATH  = HOME + "/.cache/wal/colors.json";
   const WAL_CONFIG_PATH  = HOME + "/dotfiles/zen/pywalBoost.json";
+  const FONT_META_PATH        = HOME + "/.cache/zenPywal/fontMeta.json";
+  const DOMAIN_CACHE_PATH     = HOME + "/.cache/zenPywal/domainThemeCache.json";
 
   // Defaults — overridden by pywalBoost.json if present.
   // contrast  0→1: lower = stronger tint blend
@@ -117,24 +119,73 @@
   let lastMtime     = 0;
   let lastCfgMtime  = 0;
   let cfg           = { ...DEFAULTS };
-  let fontSheetUri  = null;
+  let fontSheetUri   = null;
+  let appliedFont    = null;
+
+  // eTLD+1 → isLight (bool). Populated by frame script; used to pre-set invert on navigation.
+  const domainThemeCache = new Map();
+  let saveCacheTimer = null;
+
+  function etld(uri) {
+    try { return Services.eTLD.getBaseDomain(uri); } catch (_) { return null; }
+  }
+
+  async function loadDomainCache() {
+    try {
+      const obj = JSON.parse(await IOUtils.readUTF8(DOMAIN_CACHE_PATH));
+      for (const [k, v] of Object.entries(obj)) {
+        if (typeof v === "boolean") domainThemeCache.set(k, v);
+      }
+    } catch (_) {}
+  }
+
+  function scheduleCacheSave() {
+    if (saveCacheTimer) clearTimeout(saveCacheTimer);
+    saveCacheTimer = setTimeout(async () => {
+      saveCacheTimer = null;
+      try {
+        const obj = Object.fromEntries(domainThemeCache);
+        await IOUtils.writeUTF8(DOMAIN_CACHE_PATH, JSON.stringify(obj));
+      } catch (_) {}
+    }, 2000);
+  }
 
   const sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
+  const NERD_SYMBOLS_LOCAL = "SymbolsNF";
 
-  function applyFontSheet() {
+  function applyFontSheet(unicodeRange, localName) {
     if (fontSheetUri && sss.sheetRegistered(fontSheetUri, sss.AGENT_SHEET)) {
       sss.unregisterSheet(fontSheetUri, sss.AGENT_SHEET);
     }
     fontSheetUri = null;
-    if (!cfg.font) return;
-    const css = `body *:not(.google-symbols,gf-load-icon-font,mat-icon,.google-material-icons,.material-icons,[class*="icon"]){font-family:"${cfg.font}",monospace!important;}`;
+    if (!cfg.font || !unicodeRange) return;
+    const src = localName || cfg.font;
+    const css =
+      `@font-face{font-family:"${cfg.font}-wal";src:local("${src}");` +
+      `unicode-range:${unicodeRange};}` +
+      `@font-face{font-family:"${cfg.font}-wal";src:local("${NERD_SYMBOLS_LOCAL}");` +
+      `unicode-range:U+E000-F8FF;}` +
+      `body *:not(.google-symbols,gf-load-icon-font,mat-icon,.google-material-icons,` +
+      `.material-icons,[class*="icon"],[class*="Symbol"],` +
+      `[aria-hidden="true"],[data-icon-name],i)` +
+      `{font-family:"${cfg.font}-wal"!important;}`;
     fontSheetUri = Services.io.newURI(`data:text/css;charset=utf-8,${encodeURIComponent(css)}`);
     sss.loadAndRegisterSheet(fontSheetUri, sss.AGENT_SHEET);
   }
 
+  async function tryApplyFont() {
+    try {
+      const { font, localName, unicodeRange } = JSON.parse(await IOUtils.readUTF8(FONT_META_PATH));
+      if (font === cfg.font && unicodeRange) {
+        applyFontSheet(unicodeRange, localName);
+        appliedFont = cfg.font;
+      }
+    } catch (_) {}
+  }
+
   // ── apply ────────────────────────────────────────────────────────────────────
 
-  function applyToTab(browser) {
+  function applyToTab(browser, resetInvert = false) {
     try {
       const uri = browser.currentURI;
       if (!uri || (!uri.schemeIs("http") && !uri.schemeIs("https"))) return;
@@ -145,7 +196,18 @@
       if (!bc) return;
       bc.zenBoostsData = pywalNsColor;
       bc.zenBoostsComplementaryRotation = pywalDelta;
-      bc.isZenBoostsInverted = false; // frame script corrects this for light pages
+      if (resetInvert) {
+        if (!cfg.invert) {
+          bc.isZenBoostsInverted = false;
+        } else {
+          const base = etld(uri);
+          const cached = base !== null ? domainThemeCache.get(base) : undefined;
+          // Known domain: pre-set from cache (no flash). Unknown: default false (flash on first visit only).
+          bc.isZenBoostsInverted = cached !== undefined ? cached : false;
+        }
+      } else if (!cfg.invert) {
+        bc.isZenBoostsInverted = false;
+      }
     } catch (e) {
       // browsing context may be dead (tab closing, etc.)
     }
@@ -153,7 +215,7 @@
 
   function applyToAllTabs() {
     for (const tab of gBrowser.tabs) {
-      applyToTab(tab.linkedBrowser);
+      applyToTab(tab.linkedBrowser, false); // preserve existing invert state
     }
   }
 
@@ -185,11 +247,22 @@
         if (cfgMtime !== lastCfgMtime) { lastCfgMtime = cfgMtime; changed = true; }
       } catch (_) {}
 
-      if (!changed) return;
-      await loadConfig();
-      await loadWalColors();
-      applyFontSheet();
-      applyToAllTabs();
+      if (changed) {
+        await loadConfig();
+        await loadWalColors();
+        applyToAllTabs();
+      }
+
+      if (cfg.font !== appliedFont) {
+        if (fontSheetUri && sss.sheetRegistered(fontSheetUri, sss.AGENT_SHEET)) {
+          sss.unregisterSheet(fontSheetUri, sss.AGENT_SHEET);
+        }
+        fontSheetUri = null;
+        appliedFont = null;
+        if (cfg.font) {
+          await tryApplyFont();
+        }
+      }
     } catch (_) {}
   }, POLL_MS);
 
@@ -198,7 +271,7 @@
   gBrowser.addTabsProgressListener({
     onLocationChange(browser, progress, _request, _location, _flags) {
       if (!progress.isTopLevel) return;
-      applyToTab(browser);
+      applyToTab(browser, true);
     },
   });
 
@@ -226,6 +299,7 @@
   addEventListener("DOMContentLoaded", function() {
     if (content.window !== content.window.top) return;
     const doc = content.document;
+
 
     function parseBg(el) {
       if (!el) return null;
@@ -257,6 +331,11 @@
       const uri = browser.currentURI;
       if (!uri || (!uri.schemeIs("http") && !uri.schemeIs("https"))) return;
       if (gZenBoostsManager.registeredBoostForDomain(uri.host)) return;
+      const base = etld(uri);
+      if (base !== null) {
+        domainThemeCache.set(base, msg.data.isLight);
+        scheduleCacheSave();
+      }
       browser.browsingContext.isZenBoostsInverted = msg.data.isLight;
     } catch (_) {}
   });
@@ -264,5 +343,10 @@
 
   // ── init ─────────────────────────────────────────────────────────────────────
 
-  loadConfig().then(() => loadWalColors()).then(() => { applyFontSheet(); applyToAllTabs(); });
+  loadDomainCache().then(() =>
+    loadConfig().then(() => loadWalColors()).then(async () => {
+      if (cfg.font) await tryApplyFont();
+      applyToAllTabs();
+    })
+  );
 })();

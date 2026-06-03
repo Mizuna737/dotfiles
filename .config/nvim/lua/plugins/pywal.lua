@@ -1,5 +1,2 @@
-return {
-	{
-		"AlphaTechnolog/pywal.nvim",
-	},
-}
+-- pywal.nvim registered in colorscheme.lua
+return {}
