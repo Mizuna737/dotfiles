@@ -4,7 +4,7 @@ Type=Application
 Name=Loop
 GenericName=Collaborative Workspace (Microsoft 365)
 Comment=Microsoft Loop via Vieb (Erwic)
-Exec=/home/max/dotfiles/Scripts/viebErwic.sh --erwic=/home/max/.config/Vieb/erwics/loop.json --datafolder=/home/max/.local/share/vieb-erwic/loop/
+Exec=/home/max/Scripts/viebErwic.sh --erwic=/home/max/.config/Vieb/erwics/loop.json --datafolder=/home/max/.local/share/vieb-erwic/loop/
 Icon=ms-loop
 Terminal=false
 StartupNotify=true

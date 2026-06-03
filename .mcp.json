@@ -4,7 +4,7 @@
       "type": "stdio",
       "command": "python3",
       "args": [
-        "/home/max/dotfiles/Scripts/qwenCodeMcp.py"
+        "/home/max/Scripts/qwenCodeMcp.py"
       ],
       "env": {}
     }

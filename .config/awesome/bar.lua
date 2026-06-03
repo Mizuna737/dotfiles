@@ -245,6 +245,30 @@ end
 bar.updateVolumeWidget = updateVolumeWidget
 
 --------------------------------
+-- Live volume polling
+--------------------------------
+local last_vol = nil
+local last_muted = nil
+
+local vol_timer = gears.timer.start_new(0.2, function()
+	awful.spawn.easy_async_with_shell("pactl get-sink-volume @DEFAULT_SINK@", function(stdout)
+		local volpct = stdout:match("(%d+)%%")
+		local muted = stdout:match("%[onoff%]")
+		if volpct then
+			local cur_vol = tonumber(volpct)
+			local cur_muted = muted and muted == "OFF" or false
+			if cur_vol ~= last_vol or cur_muted ~= last_muted then
+				last_vol = cur_vol
+				last_muted = cur_muted
+				volume_bar.value = cur_vol
+				updateVolumeText(cur_vol .. "%")
+			end
+		end
+	end)
+	return true
+end)
+
+--------------------------------
 -- 5) Date/Time Widget
 --------------------------------
 

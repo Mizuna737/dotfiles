@@ -52,31 +52,31 @@ Dotfiles managed via GNU Stow, symlinked to `~`. Arch Linux, AwesomeWM (Lua), zs
 
 - `~/.config/awesome/` — AwesomeWM config. Entry: `rc.lua`. Custom logic: `functions.lua` (all camelCase). Device keymaps: `devices/*.lua`
 - `~/.config/dashboard/` — Python HTTP/SSE dashboard server (port 9876). UI: `index.html`, `eisenhower.html`
-- `~/Scripts/` — all shell/Python scripts. Symlinked from `dotfiles/Scripts/`
+- `~/Scripts/` — all shell/Python scripts. Symlinked from `~/Projects/dotfiles-tools/Scripts/`
 - `~/Documents/The Vault/` — Obsidian vault
-- `index/` — dotfiles index for lookups (run `Scripts/indexQuery.py`)
-- `Scripts/` — helper scripts: `indexQuery.py`, `codeSearch.py`, `fileSummary.py`, `diffSummarize.py`, `qwenCode.sh`, `gitCommitDraft.sh`, `opusReview.py`
+- `index/` — dotfiles index for lookups (run `~/Scripts/indexQuery.py`)
+- `~/Scripts/` — helper scripts: `indexQuery.py`, `codeSearch.py`, `fileSummary.py`, `diffSummarize.py`, `qwenCode.sh`, `gitCommitDraft.sh`, `opusReview.py`
 
 ## Available Scripts
 
 | Job | Script |
 |-----|--------|
-| Structural lookup over dotfiles index | `Scripts/indexQuery.py` |
-| One-shot Qwen reasoning | `Scripts/qwenAsk.py "question"` (`--think` for harder problems) |
-| Symbol / how-does-Y-work lookup | `Scripts/codeSearch.py "question"` |
-| Summarize a code file | `Scripts/fileSummary.py path [...]` |
-| Draft commit message / summarize diff | `Scripts/diffSummarize.py [--staged\|--range A..B] [--commitMsg]` |
-| Triage a log file | `Scripts/logDigest.py --file PATH` |
-| Submit spec to Opus for review | `Scripts/opusReview.py --round N` (pipe spec on stdin) |
-| Sync dotfiles | `Scripts/dotfilesSync.sh` |
-| Update system | `Scripts/updateAll.sh` |
-| Restart dashboard | `Scripts/dashboardLaunch.sh` |
-| Interactive commit drafter | `Scripts/gitCommitDraft.sh` |
+| Structural lookup over dotfiles index | `~/Scripts/indexQuery.py` |
+| One-shot Qwen reasoning | `~/Scripts/qwenAsk.py "question"` (`--think` for harder problems) |
+| Symbol / how-does-Y-work lookup | `~/Scripts/codeSearch.py "question"` |
+| Summarize a code file | `~/Scripts/fileSummary.py path [...]` |
+| Draft commit message / summarize diff | `~/Scripts/diffSummarize.py [--staged\|--range A..B] [--commitMsg]` |
+| Triage a log file | `~/Scripts/logDigest.py --file PATH` |
+| Submit spec to Opus for review | `~/Scripts/opusReview.py --round N` (pipe spec on stdin) |
+| Sync dotfiles | `~/Scripts/dotfilesSync.sh` |
+| Update system | `~/Scripts/updateAll.sh` |
+| Restart dashboard | `~/Scripts/dashboardLaunch.sh` |
+| Interactive commit drafter | `~/Scripts/gitCommitDraft.sh` |
 
 Always try `indexQuery.py` first for lookups — pure grep, zero cost. Fall through to `codeSearch.py` when the index doesn't know. NEVER read `index/INDEX.toml` directly — it's 2000+ lines.
 
 ```
-Scripts/indexQuery.py — read-only query over the dotfiles index.
+~/Scripts/indexQuery.py — read-only query over the dotfiles index.
   tags AWESOME[,DASHBOARD]   files carrying any tag (--all = AND)
   file PATH                  full entry for one file
   symbol NAME                symbol → file:line (prefix match; --exact)
@@ -88,14 +88,14 @@ Scripts/indexQuery.py — read-only query over the dotfiles index.
 
 ## Gotchas
 
-- **Stow**: files in this repo are symlinked to `~`. Don't edit `~/.config/...` directly — edit the copy here. Sync with `Scripts/dotfilesSync.sh`.
+- **Stow**: files in this repo are symlinked to `~`. Don't edit `~/.config/...` directly — edit the copy here. Sync with `~/Scripts/dotfilesSync.sh`.
 - **camelCase everywhere**: Lua, JS, Python, shell variables, filenames. No exceptions.
 - `functions.lua` is the single source for dropdown apps via `toggleDropdownApp()`. Rofi and other spawned tools are NOT dropdowns.
 - **Secrets are gitignored**: `adguard/`, `homeassistant/`, `todoist.conf`. Don't read or modify these.
-- **bgremove pipeline** has a fragile CUDA 12 shim layer. Re-run `Scripts/bgremove-setup.sh` after `paru -Syu` updates onnxruntime or pyfakewebcam.
+- **bgremove pipeline** has a fragile CUDA 12 shim layer. Re-run `~/Scripts/bgremove-setup.sh` after `paru -Syu` updates onnxruntime or pyfakewebcam.
 - **gestureControl** requires `cv2.CAP_V4L2` backend — GStreamer backend fails on the IR camera. Buffer size must be ≥2.
 - **luakit** for dashboard/Eisenhower uses a patched `/usr/share/luakit/lib/window.lua` reapplied via pacman hook.
-- **System updates** go through `Scripts/updateAll.sh` (snapper snapshot → pacman → paru → reboot prompt).
+- **System updates** go through `~/Scripts/updateAll.sh` (snapper snapshot → pacman → paru → reboot prompt).
 
 ## Code Conventions
 

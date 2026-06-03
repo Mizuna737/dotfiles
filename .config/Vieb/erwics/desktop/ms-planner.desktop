@@ -4,7 +4,7 @@ Type=Application
 Name=Planner
 GenericName=Task Planner (Microsoft 365)
 Comment=Microsoft Planner via Vieb (Erwic)
-Exec=/home/max/dotfiles/Scripts/viebErwic.sh --erwic=/home/max/.config/Vieb/erwics/planner.json --datafolder=/home/max/.local/share/vieb-erwic/planner/
+Exec=/home/max/Scripts/viebErwic.sh --erwic=/home/max/.config/Vieb/erwics/planner.json --datafolder=/home/max/.local/share/vieb-erwic/planner/
 Icon=ms-planner
 Terminal=false
 StartupNotify=true

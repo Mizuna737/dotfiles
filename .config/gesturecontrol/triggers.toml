@@ -8,15 +8,15 @@ spreadThreshold = 0.4
 spread_threshold = 0.15
 
 [presence]
+checkHz = 2
 enabled = true
-useMotionDetection = false
 idleSeconds = 120
 motionThreshold = 5
-checkHz = 2
-poseCheckMode = "fallback"
 pauseHandsWhenAbsent = true
+poseCheckMode = "fallback"
 poseDetection = true
 poseMinConfidence = 0.5
+useMotionDetection = false
 
 [[poses]]
 name = "FIST"
@@ -131,7 +131,7 @@ pinky = true
 [[bindings]]
 name = "tag_cycle"
 require = [{hand = "left", pose = "THREE"}]
-trigger = { hand = "left", hysteresis = 0.1, metric = "pinchDistance", range = [0.1, 0.2], type = "continuous" }
+trigger = { type = "continuous", metric = "pinchDistance", range = [0.05, 0.2], hysteresis = 0.1, hand = "left" }
 
 [[bindings]]
 name = "set_volume"
