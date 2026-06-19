@@ -1,3 +1,7 @@
 export QT_QPA_PLATFORMTHEME=qt5ct
 export QT_STYLE_OVERRIDE=kvantum
+
+# Home Assistant config (opendeck statetoggle plugin — secrets in ha.conf, not tracked)
+set -a; source "$HOME/.config/environment.d/ha.conf"; set +a
+
 "$HOME/Scripts/chooseWallpaper.sh true"

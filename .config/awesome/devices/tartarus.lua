@@ -394,8 +394,8 @@ tartarus.globalkeys = gears.table.join(
 
 	-- Key z
 	tk({ modkey, ctrl }, "z", function()
-		myFuncs.toggleConcord()
-	end, "Z tap => toggle concord dropdown"),
+		myFuncs.toggleDiscord()
+	end, "Z tap => toggle discord dropdown"),
 	tk({ modkey, ctrl, altkey }, "z", function()
 		naughty.notify({ title = "T z", text = "tap+hold pressed" })
 	end, "Z hold => notify"),

@@ -1,5 +1,5 @@
 [settings]
-camera = 2
+camera = 0
 dwellMs = 50
 format = "GREY"
 fps = 30
@@ -131,12 +131,12 @@ pinky = true
 [[bindings]]
 name = "tag_cycle"
 require = [{hand = "left", pose = "THREE"}]
-trigger = { type = "continuous", metric = "pinchDistance", range = [0.05, 0.2], hysteresis = 0.1, hand = "left" }
+trigger = { type = "continuous", metric = "pinchDistance", range = [0.05, 0.3], hysteresis = 0.1, hand = "left" }
 
 [[bindings]]
 name = "set_volume"
 require = [{hand = "either", pose = "OK"}]
-trigger = { hand = "left", metric = "angle", range = [0, 1], type = "continuous" }
+trigger = { type = "continuous", metric = "angle", range = [0, 1], hand = "either" }
 
 [[bindings]]
 name = "window_cycle"
@@ -145,12 +145,12 @@ trigger = { hand = "left", hysteresis = 0.1, metric = "pinchDistance", range = [
 
 [[bindings]]
 name = "play_pause"
-trigger = { hand = "left", stepDwellMs = 1000, steps = ["FIST", "FIVE"], type = "sequence", windowMs = 3000 }
+trigger = { hand = "left", stepDwellMs = 500, steps = ["FIST", "FIVE"], type = "sequence", windowMs = 3000 }
 
 [[bindings]]
 name = "browser_back"
 require = [{hand = "either", pose = "SIGN"}]
-trigger = { direction = "left", hand = "either", minDisplacement = 0.1, type = "swipe" }
+trigger = { direction = "left", hand = "either", minDisplacement = 0.3, type = "swipe" }
 
 [[bindings]]
 name = "browser_forward"

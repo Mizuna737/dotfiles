@@ -87,6 +87,44 @@ alias gs="git status"
 
 
 
+paru() {
+    local -a pkgs=()
+    local skipScan=0 isSysupgrade=0
+    for arg in "$@"; do
+        case "$arg" in
+            -Q*|-R*|-D*|-U|-h|--help|-V|--version|--gendb|-G|--getpkgbuild)
+                skipScan=1; break ;;
+            --search|--info|--clean|--groups)
+                skipScan=1; break ;;
+            -S[sicgylq]*)
+                skipScan=1; break ;;
+            -Su*|-Syu*|--sysupgrade)
+                isSysupgrade=1 ;;
+            -*) ;;
+            *) pkgs+=("$arg") ;;
+        esac
+    done
+
+    local cloneDir
+    cloneDir=$(grep -E '^\s*CloneDir\s*=' ~/.config/paru/paru.conf 2>/dev/null \
+        | awk -F'=' '{print $2}' | xargs | sed "s|~|$HOME|g")
+    cloneDir="${cloneDir:-$HOME/.cache/paru/clone}"
+
+    if [[ $isSysupgrade -eq 1 ]]; then
+        local -a aurPending=()
+        while IFS= read -r line; do
+            [[ -n "$line" ]] && aurPending+=("${line%% *}")
+        done < <(command paru -Qu --aur 2>/dev/null | grep -v '\[ignored\]')
+        if [[ ${#aurPending[@]} -gt 0 ]]; then
+            python3 ~/Scripts/aurScan.py "${aurPending[@]}" --cloneDir "$cloneDir" || return 1
+        fi
+    elif [[ $skipScan -eq 0 && ${#pkgs[@]} -gt 0 ]]; then
+        python3 ~/Scripts/aurScan.py "${pkgs[@]}" --cloneDir "$cloneDir" || return 1
+    fi
+
+    command paru "$@"
+}
+
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

@@ -245,28 +245,22 @@ end
 bar.updateVolumeWidget = updateVolumeWidget
 
 --------------------------------
--- Live volume polling
+-- Live volume subscription
 --------------------------------
-local last_vol = nil
-local last_muted = nil
-
-local vol_timer = gears.timer.start_new(0.2, function()
-	awful.spawn.easy_async_with_shell("pactl get-sink-volume @DEFAULT_SINK@", function(stdout)
-		local volpct = stdout:match("(%d+)%%")
-		local muted = stdout:match("%[onoff%]")
-		if volpct then
-			local cur_vol = tonumber(volpct)
-			local cur_muted = muted and muted == "OFF" or false
-			if cur_vol ~= last_vol or cur_muted ~= last_muted then
-				last_vol = cur_vol
-				last_muted = cur_muted
-				volume_bar.value = cur_vol
-				updateVolumeText(cur_vol .. "%")
-			end
+awful.spawn.with_line_callback("pactl subscribe", {
+	stdout = function(line)
+		if line:match("sink") then
+			awful.spawn.easy_async_with_shell("pactl get-sink-volume @DEFAULT_SINK@", function(stdout)
+				local volpct = stdout:match("(%d+)%%")
+				if volpct then
+					local cur_vol = tonumber(volpct)
+					volume_bar.value = cur_vol
+					updateVolumeText(cur_vol .. "%")
+				end
+			end)
 		end
-	end)
-	return true
-end)
+	end,
+})
 
 --------------------------------
 -- 5) Date/Time Widget
@@ -386,22 +380,41 @@ local function waUpdateWidget()
     end
 end
 
-gears.timer({
+-- Spinner animation: only runs while active, stopped at idle
+local waSpinnerTimer = gears.timer({
     timeout   = 0.15,
+    autostart = false,
+    callback  = function()
+        waSpinnerIdx = (waSpinnerIdx % #waSpinnerFrames) + 1
+        waUpdateWidget()
+    end,
+})
+
+-- State polling: cheap file checks at a relaxed rate
+gears.timer({
+    timeout   = 2,
     autostart = true,
     call_now  = true,
     callback  = function()
-        waSpinnerIdx = (waSpinnerIdx % #waSpinnerFrames) + 1
+        local newState
         if waFileExists("/tmp/workAssistant-record.pid") then
-            waState = "recording"
+            newState = "recording"
         elseif waFileExists("/tmp/workAssistant-transcribe.lock") then
-            waState = "transcribing"
+            newState = "transcribing"
         elseif waFileExists("/tmp/workAssistant-notes.lock") then
-            waState = "notes"
+            newState = "notes"
         else
-            waState = "idle"
+            newState = "idle"
         end
-        waUpdateWidget()
+        if newState ~= waState then
+            waState = newState
+            waUpdateWidget()
+            if waState == "idle" then
+                waSpinnerTimer:stop()
+            else
+                waSpinnerTimer:start()
+            end
+        end
     end,
 })
 

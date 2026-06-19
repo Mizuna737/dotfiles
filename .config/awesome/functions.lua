@@ -477,7 +477,7 @@ end
 M.dropdownClasses = {
 	["Dropdown"] = true,
 	["Quick Notes"] = true,
-	["Concord"] = true,
+	["vesktop"] = true,
 	["Eisenhower"] = true,
 	-- add more here later
 }
@@ -608,18 +608,10 @@ function M.toggleQuickNotes()
 	})
 end
 
-function M.toggleConcord()
+function M.toggleDiscord()
 	M.toggleDropdownApp({
-		class = "Concord",
-		spawn_cmd = {
-			"kitty",
-			"--class",
-			"Concord",
-			"--override",
-			"confirm_os_window_close=0",
-			"-e",
-			os.getenv("HOME") .. "/.cargo/bin/concord",
-		},
+		class = "vesktop",
+		spawn_cmd = { "vesktop" },
 		spawn_props = { floating = true, tag = awful.screen.focused().selected_tag },
 	})
 end

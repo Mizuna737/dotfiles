@@ -363,6 +363,15 @@ awful.rules.rules = {
 			skip_taskbar = true,
 		},
 	},
+	{
+		rule = { class = "vesktop" },
+		properties = {
+			floating = true,
+			ontop = true,
+			skip_taskbar = true,
+			placement = awful.placement.centered,
+		},
+	},
 	{ rule = { class = "windowDressing" },
 	  properties = {
 	    focusable = false,

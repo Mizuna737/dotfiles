@@ -119,7 +119,7 @@
   let lastMtime     = 0;
   let lastCfgMtime  = 0;
   let cfg           = { ...DEFAULTS };
-  let fontSheetUri   = null;
+  let fontCss        = null;
   let appliedFont    = null;
 
   // eTLD+1 → isLight (bool). Populated by frame script; used to pre-set invert on navigation.
@@ -150,17 +150,12 @@
     }, 2000);
   }
 
-  const sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
   const NERD_SYMBOLS_LOCAL = "SymbolsNF";
 
-  function applyFontSheet(unicodeRange, localName) {
-    if (fontSheetUri && sss.sheetRegistered(fontSheetUri, sss.AGENT_SHEET)) {
-      sss.unregisterSheet(fontSheetUri, sss.AGENT_SHEET);
-    }
-    fontSheetUri = null;
-    if (!cfg.font || !unicodeRange) return;
+  function buildFontCss(unicodeRange, localName) {
+    if (!cfg.font || !unicodeRange) { fontCss = null; return; }
     const src = localName || cfg.font;
-    const css =
+    fontCss =
       `@font-face{font-family:"${cfg.font}-wal";src:local("${src}");` +
       `unicode-range:${unicodeRange};}` +
       `@font-face{font-family:"${cfg.font}-wal";src:local("${NERD_SYMBOLS_LOCAL}");` +
@@ -169,15 +164,13 @@
       `.material-icons,[class*="icon"],[class*="Symbol"],` +
       `[aria-hidden="true"],[data-icon-name],i)` +
       `{font-family:"${cfg.font}-wal"!important;}`;
-    fontSheetUri = Services.io.newURI(`data:text/css;charset=utf-8,${encodeURIComponent(css)}`);
-    sss.loadAndRegisterSheet(fontSheetUri, sss.AGENT_SHEET);
   }
 
   async function tryApplyFont() {
     try {
       const { font, localName, unicodeRange } = JSON.parse(await IOUtils.readUTF8(FONT_META_PATH));
       if (font === cfg.font && unicodeRange) {
-        applyFontSheet(unicodeRange, localName);
+        buildFontCss(unicodeRange, localName);
         appliedFont = cfg.font;
       }
     } catch (_) {}
@@ -191,7 +184,9 @@
       if (!uri || (!uri.schemeIs("http") && !uri.schemeIs("https"))) return;
       const domain = uri.host;
       if (!domain) return;
-      if (gZenBoostsManager.registeredBoostForDomain(domain)) return; // user boost wins
+      const hasBoost = gZenBoostsManager.registeredBoostForDomain(domain);
+      browser.messageManager.sendAsyncMessage("zenPywal:font", { css: hasBoost ? "" : (fontCss || "") });
+      if (hasBoost) return; // user boost wins for colors
       const bc = browser.browsingContext;
       if (!bc) return;
       bc.zenBoostsData = pywalNsColor;
@@ -254,14 +249,12 @@
       }
 
       if (cfg.font !== appliedFont) {
-        if (fontSheetUri && sss.sheetRegistered(fontSheetUri, sss.AGENT_SHEET)) {
-          sss.unregisterSheet(fontSheetUri, sss.AGENT_SHEET);
-        }
-        fontSheetUri = null;
+        fontCss = null;
         appliedFont = null;
         if (cfg.font) {
           await tryApplyFont();
         }
+        applyToAllTabs();
       }
     } catch (_) {}
   }, POLL_MS);
@@ -296,10 +289,15 @@
   if (this._zenPywalInvertInit) return;
   this._zenPywalInvertInit = true;
 
+  let _pendingFontCss = null;
+
+  addMessageListener("zenPywal:font", function(msg) {
+    _pendingFontCss = msg.data.css || null;
+  });
+
   addEventListener("DOMContentLoaded", function() {
     if (content.window !== content.window.top) return;
     const doc = content.document;
-
 
     function parseBg(el) {
       if (!el) return null;
@@ -318,6 +316,14 @@
       isLight = lum > 0.5;
     }
     sendAsyncMessage("zenPywal:pageTheme", { isLight });
+
+    if (_pendingFontCss) {
+      try {
+        const wu = content.windowUtils;
+        const uri = Services.io.newURI("data:text/css;charset=utf-8," + encodeURIComponent(_pendingFontCss));
+        wu.loadSheet(uri, wu.AGENT_SHEET);
+      } catch (_) {}
+    }
   }, false);
 })();
 `)}`;
