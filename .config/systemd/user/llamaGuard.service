@@ -1,0 +1,13 @@
+[Unit]
+Description=llamaServer resource guard (stops server on high RAM/VRAM or fullscreen)
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/home/max/Scripts/llamaGuard.sh
+Restart=always
+RestartSec=5
+Environment=DISPLAY=:0
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,4 @@
+[Unit]
+Description=AwesomeWM graphical session
+Wants=graphical-session.target
+After=graphical-session.target

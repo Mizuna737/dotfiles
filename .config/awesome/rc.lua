@@ -60,7 +60,7 @@ end
 
 runOnce({
 	"urxvtd",
-	"hhpc -i 1",
+	"unclutter -idle 1 -root",
 	"~/.screenlayout/DefaultLayout.sh",
 	"lxqt=policykit-agent",
 	"copyq",
@@ -74,6 +74,7 @@ awful.spawn.with_shell(
 		.. '"${XDG_CONFIG_HOME:-$HOME/.config}/autostart:${XDG_CONFIG_DIRS:-/etc/xdg}/autostart";'
 )
 
+awful.spawn.with_shell("systemctl --user import-environment DISPLAY XAUTHORITY DBUS_SESSION_BUS_ADDRESS && systemctl --user start awesome-session.target xdg-desktop-portal xdg-desktop-portal-gtk")
 awful.spawn.with_shell("zsh ~/Scripts/dpmsInhibit.sh")
 
 -- Notification-capture Teams instance: hidden on dashboard tag, never focused

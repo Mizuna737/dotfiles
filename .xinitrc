@@ -34,6 +34,9 @@ fi
 # Restore last pywal theme so colors are available before AwesomeWM initializes
 wal -R -q
 
+# Load HA credentials so opendeck and other X session children can use them
+set -a; . "$HOME/.config/environment.d/ha.conf"; set +a
+
 # Autorun
 /home/max/.config/autostart/autorun.sh &
 

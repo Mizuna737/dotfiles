@@ -33,7 +33,6 @@ export TRANSIENT_PROMPT_TRANSIENT_RPROMPT=
 
 # Shell integrations
 eval "$(fzf --zsh)"
-eval "$(zoxide init --cmd cd zsh)"
 # The following lines were added by compinstall
 
 zstyle ':completion:*' completer _expand _complete _ignored _approximate
@@ -136,3 +135,6 @@ export OLLAMA_KEEP_ALIVE=30
 # Load pywal colors for new terminal sessions
 (cat ~/.cache/wal/sequences &)
 export PATH=/home/max/.local/bin:$HOME/Scripts:$HOME/.cargo/bin:$PATH
+
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+eval "$(zoxide init --cmd cd zsh)"
