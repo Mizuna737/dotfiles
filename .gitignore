@@ -31,3 +31,4 @@ __pycache__/
 # Infrastructure services (moved to own repos)
 # adguard → https://github.com/Mizuna737/adguard
 # homeassistant → https://github.com/Mizuna737/homeassistant
+plugins/
