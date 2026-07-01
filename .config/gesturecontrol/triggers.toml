@@ -131,7 +131,7 @@ pinky = true
 [[bindings]]
 name = "tag_cycle"
 require = [{hand = "left", pose = "THREE"}]
-trigger = { type = "continuous", metric = "pinchDistance", range = [0.05, 0.3], hysteresis = 0.1, hand = "left" }
+trigger = { hand = "left", hysteresis = 0.1, metric = "pinchDistance", range = [0.05, 0.3], type = "continuous" }
 
 [[bindings]]
 name = "set_volume"

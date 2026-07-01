@@ -245,20 +245,20 @@ end
 bar.updateVolumeWidget = updateVolumeWidget
 
 --------------------------------
--- Live volume subscription
+-- Volume sync timer (background drift correction)
 --------------------------------
-awful.spawn.with_line_callback("pactl subscribe", {
-	stdout = function(line)
-		if line:match("sink") then
-			awful.spawn.easy_async_with_shell("pactl get-sink-volume @DEFAULT_SINK@", function(stdout)
-				local volpct = stdout:match("(%d+)%%")
-				if volpct then
-					local cur_vol = tonumber(volpct)
-					volume_bar.value = cur_vol
-					updateVolumeText(cur_vol .. "%")
-				end
-			end)
-		end
+gears.timer({
+	timeout   = 5,
+	autostart = true,
+	call_now  = true,
+	callback  = function()
+		awful.spawn.easy_async_with_shell("pactl get-sink-volume @DEFAULT_SINK@", function(stdout)
+			local volpct = stdout:match("(%d+)%%")
+			if volpct then
+				volume_bar.value = tonumber(volpct)
+				updateVolumeText(volpct .. "%")
+			end
+		end)
 	end,
 })
 
