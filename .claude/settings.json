@@ -28,7 +28,18 @@
       "Bash(systemctl --user is-active *)",
       "Bash(systemctl --user is-enabled *)",
       "Bash(curl -s http://localhost:8080/*)",
-      "Bash(curl http://localhost:8080/*)"
+      "Bash(curl http://localhost:8080/*)",
+      "Bash(journalctl *)",
+      "Bash(curl -s \"http://192.168.0.8:9877/*)",
+      "Bash(pactl subscribe*)",
+      "Bash(dbus-monitor *)",
+      "Bash(pw-dump*)",
+      "Bash(systemctl list-units *)",
+      "Bash(systemctl status *)",
+      "mcp__qwenCode__qwen_status",
+      "mcp__qwenCode__qwen_wait",
+      "Bash(cd *)",
+      "Bash(git diff *)"
     ]
   }
 }

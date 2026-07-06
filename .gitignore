@@ -32,3 +32,6 @@ __pycache__/
 # adguard → https://github.com/Mizuna737/adguard
 # homeassistant → https://github.com/Mizuna737/homeassistant
 plugins/
+
+# Lock files (runtime state, churns constantly)
+*.lock

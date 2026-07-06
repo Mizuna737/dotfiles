@@ -174,39 +174,8 @@ end
 
 local function updateVolumeText(new_volume_text)
 	local old_textbox = volume_text_container:get_children_by_id("old_text")[1]
-	local new_textbox = volume_text_container:get_children_by_id("new_text")[1]
-
-	-- Set the new text in the 'new_text' box and reset opacities
-	new_textbox.text = new_volume_text
-	new_textbox.opacity = 0
+	old_textbox.text = new_volume_text
 	old_textbox.opacity = 1
-
-	-- Define the fade-in/out steps
-	local fade_duration = 0.01 -- in seconds
-	local steps = 100
-	local step_interval = fade_duration / steps
-	local fade_step = 1 / steps
-
-	-- Create a timer to handle the fade effect
-	gears.timer({
-		timeout = step_interval,
-		autostart = true,
-		call_now = true,
-		callback = function(t)
-			-- Decrease opacity of the old text and increase for the new text
-			old_textbox.opacity = old_textbox.opacity - fade_step
-			new_textbox.opacity = new_textbox.opacity + fade_step
-
-			-- Stop the timer when fully faded
-			if old_textbox.opacity <= 0 then
-				-- Swap texts: make new text the 'old' one for next update
-				old_textbox.text = new_textbox.text
-				old_textbox.opacity = 1
-				new_textbox.opacity = 0
-				t:stop()
-			end
-		end,
-	})
 end
 
 local function updateVolumeWidget()
@@ -220,21 +189,13 @@ local function updateVolumeWidget()
 		shrink_timer:stop()
 	end
 
-	volume_bar.background_color = beautiful.bg_normal .. "33" -- unfilled color
-	volume_bar.color = beautiful.border_focus -- filled color
+	volume_bar.background_color = beautiful.bg_normal .. "33"
+	volume_bar.color = beautiful.border_focus
 	animate_widget_size(enlarged_width, enlarged_height)
 
-	awful.spawn.easy_async_with_shell("pactl get-sink-volume @DEFAULT_SINK@", function(stdout)
-		local volpct = stdout:match("(%d+)%%")
-		if volpct then
-			volume_bar.value = tonumber(volpct)
-			updateVolumeText(volpct .. "%")
-		end
-	end)
-
 	shrink_timer = gears.timer.start_new(1, function()
-		volume_bar.background_color = beautiful.bg_normal -- unfilled color
-		volume_bar.color = beautiful.bg_normal -- filled color
+		volume_bar.background_color = beautiful.bg_normal
+		volume_bar.color = beautiful.bg_normal
 		animate_widget_size(normal_width, normal_height)
 		new_text.font = "Terminus 10"
 		old_text.font = "Terminus 10"
@@ -247,18 +208,31 @@ bar.updateVolumeWidget = updateVolumeWidget
 --------------------------------
 -- Volume sync timer (background drift correction)
 --------------------------------
+local function querySinkVolume()
+	awful.spawn.easy_async({ "pactl", "get-sink-volume", "@DEFAULT_SINK@" }, function(stdout)
+		local volpct = stdout:match("(%d+)%%")
+		if volpct then
+			volume_bar.value = tonumber(volpct)
+			updateVolumeText(volpct .. "%")
+		end
+	end)
+end
+
 gears.timer({
 	timeout   = 5,
 	autostart = true,
 	call_now  = true,
-	callback  = function()
-		awful.spawn.easy_async_with_shell("pactl get-sink-volume @DEFAULT_SINK@", function(stdout)
-			local volpct = stdout:match("(%d+)%%")
-			if volpct then
-				volume_bar.value = tonumber(volpct)
-				updateVolumeText(volpct .. "%")
-			end
-		end)
+	callback  = querySinkVolume,
+})
+
+--------------------------------
+-- Live volume subscription
+--------------------------------
+awful.spawn.with_line_callback("pactl subscribe", {
+	stdout = function(line)
+		if line:match(" on sink #") then
+			querySinkVolume()
+		end
 	end,
 })
 
