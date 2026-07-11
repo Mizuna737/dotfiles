@@ -79,16 +79,25 @@ function M.attach(c)
   borders[c] = b
 
   local function refresh() M.refresh(c) end
+  b.refresh = refresh
   c:connect_signal("property::geometry", refresh)
   c:connect_signal("property::minimized", refresh)
   c:connect_signal("property::hidden", refresh)
   c:connect_signal("property::fullscreen", refresh)
   c:connect_signal("property::screen", refresh)
-  c:connect_signal("unmanage", function() M.detach(c) end)
+  local function onUnmanage() M.detach(c) end
+  b.onUnmanage = onUnmanage
+  c:connect_signal("unmanage", onUnmanage)
 end
 
 function M.detach(c)
   local b = borders[c]; if not b then return end
+  c:disconnect_signal("property::geometry", b.refresh)
+  c:disconnect_signal("property::minimized", b.refresh)
+  c:disconnect_signal("property::hidden", b.refresh)
+  c:disconnect_signal("property::fullscreen", b.refresh)
+  c:disconnect_signal("property::screen", b.refresh)
+  c:disconnect_signal("unmanage", b.onUnmanage)
   b.frame.visible = false
   b.frame = nil
   borders[c] = nil

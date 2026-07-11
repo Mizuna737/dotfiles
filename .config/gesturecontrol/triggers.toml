@@ -1,5 +1,5 @@
 [settings]
-camera = 0
+camera = 2
 dwellMs = 50
 format = "GREY"
 fps = 30
