@@ -1,0 +1,17 @@
+# mako notification daemon config (Rubix session)
+# Static dark theme for now; pywal/theming-engine integration is a later issue.
+font=sans 11
+background-color=#1e1e2eee
+text-color=#cdd6f4
+border-color=#89b4fa
+border-size=2
+border-radius=8
+padding=12
+margin=10
+default-timeout=6000
+anchor=top-right
+max-visible=5
+
+[urgency=critical]
+border-color=#f38ba8
+default-timeout=0

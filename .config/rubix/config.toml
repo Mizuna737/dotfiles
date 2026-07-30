@@ -1,0 +1,74 @@
+# Rubix default configuration.
+# Copy to $XDG_CONFIG_HOME/rubix/config.toml (or ~/.config/rubix/config.toml) to override.
+
+# Run once after the compositor is up: import env into systemd --user and start
+# the Rubix session target (mako, copyq, polkit, swaybg, teams-for-notif).
+startup = [
+    "systemctl --user import-environment WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP && systemctl --user start rubix-session.target",
+]
+
+[layout]
+# Number of columns instantiated on the monitor at startup.
+# Mirrors Monitor::visible_columns -- config keys match the Rust identifiers exactly.
+visible_columns = 3
+
+# Gap, in pixels, between each column and the monitor edge / its neighbours.
+# Monitor edges and inter-column seams both measure exactly outer_gap (the seam is
+# split half-and-half between adjacent columns). Omitting the key defaults to 20.
+outer_gap = 20
+
+# Gap, in pixels, between tiled windows *within* a group's split tree. Exactly one
+# inner_gap sits in each split seam. Omitting the key defaults to 10.
+inner_gap = 10
+
+[animation]
+# Duration of scroll/rotate slide tweens, in milliseconds. Omitting this
+# section entirely is fine -- it defaults to 250.
+duration_ms = 250
+
+# Keybinds map a chord to a NavAction variant. The value is the *exact* Rust
+# variant name -- serde deserializes it straight into the enum, so there is no
+# translation table in code. Chord syntax: modifier tokens (Super/Alt/Ctrl/Shift,
+# case-insensitive) joined with '+', ending in an xkb keysym name ("Return", "h").
+# Super-based binds for the real TTY session. (Nested dev under a host WM that
+# grabs Super uses the Alt-based config/default.toml instead.)
+[keybinds]
+"Super+h" = "RotateColumnsLeft"
+"Super+l" = "RotateColumnsRight"
+"Super+j" = "ScrollColumnDown"
+"Super+k" = "ScrollColumnUp"
+"Super+Return" = { Spawn = "kitty" }
+"Super+Shift+H" = "MoveActiveColumnLeft"
+"Super+Shift+L" = "MoveActiveColumnRight"
+# Relocate the focused window across the group grid: h/l cross columns (landing in
+# the destination column's active row), j/k walk rows within the column. j=Down /
+# k=Up to match the ScrollColumn binds above.
+"Super+Control+h" = "MoveFocusedWindowLeft"
+"Super+Control+l" = "MoveFocusedWindowRight"
+"Super+Control+j" = "MoveFocusedWindowDown"
+"Super+Control+k" = "MoveFocusedWindowUp"
+# Zoom the cube: more visible columns (narrower bands) / fewer (wider bands).
+"Super+Shift+K" = "IncrementVisibleColumns"
+"Super+Shift+J" = "DecrementVisibleColumns"
+"Super+n" = "NewGroup"
+# Flip the focused window's parent split between horizontal and vertical.
+"Super+r" = "FlipSplitDirection"
+"Super+Shift+space" = { Spawn = "kitty" }
+# Launcher. rofi picks its wayland (layer-shell) backend automatically under
+# Rubix; the compositor grants it keyboard focus via layer-shell keyboard
+# interactivity (see focus_interactive_layer).
+"Super+space" = { Spawn = "rofi -show drun" }
+# Audio. Bare XF86 media keysyms (resolved case-sensitively by xkb) reach the
+# compositor via libinput on the TTY; each Spawns a pactl command against the
+# default sink/source. The waybar volume module reacts on its own via `pactl
+# subscribe`, so no compositor-side sink handler is needed. pactl matches the
+# bar's tooling (@DEFAULT_SINK@).
+"XF86AudioRaiseVolume" = { Spawn = "pactl set-sink-volume @DEFAULT_SINK@ +1%" }
+"XF86AudioLowerVolume" = { Spawn = "pactl set-sink-volume @DEFAULT_SINK@ -1%" }
+"XF86AudioMute" = { Spawn = "pactl set-sink-mute @DEFAULT_SINK@ toggle" }
+"XF86AudioMicMute" = { Spawn = "pactl set-source-mute @DEFAULT_SOURCE@ toggle" }
+# Exit the compositor. On the TTY backend this is the only in-session quit (winit
+# also closes on the host window's close button). Ctrl+Alt+Fn switches VTs.
+# Uppercase Q: with Shift held, xkb resolves the key to its shifted symbol, so the
+# chord's final token must be the shifted form (matching Alt+Shift+H / +L above).
+"Super+Shift+Q" = "Quit"

@@ -1,0 +1,15 @@
+[Unit]
+Description=Teams for Linux — notification-capture instance (Rubix session)
+PartOf=rubix-session.target
+After=rubix-session.target
+
+[Service]
+# Wrapper bakes in --ozone-platform=x11 --trayIconEnabled=false --mute-audio
+# --user-data-dir=~/.config/teams-for-linux-notif. Keyring now unlocks via the
+# login collection (default alias repointed), so no --password-store flag.
+ExecStart=/usr/local/bin/teams-for-linux-notif
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=rubix-session.target

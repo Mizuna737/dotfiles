@@ -1,0 +1,17 @@
+[Unit]
+Description=Waybar status bar (Rubix session)
+Documentation=man:waybar(5)
+PartOf=rubix-session.target
+After=rubix-session.target
+
+[Service]
+Type=simple
+# Config + style live in the rubix repo's contrib/waybar (the Rubix-specific bar;
+# distinct from AwesomeWM's in-process wibar). Modules resolve their own data via
+# the rubix IPC socket / pactl subscribe, so no extra env beyond the session's.
+ExecStart=/usr/bin/waybar -c %h/Projects/rubix/contrib/waybar/config.jsonc -s %h/Projects/rubix/contrib/waybar/style.css
+ExecReload=/bin/kill -SIGUSR2 $MAINPID
+Restart=on-failure
+
+[Install]
+WantedBy=rubix-session.target

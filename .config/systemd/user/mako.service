@@ -1,0 +1,15 @@
+[Unit]
+Description=mako notification daemon (Rubix session)
+Documentation=man:mako(1)
+PartOf=rubix-session.target
+After=rubix-session.target
+
+[Service]
+Type=dbus
+BusName=org.freedesktop.Notifications
+ExecStart=/usr/bin/mako
+ExecReload=/usr/bin/makoctl reload
+Restart=on-failure
+
+[Install]
+WantedBy=rubix-session.target

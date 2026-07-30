@@ -1,0 +1,9 @@
+[Unit]
+Description=Rubix graphical session
+Wants=graphical-session.target
+After=graphical-session.target
+# Started by the Rubix compositor at startup (after it publishes the Wayland
+# socket and imports WAYLAND_DISPLAY/DISPLAY/XDG_CURRENT_DESKTOP into the
+# systemd --user environment). Session daemons are WantedBy/PartOf this target,
+# so they run only under Rubix and stop when it exits — avoiding the
+# org.freedesktop.Notifications single-owner clash with AwesomeWM's naughty.

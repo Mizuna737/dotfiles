@@ -5,6 +5,7 @@ After=default.target gestureControl.service
 [Service]
 Type=simple
 Environment=PYTHONUNBUFFERED=1
+Environment=DISPLAY=:0
 ExecStart=%h/.local/share/gesturecontrol/venv/bin/python3 %h/gesturecontrol/gestureControl-actions.py
 Restart=on-failure
 RestartSec=5

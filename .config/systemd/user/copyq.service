@@ -1,0 +1,11 @@
+[Unit]
+Description=CopyQ clipboard manager (Rubix session)
+PartOf=rubix-session.target
+After=rubix-session.target
+
+[Service]
+ExecStart=/usr/bin/copyq
+Restart=on-failure
+
+[Install]
+WantedBy=rubix-session.target

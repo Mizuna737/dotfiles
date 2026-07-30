@@ -1,0 +1,13 @@
+[Unit]
+Description=swaybg wallpaper (Rubix session)
+PartOf=rubix-session.target
+After=rubix-session.target
+
+[Service]
+# Wallpaper path tracked by pywal in ~/.cache/wal/wal (theming-engine replacement
+# is a separate later issue; this just renders the current wallpaper).
+ExecStart=/bin/sh -c 'exec /usr/bin/swaybg -m fill -i "$(cat %h/.cache/wal/wal)"'
+Restart=on-failure
+
+[Install]
+WantedBy=rubix-session.target

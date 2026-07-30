@@ -1,0 +1,11 @@
+[Unit]
+Description=LXQt PolicyKit authentication agent (Rubix session)
+PartOf=rubix-session.target
+After=rubix-session.target
+
+[Service]
+ExecStart=/usr/bin/lxqt-policykit-agent
+Restart=on-failure
+
+[Install]
+WantedBy=rubix-session.target
