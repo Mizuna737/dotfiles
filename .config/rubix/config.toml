@@ -67,6 +67,17 @@ duration_ms = 250
 "XF86AudioLowerVolume" = { Spawn = "pactl set-sink-volume @DEFAULT_SINK@ -1%" }
 "XF86AudioMute" = { Spawn = "pactl set-sink-mute @DEFAULT_SINK@ toggle" }
 "XF86AudioMicMute" = { Spawn = "pactl set-source-mute @DEFAULT_SOURCE@ toggle" }
+# Screenshots (wlr-screencopy -> grim), on the Scimitar's S1 button via keyd.
+# keyd (mouse.conf) emits these chords at the evdev level regardless of WM:
+#   S1 tap        -> Super+Ctrl+F1        (was `flameshot gui`)
+#   S1 + shift    -> Super+Ctrl+Shift+F1  (was `flameshot full -c`)
+# Tap: slurp a region then annotate in satty (saves to ~/Pictures/screenshots,
+# copy action uses wl-copy; bails on a cancelled slurp so satty never opens on
+# empty input). Shift: whole output straight to the clipboard, no editor -- the
+# flameshot-full-c equivalent. Single-quoted TOML literals so "$geom" needs no
+# escaping.
+"Super+Control+F1" = { Spawn = 'geom=$(slurp) || exit 0; grim -g "$geom" - | satty --filename - --output-filename ~/Pictures/screenshots/satty-$(date +%Y%m%d-%H%M%S).png --early-exit --copy-command wl-copy' }
+"Super+Control+Shift+F1" = { Spawn = 'grim - | wl-copy --type image/png' }
 # Exit the compositor. On the TTY backend this is the only in-session quit (winit
 # also closes on the host window's close button). Ctrl+Alt+Fn switches VTs.
 # Uppercase Q: with Shift held, xkb resolves the key to its shifted symbol, so the
