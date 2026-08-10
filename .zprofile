@@ -12,7 +12,11 @@ if [[ -z $DISPLAY ]] && [[ -z $WAYLAND_DISPLAY ]] && [[ $(tty) == /dev/tty1 ]]; 
         *)
             # Non-exec: a compositor crash returns to this shell instead of
             # logging out. Stop the session target once Rubix exits.
-            ~/Projects/rubix/target/release/rubix
+            # Output is tee'd so a session's log survives past the tty scrollback.
+            mkdir -p ~/.cache/rubix
+            [[ -f ~/.cache/rubix/session.log ]] && \
+                mv ~/.cache/rubix/session.log ~/.cache/rubix/session.log.1
+            ~/Projects/rubix/target/release/rubix 2>&1 | tee ~/.cache/rubix/session.log
             systemctl --user stop rubix-session.target 2>/dev/null
             ;;
     esac
