@@ -86,6 +86,13 @@ position = [
 # Rubix; the compositor grants it keyboard focus via layer-shell keyboard
 # interactivity (see focus_interactive_layer).
 "Super+space" = { Spawn = "rofi -show drun" }
+# Window switcher. rofi's window mode binds wlr-foreign-toplevel-management,
+# which Rubix serves from src/foreign_toplevel.rs -- without that global rofi
+# refuses the mode outright. This is the way back to a window the grid cannot
+# reach on its own: fullscreen windows sit outside the tiling grid, and X11
+# fullscreen clients are hidden rather than un-fullscreened, so keyboard
+# navigation alone never lands on them. Selecting an entry sends `activate`.
+"Super+Tab" = { Spawn = "rofi -show window" }
 # Audio. Bare XF86 media keysyms (resolved case-sensitively by xkb) reach the
 # compositor via libinput on the TTY; each Spawns a pactl command against the
 # default sink/source. The waybar volume module reacts on its own via `pactl
