@@ -4,8 +4,16 @@
 # Run once after the compositor is up: import env into systemd --user and start
 # the Rubix session target (mako, copyq, polkit, swaybg, teams-for-notif).
 startup = [
-    "systemctl --user import-environment WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP && systemctl --user start rubix-session.target",
+  "systemctl --user import-environment WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP && systemctl --user start rubix-session.target",
 ]
+
+# SDR white luminance (nits) fed to the HDR encode shader on DP-3 (hdr = true
+# below) -- the "brightness slider" for SDR content composited through the
+# HDR (BT.2020/PQ) pipeline. Live/hot-reloadable: edit + save takes effect
+# immediately, no restart. Also adjustable at runtime via
+# Super+XF86AudioRaiseVolume / Super+XF86AudioLowerVolume (see keybinds
+# below). Valid range [80, 300]; out-of-range values are clamped.
+sdr_white_nits = 203.0
 
 [layout]
 # Number of columns instantiated on the monitor at startup.
@@ -25,6 +33,26 @@ inner_gap = 10
 # Duration of scroll/rotate slide tweens, in milliseconds. Omitting this
 # section entirely is fine -- it defaults to 250.
 duration_ms = 250
+
+# Physical output layout. Each [[output]] binds a connector (name) to a global
+# position; unlisted connectors auto-layout left-to-right. Mirrors the old
+# Awesome DefaultLayout.sh: ultrawide primary at origin, portrait strip rotated
+# to landscape and placed directly below it.
+[[output]]
+name = "DP-3"      # ultrawide primary
+position = [0, 0]
+mode = "3440x1440"
+primary = true
+hdr = true
+
+[[output]]
+name = "HDMI-A-1" # physically-portrait panel, rotated to a landscape strip
+mode = "400x1280" # native (portrait) mode; transform makes it 1280x400
+transform = "right" # = xrandr "rotate right"; if it comes out mirrored, use "left"
+position = [
+  1036,
+  1440,
+] # directly below the primary (y=1440), matching DefaultLayout.sh
 
 # Keybinds map a chord to a NavAction variant. The value is the *exact* Rust
 # variant name -- serde deserializes it straight into the enum, so there is no
@@ -67,6 +95,13 @@ duration_ms = 250
 "XF86AudioLowerVolume" = { Spawn = "pactl set-sink-volume @DEFAULT_SINK@ -1%" }
 "XF86AudioMute" = { Spawn = "pactl set-sink-mute @DEFAULT_SINK@ toggle" }
 "XF86AudioMicMute" = { Spawn = "pactl set-source-mute @DEFAULT_SOURCE@ toggle" }
+# SDR-white-nits "brightness slider" for HDR outputs (see sdr_white_nits above).
+"Super+XF86AudioRaiseVolume" = "IncreaseSdrWhite"
+"Super+XF86AudioLowerVolume" = "DecreaseSdrWhite"
+# Live HDR on/off toggle for HDR-capable outputs (DP-3) -- flips the connector
+# between PQ/BT.2020 and SDR default for instant A/B comparison. Brief panel
+# flash on each toggle is normal (connector entering/leaving HDR mode).
+"Super+Alt+h" = "ToggleHdr"
 # Screenshots (wlr-screencopy -> grim), on the Scimitar's S1 button via keyd.
 # keyd (mouse.conf) emits these chords at the evdev level regardless of WM:
 #   S1 tap        -> Super+Ctrl+F1        (was `flameshot gui`)
@@ -78,6 +113,29 @@ duration_ms = 250
 # escaping.
 "Super+Control+F1" = { Spawn = 'geom=$(slurp) || exit 0; grim -g "$geom" - | satty --filename - --output-filename ~/Pictures/screenshots/satty-$(date +%Y%m%d-%H%M%S).png --early-exit --copy-command wl-copy' }
 "Super+Control+Shift+F1" = { Spawn = 'grim - | wl-copy --type image/png' }
+# Promote/maximize on the Scimitar's S5 button, matching Awesome's binding in
+# devices/scimitar.lua ("S5 tap => promote focused window"). keyd emits the same
+# chord from two places: mouse.conf maps S5, and keyboard.conf maps the Tartarus
+# enter key, so either reaches this.
+# Awesome's promoteFocusedWindow was two-stage -- swap into master first, then
+# maximize once already there. Rubix has no master position yet, so this is the
+# maximize half only: the focused window takes the monitor work area and drops
+# back to its tile as soon as focus moves (mirroring the rc.lua unfocus handler).
+"Super+Control+F5" = "ToggleMaximize"
+# Tartarus first row (keys 1-5), via keyd (Razer.conf): a short tap emits
+# Super+Ctrl+<n>. In Awesome these tap `findExisting` (focus the app if open, else
+# spawn); for now they just spawn the target window -- the find-or-launch behaviour
+# comes with window rules / IPC in a later sprint. Hold (Super+Ctrl+Alt+n) and
+# mod-tap (Super+Ctrl+Shift+n) are the deferred new-window / workspace actions.
+#   T1 terminal, T2 browser, T3 editor, T4 file manager, T5 comms.
+# Commands mirror defaultApps.lua; the kitty ones attach a named tmux session so a
+# relaunch re-attaches instead of forking a second shell (the find-or-launch stopgap).
+"Super+Control+1" = { Spawn = "kitty --override confirm_os_window_close=0 -e tmux new-session -A -s kitty" }
+"Super+Control+2" = { Spawn = "zen-browser" }
+"Super+Control+3" = { Spawn = "kitty --class neovim --override confirm_os_window_close=0 -e tmux new-session -A -s code -n NeoVim nvim" }
+"Super+Control+4" = { Spawn = "kitty --class yazi --override confirm_os_window_close=0 -e tmux new-session -A -s files -n Yazi yazi" }
+"Super+Control+5" = { Spawn = "signal-desktop" }
+
 # Exit the compositor. On the TTY backend this is the only in-session quit (winit
 # also closes on the host window's close button). Ctrl+Alt+Fn switches VTs.
 # Uppercase Q: with Shift held, xkb resolves the key to its shifted symbol, so the
