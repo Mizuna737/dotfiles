@@ -145,6 +145,12 @@ position = [
 # siblings to cover, so it skips straight to the monitor stage. Any grid
 # movement or focus change drops it back (mirroring the rc.lua unfocus handler).
 "Super+Control+F5" = "ToggleMaximize"
+# Same ring walked backwards, on Shift + S5: straight to monitor-maximized,
+# then back down to the group, then released. keyd emits S5 as a plain macro
+# (leftmeta+leftcontrol+f5), so a held Shift rides along and arrives here as
+# the shifted chord -- no keyd change needed. F-keys keep their keysym under
+# Shift, so unlike the Shift+letter binds above the final token stays "F5".
+"Super+Control+Shift+F5" = "ToggleMaximizeReverse"
 # Tartarus first row (keys 1-5), via keyd (Razer.conf): a short tap emits
 # Super+Ctrl+<n>. In Awesome these tap `findExisting` (focus the app if open, else
 # spawn); for now they just spawn the target window -- the find-or-launch behaviour
