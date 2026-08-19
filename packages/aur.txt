@@ -20,12 +20,15 @@ opencode-bin
 opendeck-git
 outlook-for-linux-bin
 paru
+proton-ge-custom-bin
 protontricks-git
 python313
 python-haishoku
 rar
+resticprofile
 rimpy-bin
 rofi-autorandr
+satty-git
 simplescreenrecorder
 smem
 steamcmd
@@ -34,6 +37,7 @@ teamviewer
 todoist-appimage
 upd8all
 uxplay
+vesktop-bin
 via-bin
 vieb
 vscodium-bin

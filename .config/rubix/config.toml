@@ -43,7 +43,7 @@ duration_ms = 250
 # Inert while a pointer grab is in progress, while any window is fullscreen (so a
 # stray hover can't drop a game out of fullscreen), and over layer-shell surfaces
 # like the bar or rofi, which keep their own keyboard focus.
-focus_follows_mouse = false
+focus_follows_mouse = true
 
 # Physical output layout. Each [[output]] binds a connector (name) to a global
 # position; unlisted connectors auto-layout left-to-right. Mirrors the old
