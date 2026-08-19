@@ -138,10 +138,12 @@ position = [
 # devices/scimitar.lua ("S5 tap => promote focused window"). keyd emits the same
 # chord from two places: mouse.conf maps S5, and keyboard.conf maps the Tartarus
 # enter key, so either reaches this.
-# Awesome's promoteFocusedWindow was two-stage -- swap into master first, then
-# maximize once already there. Rubix has no master position yet, so this is the
-# maximize half only: the focused window takes the monitor work area and drops
-# back to its tile as soon as focus moves (mirroring the rc.lua unfocus handler).
+# Two-stage, like Awesome's promoteFocusedWindow, but staged by area rather than
+# by position: first press fills the window's own group (covering its tiling
+# siblings, leaving the other columns visible), second press fills the monitor
+# work area, third returns it to its tile. A window alone in its group has no
+# siblings to cover, so it skips straight to the monitor stage. Any grid
+# movement or focus change drops it back (mirroring the rc.lua unfocus handler).
 "Super+Control+F5" = "ToggleMaximize"
 # Tartarus first row (keys 1-5), via keyd (Razer.conf): a short tap emits
 # Super+Ctrl+<n>. In Awesome these tap `findExisting` (focus the app if open, else
