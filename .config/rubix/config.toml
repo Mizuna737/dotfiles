@@ -51,6 +51,8 @@ focus_follows_mouse = true
 # Fullscreen windows never get a border (it would cost direct scanout).
 [decoration]
 border_width = 2
+# The border ring follows this same curve, staying concentric with the window.
+corner_radius = 20
 active_color = "#89b4fa"
 inactive_color = "#45475a"
 
@@ -60,6 +62,13 @@ inactive_color = "#45475a"
 # and in every screenshot/screencast, which are plain SDR -- those just get
 # active_color.
 active_luminance_nits = 350.0
+
+# Focus glow. 12px of spill sits comfortably inside the 10px inner / 20px outer
+# gaps without neighbours bleeding into each other. Only the focused window
+# glows -- an unfocused glow on every window is noise, not information.
+active_glow_margin = 12
+inactive_glow_margin = 0
+glow_falloff = 2.0
 
 # Physical output layout. Each [[output]] binds a connector (name) to a global
 # position; unlisted connectors auto-layout left-to-right. Mirrors the old
