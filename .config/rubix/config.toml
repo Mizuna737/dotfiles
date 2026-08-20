@@ -13,7 +13,7 @@ startup = [
 # immediately, no restart. Also adjustable at runtime via
 # Super+XF86AudioRaiseVolume / Super+XF86AudioLowerVolume (see keybinds
 # below). Valid range [80, 300]; out-of-range values are clamped.
-sdr_white_nits = 203.0
+sdr_white_nits = 120.0
 
 [layout]
 # Number of columns instantiated on the monitor at startup.
@@ -52,7 +52,7 @@ focus_follows_mouse = true
 [decoration]
 border_width = 2
 # The border ring follows this same curve, staying concentric with the window.
-corner_radius = 20
+corner_radius = 8
 active_color = "#89b4fa"
 inactive_color = "#45475a"
 
@@ -61,14 +61,33 @@ inactive_color = "#45475a"
 # by something SDR chrome physically cannot do. Ignored entirely on HDMI-A-1
 # and in every screenshot/screencast, which are plain SDR -- those just get
 # active_color.
-active_luminance_nits = 350.0
+active_luminance_nits = 600.0
 
 # Focus glow. 12px of spill sits comfortably inside the 10px inner / 20px outer
 # gaps without neighbours bleeding into each other. Only the focused window
 # glows -- an unfocused glow on every window is noise, not information.
-active_glow_margin = 12
+active_glow_margin = 6
 inactive_glow_margin = 0
 glow_falloff = 2.0
+
+# Window opacity. Fullscreen windows are always forced opaque regardless of
+# these -- a translucent window cannot take direct scanout.
+#
+# On DP-3 this blends in the linear working space rather than in gamma-encoded
+# values, so translucency composites in light.
+active_opacity = 0.95
+inactive_opacity = 0.85
+
+# Rules apply in file order over the values above, and each changes only the
+# fields it names. app_id/title are case-insensitive substring matches.
+
+# Video should never be dimmed or blended -- carried over from the old picom
+# config. Title-matched because the browser's app_id is the same whatever tab is
+# open, so only the title distinguishes a video from any other page.
+[[decoration.rule]]
+title = "youtube"
+active_opacity = 1.0
+inactive_opacity = 1.0
 
 # Physical output layout. Each [[output]] binds a connector (name) to a global
 # position; unlisted connectors auto-layout left-to-right. Mirrors the old
