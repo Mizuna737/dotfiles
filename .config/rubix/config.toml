@@ -78,6 +78,12 @@ glow_falloff = 2.0
 active_opacity = 0.95
 inactive_opacity = 0.85
 
+# Windows buried under a promoted window drop most of the way out, so what shows
+# through the promoted window is mostly wallpaper rather than a pile of other
+# windows. Drastic on purpose -- tune the number, it hot-reloads.
+obscured_opacity = 0.2
+obscured_threshold = 0.9
+
 # Rules apply in file order over the values above, and each changes only the
 # fields it names. app_id/title are case-insensitive substring matches.
 
