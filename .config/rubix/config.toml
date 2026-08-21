@@ -29,6 +29,51 @@ outer_gap = 20
 # inner_gap sits in each split seam. Omitting the key defaults to 10.
 inner_gap = 10
 
+# Desktop wallpaper, drawn by the compositor itself rather than by a
+# layer-shell tool. This is what makes an HDR wallpaper possible: the AVIF
+# carries a CICP block naming its transfer function (ST 2084 / PQ here), so it
+# is decoded through the PQ inverse EOTF instead of being read as sRGB. swaybg
+# has no notion of colour and mpvpaper never tags its surface, so neither can
+# do this. Live/hot-reloadable, and settable at runtime over IPC:
+#   printf '{"type":"set_wallpaper","path":"/path/img.avif","output":null}\n' | \
+#     socat - UNIX-CONNECT:"$XDG_RUNTIME_DIR/rubix.sock"
+[wallpaper]
+# A directory rather than a file: slideshow over every image in it, sorted,
+# `interval_seconds` each. The next image is decoded on a worker thread ahead
+# of the swap, so the change itself costs nothing.
+path = "~/wallpapers-hdr"
+interval_seconds = 45
+mode = "Fill"
+
+# The HDRTVDM conversion lifted midtones ~10x above where the SDR originals
+# rendered, which reads as "too bright" rather than as extra range. This gain
+# pulls it back. Measured on 638321.avif, which the whole library should track
+# since it all went through the same conversion: median 7.9 nits, peak 576 --
+# just under DP-3's 604-nit capability. Hot-reloadable; nudge and save to
+# retune -- a gain change re-decodes, so it takes effect on save.
+#   gain  median   p90    p99   peak
+#   1.00    31.6  156.6  543.3  2303   (0.68% of pixels above panel peak)
+#   0.50    15.8   78.3  271.7  1152   <- current (0.04% above panel peak)
+#   0.35    11.0   54.8  190.2   806
+#   0.25     7.9   39.1  135.8   576
+#   0.15     4.7   23.5   81.5   346
+#   SDR      3.1   22.9   91.9   197   (the original .jpg at sdr_white_nits=203)
+luminance_scale = 0.2
+
+
+# On an SDR output (HDMI-A-1, or DP-3 with HDR toggled off) the image is
+# normalised against a reference white instead of shown at absolute luminance.
+# At the 203-nit default this library renders ~2x too bright and its shadows
+# ~3.4x too bright, so blacks come out grey. Measured against the file's own
+# grading (before luminance_scale), so this stays correct when the gain above
+# is retuned. Live -- shader uniform only, no re-decode.
+#   effective ref = this / luminance_scale
+#   ref/gain   mean    p5   p50   p90    (sRGB codes; SDR original = 46/16/33/89)
+#      203       98    54    80   163
+#      600       48    23    38    83
+#      800       41    19    32    72
+#     2000/g     44    21    34    77   <- current, matches the originals
+sdr_reference_nits = 3000.0
 [animation]
 # Duration of scroll/rotate slide tweens, in milliseconds. Omitting this
 # section entirely is fine -- it defaults to 250.
@@ -53,7 +98,7 @@ focus_follows_mouse = true
 border_width = 2
 # The border ring follows this same curve, staying concentric with the window.
 corner_radius = 8
-active_color = "#89b4fa"
+active_color = "#ffb4fa"
 inactive_color = "#45475a"
 
 # HDR-authored focus chrome: on DP-3 (hdr = true) the focused border is drawn
@@ -61,27 +106,27 @@ inactive_color = "#45475a"
 # by something SDR chrome physically cannot do. Ignored entirely on HDMI-A-1
 # and in every screenshot/screencast, which are plain SDR -- those just get
 # active_color.
-active_luminance_nits = 600.0
+active_luminance_nits = 900.0
 
 # Focus glow. 12px of spill sits comfortably inside the 10px inner / 20px outer
 # gaps without neighbours bleeding into each other. Only the focused window
 # glows -- an unfocused glow on every window is noise, not information.
-active_glow_margin = 6
+active_glow_margin = 12
 inactive_glow_margin = 0
-glow_falloff = 2.0
+glow_falloff = 5.0
 
 # Window opacity. Fullscreen windows are always forced opaque regardless of
 # these -- a translucent window cannot take direct scanout.
 #
 # On DP-3 this blends in the linear working space rather than in gamma-encoded
 # values, so translucency composites in light.
-active_opacity = 0.95
-inactive_opacity = 0.85
+active_opacity = 0.99
+inactive_opacity = 0.95
 
 # Windows buried under a promoted window drop most of the way out, so what shows
 # through the promoted window is mostly wallpaper rather than a pile of other
 # windows. Drastic on purpose -- tune the number, it hot-reloads.
-obscured_opacity = 0.2
+obscured_opacity = 0.15
 obscured_threshold = 0.9
 
 # Rules apply in file order over the values above, and each changes only the
