@@ -42,7 +42,7 @@ inner_gap = 10
 # `interval_seconds` each. The next image is decoded on a worker thread ahead
 # of the swap, so the change itself costs nothing.
 path = "~/wallpapers-hdr"
-interval_seconds = 45
+interval_seconds = 2
 mode = "Fill"
 
 # The HDRTVDM conversion lifted midtones ~10x above where the SDR originals
@@ -120,7 +120,7 @@ glow_falloff = 5.0
 #
 # On DP-3 this blends in the linear working space rather than in gamma-encoded
 # values, so translucency composites in light.
-active_opacity = 0.99
+active_opacity = 0.95
 inactive_opacity = 0.95
 
 # Windows buried under a promoted window drop most of the way out, so what shows
@@ -128,7 +128,30 @@ inactive_opacity = 0.95
 # windows. Drastic on purpose -- tune the number, it hot-reloads.
 obscured_opacity = 0.15
 obscured_threshold = 0.9
+# Backdrop for translucent windows. The composite runs in absolute linear
+# light, so `opacity` is a physical transmittance: at 0.95 a window passes 5%
+# of whatever is behind it *in nits*. Against an HDR wallpaper peaking near
+# 460 that is ~23 nits landing on a window background of ~1.6, which is why
+# the wallpaper reads through the glass and text contrast collapses.
+#
+# tonemap caps what shows through at the SDR reference instead of letting HDR
+# highlights punch through at full strength. blur frosts it. The two are
+# independent: capped-but-sharp is a real look.
+active_backdrop_tonemap = true
+inactive_backdrop_tonemap = false
+active_backdrop_blur = false
+inactive_backdrop_blur = false
+# Global, not per-rule: each distinct radius costs its own precomputed buffer
+# (~66 MB at 4K). Only read when a rule actually enables blur.
+backdrop_blur_radius = 8
 
+# Ceiling in nits for the backdrop's highlights, used by *_backdrop_tonemap.
+# The roll-off knee sits at 0.8x this value, so anything above the wallpaper's
+# ~460-nit peak (at luminance_scale = 0.2) does nothing at all -- that is
+# exactly why tonemap appeared dead before this knob existed. Starting low on
+# purpose: the point is for the backdrop to recede behind text. Live -- shader
+# uniform only, so nudge and save to retune, no re-decode.
+backdrop_luminance_nits = 40.0
 # Rules apply in file order over the values above, and each changes only the
 # fields it names. app_id/title are case-insensitive substring matches.
 
