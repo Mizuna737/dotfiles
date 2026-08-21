@@ -1,0 +1,13 @@
+# Startup commands, diagnostics, and idle behaviour.
+#
+# Every *.toml under this directory is loaded and merged, so the split
+# across files is organisational only -- move things wherever suits you.
+
+# Rubix default configuration.
+# Copy to $XDG_CONFIG_HOME/rubix/config.toml (or ~/.config/rubix/config.toml) to override.
+
+# Run once after the compositor is up: import env into systemd --user and start
+# the Rubix session target (mako, copyq, polkit, swaybg, teams-for-notif).
+startup = [
+  "systemctl --user import-environment WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP && systemctl --user start rubix-session.target",
+]

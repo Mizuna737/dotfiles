@@ -1,0 +1,131 @@
+# Window decoration, animation, and wallpaper.
+#
+# Every *.toml under this directory is loaded and merged, so the split
+# across files is organisational only -- move things wherever suits you.
+
+# Desktop wallpaper, drawn by the compositor itself rather than by a
+# layer-shell tool. This is what makes an HDR wallpaper possible: the AVIF
+# carries a CICP block naming its transfer function (ST 2084 / PQ here), so it
+# is decoded through the PQ inverse EOTF instead of being read as sRGB. swaybg
+# has no notion of colour and mpvpaper never tags its surface, so neither can
+# do this. Live/hot-reloadable, and settable at runtime over IPC:
+#   printf '{"type":"set_wallpaper","path":"/path/img.avif","output":null}\n' | \
+#     socat - UNIX-CONNECT:"$XDG_RUNTIME_DIR/rubix.sock"
+[wallpaper]
+# A directory rather than a file: slideshow over every image in it, sorted,
+# `interval_seconds` each. The next image is decoded on a worker thread ahead
+# of the swap, so the change itself costs nothing.
+path = "~/wallpapers-hdr"
+interval_seconds = 45
+mode = "Fill"
+
+# Overall wallpaper brightness on DP-3.
+# Turn it UP for a brighter wallpaper, DOWN for a dimmer one.
+# Re-decodes the image, so it applies on save.
+# Details: rubix docs/brightness-tuning.md
+#
+# My measurements, on 638321.avif -- the whole HDRTVDM library should track
+# it, since it all went through the same conversion. That conversion lifted
+# midtones ~10x above where the SDR originals rendered, which is what this
+# gain is pulling back. DP-3 peaks at 604 nits.
+#   gain  median   p90    p99   peak
+#   1.00    31.6  156.6  543.3  2303   (0.68% of pixels above panel peak)
+#   0.50    15.8   78.3  271.7  1152   <- current (0.04% above panel peak)
+#   0.35    11.0   54.8  190.2   806
+#   0.25     7.9   39.1  135.8   576
+#   0.15     4.7   23.5   81.5   346
+#   SDR      3.1   22.9   91.9   197   (the original .jpg at sdr_white_nits=203)
+luminance_scale = 0.4
+
+
+# Wallpaper brightness on HDMI-A-1 (and in screenshots).
+# BACKWARDS: turn it UP to make the wallpaper DARKER, DOWN for brighter.
+# It is a reference white, not a brightness. Does nothing on DP-3.
+# Takes effect on save. Details: rubix docs/brightness-tuning.md
+#
+# My measurements. At the 203-nit default this library renders ~2x too
+# bright and its shadows ~3.4x too bright, so blacks come out grey.
+# Measured against the file's own grading (before luminance_scale), so it
+# stays correct when the gain above is retuned.
+#   effective ref = this / luminance_scale
+#   ref/gain   mean    p5   p50   p90    (sRGB codes; SDR original = 46/16/33/89)
+#      203       98    54    80   163
+#      600       48    23    38    83
+#      800       41    19    32    72
+#     2000/g     44    21    34    77   <- current, matches the originals
+sdr_reference_nits = 3000.0
+[animation]
+# Duration of scroll/rotate slide tweens, in milliseconds. Omitting this
+# section entirely is fine -- it defaults to 250.
+duration_ms = 250
+
+# Window borders, drawn OUTSIDE the client rect over the surrounding gap -- the
+# tile keeps its full size and the border eats into inner_gap/outer_gap. Both
+# gaps are comfortably above the 2px border here, so nothing collides.
+# Fullscreen windows never get a border (it would cost direct scanout).
+[decoration]
+border_width = 2
+# The border ring follows this same curve, staying concentric with the window.
+corner_radius = 8
+active_color = "#ffb4fa"
+inactive_color = "#45475a"
+
+# How brightly the focused window's border glows on DP-3.
+# Turn it UP for a more eye-catching focus ring, DOWN for a subtler one.
+# Well above sdr_white_nits, so focus is indicated by something SDR chrome
+# physically cannot do. Ignored on HDMI-A-1 and in screenshots, which get
+# active_color.
+active_luminance_nits = 900.0
+
+# Focus glow. 12px of spill sits comfortably inside the 10px inner / 20px outer
+# gaps without neighbours bleeding into each other. Only the focused window
+# glows -- an unfocused glow on every window is noise, not information.
+active_glow_margin = 12
+inactive_glow_margin = 0
+glow_falloff = 5.0
+
+# Window opacity. Fullscreen windows are always forced opaque regardless of
+# these -- a translucent window cannot take direct scanout.
+#
+# On DP-3 this blends in the linear working space rather than in gamma-encoded
+# values, so translucency composites in light.
+active_opacity = 0.75
+inactive_opacity = 0.70
+
+# Windows buried under a promoted window drop most of the way out, so what shows
+# through the promoted window is mostly wallpaper rather than a pile of other
+# windows. Drastic on purpose -- tune the number, it hot-reloads.
+obscured_opacity = 0.15
+obscured_threshold = 0.9
+# Backdrop for translucent windows. The composite runs in absolute linear
+# light, so `opacity` is a physical transmittance -- a window at 0.75 passes
+# 25% of whatever is behind it *in nits*, and an HDR wallpaper is far
+# brighter than any window, so it reads straight through the glass.
+#
+# tonemap caps how bright what shows through may get; blur frosts it. The
+# two are independent -- capped-but-sharp is a real look.
+active_backdrop_tonemap = true
+inactive_backdrop_tonemap = false
+active_backdrop_blur = true
+inactive_backdrop_blur = false
+# Global, not per-rule: each distinct radius costs its own precomputed buffer
+# (~66 MB at 4K). Only read when a rule actually enables blur.
+backdrop_blur_radius = 8
+
+# Ceiling in nits for the backdrop's highlights, used by *_backdrop_tonemap.
+# The roll-off knee sits at 0.8x this value, so anything above the wallpaper's
+# ~460-nit peak (at luminance_scale = 0.2) does nothing at all -- that is
+# exactly why tonemap appeared dead before this knob existed. Starting low on
+# purpose: the point is for the backdrop to recede behind text. Live -- shader
+# uniform only, so nudge and save to retune, no re-decode.
+backdrop_luminance_nits = 40.0
+# Rules apply in file order over the values above, and each changes only the
+# fields it names. app_id/title are case-insensitive substring matches.
+
+# Video should never be dimmed or blended -- carried over from the old picom
+# config. Title-matched because the browser's app_id is the same whatever tab is
+# open, so only the title distinguishes a video from any other page.
+[[decoration.rule]]
+title = "youtube"
+active_opacity = 1.0
+inactive_opacity = 1.0

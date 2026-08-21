@@ -1,0 +1,45 @@
+# Tiling layout and physical outputs.
+#
+# Every *.toml under this directory is loaded and merged, so the split
+# across files is organisational only -- move things wherever suits you.
+
+# How bright ordinary (non-HDR) windows look on DP-3.
+# Turn it UP to brighten every normal window, DOWN to dim them.
+# Does nothing on HDMI-A-1. Range [80, 300], clamped.
+# Takes effect on save; also bound to Super+XF86AudioRaise/LowerVolume.
+# Details: rubix docs/brightness-tuning.md
+sdr_white_nits = 120.0
+
+[layout]
+# Number of columns instantiated on the monitor at startup.
+# Mirrors Monitor::visible_columns -- config keys match the Rust identifiers exactly.
+visible_columns = 3
+
+# Gap, in pixels, between each column and the monitor edge / its neighbours.
+# Monitor edges and inter-column seams both measure exactly outer_gap (the seam is
+# split half-and-half between adjacent columns). Omitting the key defaults to 20.
+outer_gap = 20
+
+# Gap, in pixels, between tiled windows *within* a group's split tree. Exactly one
+# inner_gap sits in each split seam. Omitting the key defaults to 10.
+inner_gap = 10
+
+# Physical output layout. Each [[output]] binds a connector (name) to a global
+# position; unlisted connectors auto-layout left-to-right. Mirrors the old
+# Awesome DefaultLayout.sh: ultrawide primary at origin, portrait strip rotated
+# to landscape and placed directly below it.
+[[output]]
+name = "DP-3"      # ultrawide primary
+position = [0, 0]
+mode = "3440x1440"
+primary = true
+hdr = true
+
+[[output]]
+name = "HDMI-A-1" # physically-portrait panel, rotated to a landscape strip
+mode = "400x1280" # native (portrait) mode; transform makes it 1280x400
+transform = "right" # = xrandr "rotate right"; if it comes out mirrored, use "left"
+position = [
+  1036,
+  1440,
+] # directly below the primary (y=1440), matching DefaultLayout.sh
