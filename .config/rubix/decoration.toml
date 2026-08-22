@@ -97,55 +97,45 @@ inactive_opacity = 0.75
 # windows. Drastic on purpose -- tune the number, it hot-reloads.
 obscured_opacity = 0.1
 obscured_threshold = 0.9
-# Backdrop for translucent windows. The composite runs in absolute linear
-# light, so `opacity` is a physical transmittance -- a window at 0.75 passes
-# 25% of whatever is behind it *in nits*, and an HDR wallpaper is far
-# brighter than any window, so it reads straight through the glass.
+# Backdrop for translucent windows -- what shows through the glass.
+# `opacity` is a real transmittance, so an HDR wallpaper reads through a
+# window much more strongly than an SDR one at the same setting.
 #
-# tonemap caps how bright what shows through may get; blur frosts it. The
-# two are independent -- capped-but-sharp is a real look.
+# tonemap dims what shows through; blur frosts it. They are independent, so
+# bright-but-sharp and dim-but-frosted are both available.
 active_backdrop_tonemap = true
-inactive_backdrop_tonemap = true
-# The focused window is sharp so refraction has detail to bend; unfocused ones
-# stay frosted. Blur and refract actively fight each other -- blur removes the
-# high-frequency detail that the facets exist to displace, and dispersion on an
-# already-blurred source separates into nothing. Turning both on is legal and
-# just looks like slightly wobbly frosting.
+inactive_backdrop_tonemap = false
+# Frosts the backdrop. On a refracting window the frosting softens the facets
+# into vague wobbles, so the two together read weaker than either alone.
 active_backdrop_blur = true
 inactive_backdrop_blur = false
-# Global, not per-rule: each distinct radius costs its own precomputed buffer
-# (~66 MB at 4K). Only read when a rule actually enables blur.
-backdrop_blur_radius = 16
+# How soft the frosting is. Unlike the knobs below this one is not live --
+# changing it re-decodes the wallpaper, so expect a hitch on save.
+backdrop_blur_radius = 4
 
-# Ceiling in nits for the backdrop's highlights, used by *_backdrop_tonemap.
-# The roll-off knee sits at 0.8x this value, so anything above the wallpaper's
-# ~460-nit peak (at luminance_scale = 0.2) does nothing at all -- that is
-# exactly why tonemap appeared dead before this knob existed. Starting low on
-# purpose: the point is for the backdrop to recede behind text. Live -- shader
-# uniform only, so nudge and save to retune, no re-decode.
+# How bright the backdrop may get, in nits. Lower it to push the wallpaper
+# back behind text, raise it to let highlights burn through. Above the
+# wallpaper's own peak (~460 nits at luminance_scale = 0.2) it does nothing.
+# Live -- nudge and save.
 backdrop_luminance_nits = 250.0
 
-# Crystal refraction: the backdrop is bent through families of cleavage
-# planes, as though the window were a slab of cut crystal. Facet normals come
-# from one shared set of directions, so faces look related to each other the
-# way crystallographic axes are, and a Fresnel term mixes in a reflection of
-# the wallpaper that grows towards grazing angles.
+# Crystal refraction: the wallpaper behind the window looks like it is being
+# seen through cut crystal -- broken into flat faces that each shift the
+# image, with colour fringing and bright glints where the faces meet.
 active_refract = true
 inactive_refract = true
-# Peak ray offset in logical px. This is how far a facet can displace what
-# shows through; past ~25 the wallpaper stops being recognisable.
+# How far each face shifts what shows through, in logical px. Small values
+# ripple; past about 25 the wallpaper stops being recognisable.
 refract_strength = 15.0
-# Cleavage-plane spacing in logical px -- NOT the face size. Four families
-# intersect at this spacing with a finer octave on top, so visible faces come
-# out several times smaller than the number. Below ~150 it reads as cracked
-# ice. Live -- shader uniform only, so nudge and save to retune.
-refract_facet_size = 300.0
-# Per-channel spread, scaled by the grazing angle so colour separates where
-# the facets tilt hardest and stays clean where they face you. (It keyed off
-# distance-to-seam at first, which outlined every face and read as wireframe.)
-# This is the knob that needs HDR headroom: on the abs10k pass the separated
-# channels keep their nits instead of clipping to white.
-refract_dispersion = 0.65
+# How large the faces are. Higher gives fewer, broader faces; under about 150
+# they break into fine cracks and read as crushed ice rather than crystal.
+# Live -- nudge and save.
+refract_facet_size = 150.0
+# How far the colours split apart. 0 is plain colourless glass; raise it for
+# rainbow fringing, strongest on the steepest faces. Needs an HDR output to
+# show its full range -- on SDR the brightest fringes clip away.
+# Live -- nudge and save.
+refract_dispersion = 0.5
 # Rules apply in file order over the values above, and each changes only the
 # fields it names. app_id/title are case-insensitive substring matches.
 
