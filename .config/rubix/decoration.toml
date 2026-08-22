@@ -16,7 +16,7 @@
 # `interval_seconds` each. The next image is decoded on a worker thread ahead
 # of the swap, so the change itself costs nothing.
 path = "~/wallpapers-hdr"
-interval_seconds = 45
+interval_seconds = 1
 mode = "Stretch"
 
 # Overall wallpaper brightness on DP-3.
@@ -64,7 +64,7 @@ duration_ms = 350
 # gaps are comfortably above the 2px border here, so nothing collides.
 # Fullscreen windows never get a border (it would cost direct scanout).
 [decoration]
-border_width = 2
+border_width = 3
 # The border ring follows this same curve, staying concentric with the window.
 corner_radius = 8
 active_color = "#ffb4fa"
@@ -75,21 +75,21 @@ inactive_color = "#45475a"
 # Well above sdr_white_nits, so focus is indicated by something SDR chrome
 # physically cannot do. Ignored on HDMI-A-1 and in screenshots, which get
 # active_color.
-active_luminance_nits = 400.0
+active_luminance_nits = 800.0
 
 # Focus glow. 12px of spill sits comfortably inside the 10px inner / 20px outer
 # gaps without neighbours bleeding into each other. Only the focused window
 # glows -- an unfocused glow on every window is noise, not information.
 active_glow_margin = 12
 inactive_glow_margin = 0
-glow_falloff = 5.0
+glow_falloff = 2.0
 
 # Window opacity. Fullscreen windows are always forced opaque regardless of
 # these -- a translucent window cannot take direct scanout.
 #
 # On DP-3 this blends in the linear working space rather than in gamma-encoded
 # values, so translucency composites in light.
-active_opacity = 0.85
+active_opacity = 0.90
 inactive_opacity = 0.75
 
 # Windows buried under a promoted window drop most of the way out, so what shows

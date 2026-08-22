@@ -21,6 +21,20 @@ on_change = "~/Scripts/rubixTheme.py"
 # small text becomes a strain.
 target_lc = 75.0
 
+# Colour window borders from the wallpaper instead of using [decoration]
+# active_color and inactive_color.
+#
+# The focused window's border is an accent colour taken straight out of the
+# wallpaper -- a vivid one that is actually in the image, skipping whatever
+# colour covers most of it, since a border cannot stand out against the very
+# thing behind it. A sunset gives an amber border, a seascape a bright blue.
+# Unfocused windows get a muted version on the wallpaper's own hue, so they
+# settle into the background instead of competing with it.
+#
+# Focus stays obvious because those two are far apart, and because only the
+# focused window draws a glow. Turn this off to go back to the fixed colours.
+apply_to_borders = true
+
 # Where the generated theme is written. Anything wanting the colours can read
 # this file; the path is also exported as $RUBIX_THEME to programs launched
 # from the compositor.

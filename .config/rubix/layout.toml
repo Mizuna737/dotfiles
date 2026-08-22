@@ -18,11 +18,11 @@ visible_columns = 3
 # Gap, in pixels, between each column and the monitor edge / its neighbours.
 # Monitor edges and inter-column seams both measure exactly outer_gap (the seam is
 # split half-and-half between adjacent columns). Omitting the key defaults to 20.
-outer_gap = 20
+outer_gap = 24
 
 # Gap, in pixels, between tiled windows *within* a group's split tree. Exactly one
 # inner_gap sits in each split seam. Omitting the key defaults to 10.
-inner_gap = 10
+inner_gap = 18
 
 # Physical output layout. Each [[output]] binds a connector (name) to a global
 # position; unlisted connectors auto-layout left-to-right. Mirrors the old
