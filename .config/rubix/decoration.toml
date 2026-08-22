@@ -57,7 +57,7 @@ sdr_reference_nits = 3000.0
 [animation]
 # Duration of scroll/rotate slide tweens, in milliseconds. Omitting this
 # section entirely is fine -- it defaults to 250.
-duration_ms = 250
+duration_ms = 350
 
 # Window borders, drawn OUTSIDE the client rect over the surrounding gap -- the
 # tile keeps its full size and the border eats into inner_gap/outer_gap. Both
@@ -75,7 +75,7 @@ inactive_color = "#45475a"
 # Well above sdr_white_nits, so focus is indicated by something SDR chrome
 # physically cannot do. Ignored on HDMI-A-1 and in screenshots, which get
 # active_color.
-active_luminance_nits = 1200.0
+active_luminance_nits = 400.0
 
 # Focus glow. 12px of spill sits comfortably inside the 10px inner / 20px outer
 # gaps without neighbours bleeding into each other. Only the focused window
@@ -117,7 +117,7 @@ backdrop_blur_radius = 4
 # back behind text, raise it to let highlights burn through. Above the
 # wallpaper's own peak (~460 nits at luminance_scale = 0.2) it does nothing.
 # Live -- nudge and save.
-backdrop_luminance_nits = 250.0
+backdrop_luminance_nits = 100.0
 
 # Crystal refraction: the wallpaper behind the window looks like it is being
 # seen through cut crystal -- broken into flat faces that each shift the
@@ -126,16 +126,17 @@ active_refract = true
 inactive_refract = true
 # How far each face shifts what shows through, in logical px. Small values
 # ripple; past about 25 the wallpaper stops being recognisable.
-refract_strength = 15.0
-# How large the faces are. Higher gives fewer, broader faces; under about 150
-# they break into fine cracks and read as crushed ice rather than crystal.
+refract_strength = 20.0
+# How large the faces are, in window pixels. Higher gives fewer, broader
+# faces. The same on every window regardless of its size, so a value that
+# looks right on one window looks right on all of them.
 # Live -- nudge and save.
-refract_facet_size = 150.0
+refract_facet_size = 750.0
 # How far the colours split apart. 0 is plain colourless glass; raise it for
 # rainbow fringing, strongest on the steepest faces. Needs an HDR output to
 # show its full range -- on SDR the brightest fringes clip away.
 # Live -- nudge and save.
-refract_dispersion = 0.5
+refract_dispersion = 0.6
 # Rules apply in file order over the values above, and each changes only the
 # fields it names. app_id/title are case-insensitive substring matches.
 
