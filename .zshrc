@@ -132,8 +132,11 @@ export OLLAMA_MODELS="/data/Ollama Models"
 export OLLAMA_KEEP_ALIVE=30
 
 
-# Load pywal colors for new terminal sessions
-(cat ~/.cache/wal/sequences &)
+# Colours are set by rubix (see ~/.config/rubix/theme.toml), which pushes them
+# straight into kitty, including the defaults new windows inherit. Re-emitting
+# pywal's saved escape sequences here would overwrite them with whatever the
+# last pywal run left behind, so it stays off.
+# (cat ~/.cache/wal/sequences &)
 export PATH=/home/max/.local/bin:$HOME/Scripts:$HOME/.cargo/bin:$PATH
 
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

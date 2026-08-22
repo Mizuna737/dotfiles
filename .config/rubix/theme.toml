@@ -1,0 +1,50 @@
+# Desktop-wide colour theme, derived from the current wallpaper.
+#
+# Rubix reads the colours out of the wallpaper it is already displaying, then
+# picks text colours that stay readable through the window's transparency and
+# refraction. The result is written to a file and handed to `on_change`, which
+# re-themes the applications that read it.
+#
+# Colours are re-derived whenever the wallpaper changes, including every
+# slideshow step.
+
+[theme]
+# Turn the whole thing off to leave application themes alone.
+enable = true
+
+# Runs after each new theme is written. This is what re-themes kitty and nvim.
+on_change = "~/Scripts/rubixTheme.py"
+
+# How readable body text must be, 0-106. Raise it for crisper, higher-contrast
+# text that drifts toward plain white; lower it for text that keeps more of the
+# wallpaper's colour but is harder to read on a busy background. Below about 60
+# small text becomes a strain.
+target_lc = 75.0
+
+# Where the generated theme is written. Anything wanting the colours can read
+# this file; the path is also exported as $RUBIX_THEME to programs launched
+# from the compositor.
+output_path = "~/.cache/rubix/theme.json"
+
+# Left to itself, the contrast solve aims at your LEAST readable window, which
+# is an unfocused one: those show more wallpaper, unblurred and with no
+# brightness limit. Nothing stays readable against that, so every colour gets
+# forced to white and the theme loses the wallpaper entirely.
+#
+# These three pin the solve to a focused window instead. Text is tuned to be
+# readable on the window you are actually looking at; unfocused windows will be
+# harder to read, which is usually the trade you want. Delete all three to go
+# back to aiming at the worst case.
+#
+# How much wallpaper to assume shows through a window, where 1.0 is fully
+# opaque. Lower values produce brighter, higher-contrast text.
+opacity = 0.85
+#
+# How bright the wallpaper behind a window is allowed to get, in nits. Lower it
+# to let the theme keep more colour; remove it to assume the wallpaper's own
+# full brightness, which forces the most cautious theme.
+backdrop_cap_nits = 100.0
+#
+# Whether to assume the wallpaper behind a window is blurred. Blur evens out
+# small bright spots, so assuming it allows a gentler theme.
+backdrop_blurred = true

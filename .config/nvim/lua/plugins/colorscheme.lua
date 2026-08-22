@@ -1,11 +1,22 @@
 -- ~/.config/nvim/lua/plugins/colorscheme.lua
-return {
-	{
-		"AlphaTechnolog/pywal.nvim",
-		lazy = false,
-		priority = 1000,
-		config = function()
-			require("pywal").setup()
-		end,
-	},
-}
+--
+-- No colorscheme plugin. Colours come from rubix, derived from the current
+-- wallpaper and solved for readable contrast through window transparency and
+-- refraction. The generated highlights are loaded in config/lazy.lua and
+-- re-read on FocusGained (see config/keymaps.lua).
+--
+-- To go back to pywal: reinstate the pywal.nvim spec below, and restore the
+-- `require("pywal")` call in config/lazy.lua.
+--
+-- return {
+-- 	{
+-- 		"AlphaTechnolog/pywal.nvim",
+-- 		lazy = false,
+-- 		priority = 1000,
+-- 		config = function()
+-- 			require("pywal").setup()
+-- 		end,
+-- 	},
+-- }
+
+return {}

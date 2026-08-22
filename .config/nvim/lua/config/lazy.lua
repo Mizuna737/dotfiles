@@ -48,5 +48,44 @@ require("lazy").setup({
 	},
 })
 
-local pywal = require("pywal")
-pywal.setup()
+-- Colours come from rubix, derived from the current wallpaper and solved to
+-- stay readable through window transparency. Regenerated on every wallpaper
+-- change; see ~/.config/rubix/theme.toml.
+local rubixThemeDir = vim.fn.expand("~/.cache/rubix")
+local rubixTheme = rubixThemeDir .. "/nvim-theme.lua"
+
+local function applyRubixTheme()
+	if vim.fn.filereadable(rubixTheme) == 1 then
+		pcall(dofile, rubixTheme)
+	end
+end
+
+applyRubixTheme()
+
+-- Re-apply once plugins have finished loading. Plugins that theme themselves --
+-- lualine reads the colorscheme and picks its own palette -- set up after this
+-- file runs, so a single early application is overwritten by whatever they
+-- chose. VeryLazy fires after startup; VimEnter is the fallback for configs
+-- that never emit it.
+vim.api.nvim_create_autocmd("User", {
+	pattern = "VeryLazy",
+	callback = applyRubixTheme,
+})
+vim.api.nvim_create_autocmd("VimEnter", {
+	callback = function()
+		vim.schedule(applyRubixTheme)
+	end,
+})
+
+-- Watch the DIRECTORY, not the file. The theme is written atomically -- new
+-- file, then rename -- so a watch on the path is left holding the old inode
+-- and never fires again after the first swap. Watching the directory survives
+-- that, because the directory entry is what changes.
+local rubixWatcher = (vim.uv or vim.loop).new_fs_event()
+if rubixWatcher then
+	rubixWatcher:start(rubixThemeDir, {}, function(_, filename)
+		if filename and filename:match("^nvim%-theme") then
+			vim.schedule(applyRubixTheme)
+		end
+	end)
+end

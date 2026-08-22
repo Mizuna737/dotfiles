@@ -46,8 +46,13 @@ vim.api.nvim_create_user_command("ReloadKeymaps", function()
 	require("config.keymaps")
 end, {})
 
+-- Re-read the generated theme whenever this window regains focus, so a
+-- wallpaper change reaches an already-open nvim without a restart.
 vim.api.nvim_create_autocmd("FocusGained", {
 	callback = function()
-		vim.cmd("colorscheme pywal")
+		local rubixTheme = vim.fn.expand("~/.cache/rubix/nvim-theme.lua")
+		if vim.fn.filereadable(rubixTheme) == 1 then
+			dofile(rubixTheme)
+		end
 	end,
 })
