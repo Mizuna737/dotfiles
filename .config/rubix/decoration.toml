@@ -111,8 +111,8 @@ inactive_backdrop_tonemap = true
 # high-frequency detail that the facets exist to displace, and dispersion on an
 # already-blurred source separates into nothing. Turning both on is legal and
 # just looks like slightly wobbly frosting.
-active_backdrop_blur = false
-inactive_backdrop_blur = true
+active_backdrop_blur = true
+inactive_backdrop_blur = false
 # Global, not per-rule: each distinct radius costs its own precomputed buffer
 # (~66 MB at 4K). Only read when a rule actually enables blur.
 backdrop_blur_radius = 16
@@ -123,24 +123,29 @@ backdrop_blur_radius = 16
 # exactly why tonemap appeared dead before this knob existed. Starting low on
 # purpose: the point is for the backdrop to recede behind text. Live -- shader
 # uniform only, so nudge and save to retune, no re-decode.
-backdrop_luminance_nits = 200.0
+backdrop_luminance_nits = 250.0
 
-# Crystal-facet refraction: the backdrop is bent through a Voronoi lattice of
-# facets, as though the window were a slab of cut crystal. Focused windows
-# only, as a focus cue -- and because it wants the sharp wallpaper.
+# Crystal refraction: the backdrop is bent through families of cleavage
+# planes, as though the window were a slab of cut crystal. Facet normals come
+# from one shared set of directions, so faces look related to each other the
+# way crystallographic axes are, and a Fresnel term mixes in a reflection of
+# the wallpaper that grows towards grazing angles.
 active_refract = true
-inactive_refract = false
+inactive_refract = true
 # Peak ray offset in logical px. This is how far a facet can displace what
 # shows through; past ~25 the wallpaper stops being recognisable.
-refract_strength = 12.0
-# Facet cell size in logical px. Small values read as crushed ice, large ones
-# as a few big cut faces. Live -- shader uniform only.
-refract_facet_size = 90.0
-# Per-channel spread, amplified towards the facet seams rather than applied
-# flat, so colour flashes along the cut lines and stays clean across each face.
+refract_strength = 15.0
+# Cleavage-plane spacing in logical px -- NOT the face size. Four families
+# intersect at this spacing with a finer octave on top, so visible faces come
+# out several times smaller than the number. Below ~150 it reads as cracked
+# ice. Live -- shader uniform only, so nudge and save to retune.
+refract_facet_size = 300.0
+# Per-channel spread, scaled by the grazing angle so colour separates where
+# the facets tilt hardest and stays clean where they face you. (It keyed off
+# distance-to-seam at first, which outlined every face and read as wireframe.)
 # This is the knob that needs HDR headroom: on the abs10k pass the separated
 # channels keep their nits instead of clipping to white.
-refract_dispersion = 0.35
+refract_dispersion = 0.65
 # Rules apply in file order over the values above, and each changes only the
 # fields it names. app_id/title are case-insensitive substring matches.
 
