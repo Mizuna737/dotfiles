@@ -100,6 +100,9 @@ focus_follows_mouse = true
 # the shifted chord -- no keyd change needed. F-keys keep their keysym under
 # Shift, so unlike the Shift+letter binds above the final token stays "F5".
 "Super+Control+Shift+F5" = "ToggleMaximizeReverse"
+# Fullscreen windows sit outside the grid entirely, so no directional nav
+# chord can reach one once it loses focus. This is the way back.
+"Super+f" = "FocusFullscreen"
 # Tartarus first row (keys 1-5), via keyd (Razer.conf): a short tap emits
 # Super+Ctrl+<n>. In Awesome these tap `findExisting` (focus the app if open, else
 # spawn); for now they just spawn the target window -- the find-or-launch behaviour
