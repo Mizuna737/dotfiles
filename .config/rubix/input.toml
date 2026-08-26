@@ -103,6 +103,11 @@ focus_follows_mouse = true
 # Fullscreen windows sit outside the grid entirely, so no directional nav
 # chord can reach one once it loses focus. This is the way back.
 "Super+f" = "FocusFullscreen"
+# Closes the focused window, then unconditionally detaches it from the model
+# regardless of whether the client actually exits -- the escape hatch for a
+# dead or unresponsive window (a frozen client, or one whose server is gone)
+# that would otherwise sit on screen forever.
+"Super+Escape" = "RemoveWindow"
 # Tartarus first row (keys 1-5), via keyd (Razer.conf): a short tap emits
 # Super+Ctrl+<n>. In Awesome these tap `findExisting` (focus the app if open, else
 # spawn); for now they just spawn the target window -- the find-or-launch behaviour
