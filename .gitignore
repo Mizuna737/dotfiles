@@ -35,3 +35,6 @@ plugins/
 
 # Lock files (runtime state, churns constantly)
 *.lock
+
+# keybind editor safety backups (dashboard keybindStore.py)
+*.toml.bak

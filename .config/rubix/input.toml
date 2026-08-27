@@ -108,19 +108,8 @@ focus_follows_mouse = true
 # dead or unresponsive window (a frozen client, or one whose server is gone)
 # that would otherwise sit on screen forever.
 "Super+Escape" = "RemoveWindow"
-# Tartarus first row (keys 1-5), via keyd (Razer.conf): a short tap emits
-# Super+Ctrl+<n>. In Awesome these tap `findExisting` (focus the app if open, else
-# spawn); for now they just spawn the target window -- the find-or-launch behaviour
-# comes with window rules / IPC in a later sprint. Hold (Super+Ctrl+Alt+n) and
-# mod-tap (Super+Ctrl+Shift+n) are the deferred new-window / workspace actions.
-#   T1 terminal, T2 browser, T3 editor, T4 file manager, T5 comms.
-# Commands mirror defaultApps.lua; the kitty ones attach a named tmux session so a
-# relaunch re-attaches instead of forking a second shell (the find-or-launch stopgap).
-"Super+Control+1" = { Spawn = "kitty --override confirm_os_window_close=0 -e tmux new-session -A -s kitty" }
-"Super+Control+2" = { Spawn = "zen-browser" }
-"Super+Control+3" = { Spawn = "kitty --class neovim --override confirm_os_window_close=0 -e tmux new-session -A -s code -n NeoVim nvim" }
-"Super+Control+4" = { Spawn = "kitty --class yazi --override confirm_os_window_close=0 -e tmux new-session -A -s files -n Yazi yazi" }
-"Super+Control+5" = { Spawn = "signal-desktop" }
+# The Razer Tartarus keypad lives in tartarus.toml -- 72 binds is enough to
+# want its own file. Rubix merges every *.toml here, so the split is cosmetic.
 
 # Exit the compositor. On the TTY backend this is the only in-session quit (winit
 # also closes on the host window's close button). Ctrl+Alt+Fn switches VTs.

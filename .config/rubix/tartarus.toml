@@ -1,0 +1,210 @@
+# Razer Tartarus keypad binds.
+#
+# Split out of input.toml purely for legibility -- Rubix merges every *.toml in
+# this directory, so this file has no special status. It is a port of the old
+# AwesomeWM ~/.config/awesome/devices/tartarus.lua.
+#
+# ---------------------------------------------------------------------------
+# How a Tartarus press becomes a chord
+# ---------------------------------------------------------------------------
+# keyd (.config/keyd/Razer.conf) overloads every key with a tap/hold timeout at
+# 150ms, and remaps the thumb key T21 (physically leftalt) to Shift. So one
+# physical key yields four chords:
+#
+#   tap           Super+Ctrl+KEY
+#   tap+hold      Super+Ctrl+Alt+KEY
+#   mod tap       Super+Ctrl+Shift+KEY        (T21 held)
+#   mod tap+hold  Super+Ctrl+Alt+Shift+KEY    (T21 held)
+#
+# The Shift rows are the trap: Rubix matches on the *modified* keysym (xkb's
+# modified_sym, same as the Super+Shift+H binds in input.toml), so with Shift
+# held the final token is the shifted symbol on a `us` layout, not the key's
+# label -- 1 becomes exclam, 2 at, 3 numbersign, 4 dollar, 5 percent, Tab
+# becomes ISO_Left_Tab, and letters go uppercase. space stays space.
+#
+# ---------------------------------------------------------------------------
+# Parity with Awesome
+# ---------------------------------------------------------------------------
+# Rubix has no tags/workspaces, no window stacking, no dropdown/scratchpad
+# toggle, and no key-release (hold) binding. Every slot those powered is bound
+# to a notify-send saying what the key used to do and which Rubix feature is
+# missing, so the key still gives feedback and the file doubles as the TODO
+# list for that work. Slots that were bare `naughty.notify` placeholders in
+# Awesome are kept as "(unassigned)" notifies for the same reason: pressing the
+# key confirms the hardware and keyd path are alive.
+
+[keybinds]
+
+# ===========================================================================
+# Row 1 -- keys 1-5: launch/focus an app (tap), new instance (hold),
+#                    workspace switching (mod, unavailable).
+# ===========================================================================
+# Tap is find-or-launch, the myFuncs.findExisting port: findOrLaunch.sh focuses
+# a matching window over wlr-foreign-toplevel (wlrctl) and only spawns when
+# there is none. Hold is the deliberate second instance -- same command, no
+# find step, and for the kitty ones a distinct tmux session name so it is a
+# real second shell rather than a re-attach.
+
+# T1 terminal
+"Super+Control+1" = {Spawn = "/home/max/Scripts/findOrLaunch.sh kitty kitty --override confirm_os_window_close=0 -e tmux new-session -A -s kitty"}
+"Super+Control+Alt+1" = { Spawn = 'kitty --override confirm_os_window_close=0 -e tmux new-session' }
+"Super+Control+Shift+exclam" = { Spawn = 'notify-send -a Tartarus "T1 mod tap" "was: view workspace 1 — Rubix has no tags/workspaces"' }
+"Super+Control+Alt+Shift+exclam" = { Spawn = 'notify-send -a Tartarus "T1 mod hold" "was: view workspace 1 exclusive — Rubix has no tags/workspaces"' }
+
+# T2 browser
+"Super+Control+2" = { Spawn = '/home/max/Scripts/findOrLaunch.sh zen zen-browser' }
+"Super+Control+Alt+2" = {Spawn = "zen-browser"}
+"Super+Control+Shift+at" = {Spawn = "notify-send -a Tartarus \"T2 mod tap\" \"was: view workspace 2 — Rubix has no tags/workspaces\""}
+"Super+Control+Alt+Shift+at" = { Spawn = 'notify-send -a Tartarus "T2 mod hold" "was: view workspace 2 exclusive — Rubix has no tags/workspaces"' }
+
+# T3 editor
+"Super+Control+3" = { Spawn = '/home/max/Scripts/findOrLaunch.sh neovim kitty --class neovim --override confirm_os_window_close=0 -e tmux new-session -A -s code -n NeoVim nvim' }
+"Super+Control+Alt+3" = { Spawn = 'kitty --class neovim --override confirm_os_window_close=0 -e tmux new-session -n NeoVim nvim' }
+"Super+Control+Shift+numbersign" = { Spawn = 'notify-send -a Tartarus "T3 mod tap" "was: view workspace 3 — Rubix has no tags/workspaces"' }
+"Super+Control+Alt+Shift+numbersign" = { Spawn = 'notify-send -a Tartarus "T3 mod hold" "was: view workspace 3 exclusive — Rubix has no tags/workspaces"' }
+
+# T4 file manager
+"Super+Control+4" = { Spawn = '/home/max/Scripts/findOrLaunch.sh yazi kitty --class yazi --override confirm_os_window_close=0 -e tmux new-session -A -s files -n Yazi yazi' }
+"Super+Control+Alt+4" = { Spawn = 'kitty --class yazi --override confirm_os_window_close=0 -e tmux new-session -n Yazi yazi' }
+"Super+Control+Shift+dollar" = { Spawn = 'notify-send -a Tartarus "T4 mod tap" "was: view workspace 4 — Rubix has no tags/workspaces"' }
+"Super+Control+Alt+Shift+dollar" = { Spawn = 'notify-send -a Tartarus "T4 mod hold" "was: view workspace 4 exclusive — Rubix has no tags/workspaces"' }
+
+# T5 comms. Awesome's findComms() walked a list of comms classes; without window
+# rules this is just Teams, the primary one.
+# Exec and flags mirror the user override in ~/.local/share/applications, NOT
+# the packaged .desktop -- native Wayland plus the PipeWire capturer is what
+# makes screen sharing work through Rubix's portal. Matches app_id
+# `teams-for-linux`; the separate `teams-for-notif` window is the muted
+# background notification listener and is deliberately not a focus target.
+"Super+Control+5" = { Spawn = '/home/max/Scripts/findOrLaunch.sh teams-for-linux /opt/teams-for-linux/teams-for-linux --ozone-platform=wayland --enable-features=WebRTCPipeWireCapturer' }
+"Super+Control+Alt+5" = { Spawn = '/opt/teams-for-linux/teams-for-linux --ozone-platform=wayland --enable-features=WebRTCPipeWireCapturer' }
+"Super+Control+Shift+percent" = { Spawn = 'notify-send -a Tartarus "T5 mod tap" "was: view workspace 5 — Rubix has no tags/workspaces"' }
+"Super+Control+Alt+Shift+percent" = { Spawn = 'notify-send -a Tartarus "T5 mod hold" "was: view workspace 5 exclusive — Rubix has no tags/workspaces"' }
+
+# ===========================================================================
+# Row 2 -- Tab, q, w, e, r: stacking (gone) and grid navigation.
+# ===========================================================================
+
+# T6 Tab -- all four slots drove stack.lua, which has no Rubix counterpart.
+# Mod tap is the exception: tempStack() was Awesome's alt-tab, and `rofi -show
+# window` over wlr-foreign-toplevel is the same gesture, so it is bound rather
+# than stubbed (also on Super+Tab in input.toml).
+"Super+Control+Tab" = { Spawn = 'notify-send -a Tartarus "Tab tap" "was: stack all windows on tag — Rubix has no window stacking"' }
+"Super+Control+Alt+Tab" = { Spawn = 'notify-send -a Tartarus "Tab hold" "was: stack related windows — Rubix has no window stacking"' }
+"Super+Control+Shift+ISO_Left_Tab" = { Spawn = "rofi -show window" }
+"Super+Control+Alt+Shift+ISO_Left_Tab" = { Spawn = 'notify-send -a Tartarus "Tab mod hold" "was: stack all windows globally — Rubix has no window stacking"' }
+
+# T7 q -- tap was "cycle stack forward, else tmux previous-window". The stack
+# half is gone, so only the tmux half remains; tartarusTmux.sh no-ops outside a
+# terminal rather than doing something unrelated.
+# Mod tap held the prev/next-tag pair, and rotating the cube ring is the nearest
+# Rubix gesture: it walks the whole column order past the focus point, the way
+# switching tags walked the whole screen contents. Deliberately distinct from
+# a/d, which move focus without disturbing that order.
+"Super+Control+q" = "RotateColumnsLeft"
+"Super+Control+Alt+q" = { Spawn = 'notify-send -a Tartarus "Q hold" "was: cycle layout left — Rubix has no layout ring, only FlipSplitDirection (Super+r)"' }
+"Super+Control+Shift+Q" = { Spawn = '/home/max/Scripts/tartarusTmux.sh "previous-window"' }
+"Super+Control+Alt+Shift+Q" = { Spawn = 'notify-send -a Tartarus "Q mod hold" "was: previous tag, empty ones included — the column ring has no populated/empty distinction to skip"' }
+
+# T8 w -- the WASD block. Mod tap moves focus, mod hold moves the window.
+# The two focus axes are different mechanisms: a/d walk the active-column
+# pointer sideways (MoveActiveColumn, which leaves the ring order alone), w/s
+# scroll rows within the active column. Neither descends into a group's split
+# tree, so focus cannot cross two windows sharing one group -- that needs a
+# FocusDirection action Rubix does not have yet, at which point all four of
+# these mod-tap slots should re-point to it.
+"Super+Control+w" = "ScrollColumnUp"
+"Super+Control+Alt+w" = "MoveFocusedWindowUp"
+"Super+Control+Shift+W" = { Spawn = '/home/max/Scripts/tartarusTmux.sh "select-pane -U"' }
+"Super+Control+Alt+Shift+W" = { Spawn = 'notify-send -a Tartarus "W hold" "(unassigned)"' }
+
+# T9 e
+"Super+Control+e" = "RotateColumnsRight"
+"Super+Control+Alt+e" = { Spawn = 'notify-send -a Tartarus "E mod hold" "was: next tag, empty ones included — the column ring has no populated/empty distinction to skip"' }
+"Super+Control+Shift+E" = { Spawn = '/home/max/Scripts/tartarusTmux.sh "next-window"' }
+"Super+Control+Alt+Shift+E" = { Spawn = 'notify-send -a Tartarus "E hold" "was: cycle layout right — Rubix has no layout ring, only FlipSplitDirection (Super+r)"' }
+
+# T10 r
+"Super+Control+r" = { Spawn = 'notify-send -a Tartarus "R tap" "was: unstack all — Rubix has no window stacking"' }
+"Super+Control+Alt+r" = { Spawn = 'notify-send -a Tartarus "R hold" "was: keybind cheatsheet — Rubix has no hotkeys popup"' }
+"Super+Control+Shift+R" = { Spawn = 'notify-send -a Tartarus "R mod tap" "(unassigned)"' }
+"Super+Control+Alt+Shift+R" = { Spawn = 'notify-send -a Tartarus "R mod hold" "(unassigned)"' }
+
+# ===========================================================================
+# Row 3 -- capslock, a, s, d, f.
+# ===========================================================================
+
+# T11 capslock is deliberately unbound. keyd emits Super+Ctrl+Caps_Lock for it,
+# but tartarus.lua bound "6" -- so this key did nothing under Awesome either.
+# Binding a modifier keysym as a chord's final token is also unreliable, since
+# the key's own modifier is latched by the time the press is matched. Left for
+# whenever it gets a real job, at which point remap it in Razer.conf to a plain
+# key rather than binding Caps_Lock here.
+
+# T12 a
+"Super+Control+a" = "MoveActiveColumnLeft"
+"Super+Control+Alt+a" = "MoveFocusedWindowLeft"
+"Super+Control+Shift+A" = { Spawn = '/home/max/Scripts/tartarusTmux.sh "select-pane -L"' }
+"Super+Control+Alt+Shift+A" = {Spawn = "notify-send -a Tartarus \"A hold\" \"(unassigned)\""}
+
+# T13 s -- tap and hold open the Obsidian-side tools. In Awesome these were
+# toggleDropdownApp calls (show/hide a floating scratchpad); Rubix has no
+# dropdown concept, so they launch instead of toggling. Pressing twice gives a
+# second window rather than hiding the first.
+"Super+Control+s" = "ScrollColumnDown"
+"Super+Control+Alt+s" = "MoveFocusedWindowDown"
+"Super+Control+Shift+S" = { Spawn = '/home/max/Scripts/tartarusTmux.sh "select-pane -D" "spawn:bash /home/max/Scripts/eisenhower.sh"' }
+"Super+Control+Alt+Shift+S" = { Spawn = 'kitty --class "Quick Notes" --override font_size=18.0 --override confirm_os_window_close=0 -e bash /home/max/Scripts/quickNotes.sh' }
+
+# T14 d
+"Super+Control+d" = "MoveActiveColumnRight"
+"Super+Control+Alt+d" = "MoveFocusedWindowRight"
+"Super+Control+Shift+D" = { Spawn = '/home/max/Scripts/tartarusTmux.sh "select-pane -R"' }
+"Super+Control+Alt+Shift+D" = { Spawn = 'notify-send -a Tartarus "D hold" "(unassigned)"' }
+
+# T15 f -- audio. Tap and hold hit the dashboard server's toggle endpoints
+# (localhost:9876), the same ones the old myFuncs.cycleSink/toggleVPN used, so
+# the dashboard UI and the keypad stay in sync.
+"Super+Control+f" = { Spawn = 'curl -s -X POST http://localhost:9876/toggle/sink' }
+"Super+Control+Alt+f" = { Spawn = 'curl -s -X POST http://localhost:9876/toggle/vpn' }
+"Super+Control+Shift+F" = { Spawn = "pactl set-source-mute @DEFAULT_SOURCE@ toggle" }
+# Awesome implemented push-to-talk with a keygrabber watching for the release.
+# Rubix keybinds fire on press only, with no release event exposed to config, so
+# there is nothing to un-mute on. The right home for this is keyd anyway, which
+# sees the raw key up/down before the compositor does.
+"Super+Control+Alt+Shift+F" = { Spawn = 'notify-send -a Tartarus "F mod hold" "was: push-to-talk mic — Rubix keybinds have no key-release event"' }
+
+# ===========================================================================
+# Row 4 -- leftshift, z, x, c, space.
+# ===========================================================================
+
+# T16 leftshift is deliberately unbound, for the same reason as T11 above: keyd
+# emits Super+Ctrl+Shift_L, tartarus.lua bound "7", and the key never did
+# anything. Note this is NOT the T21 thumb modifier -- that is leftalt, remapped
+# to Shift in Razer.conf.
+
+# T17 z
+"Super+Control+z" = { Spawn = '/home/max/Scripts/findOrLaunch.sh vesktop vesktop' }
+"Super+Control+Alt+z" = { Spawn = 'notify-send -a Tartarus "Z hold" "(unassigned)"' }
+"Super+Control+Shift+Z" = { Spawn = 'notify-send -a Tartarus "Z mod tap" "(unassigned)"' }
+"Super+Control+Alt+Shift+Z" = { Spawn = 'notify-send -a Tartarus "Z mod hold" "(unassigned)"' }
+
+# T18 x
+"Super+Control+x" = { Spawn = '/home/max/Scripts/tartarusTmux.sh "kill-pane"' }
+"Super+Control+Alt+x" = { Spawn = 'notify-send -a Tartarus "X hold" "(unassigned)"' }
+"Super+Control+Shift+X" = { Spawn = 'notify-send -a Tartarus "X mod tap" "(unassigned)"' }
+"Super+Control+Alt+Shift+X" = { Spawn = 'notify-send -a Tartarus "X mod hold" "(unassigned)"' }
+
+# T19 c -- start/stop the gestureControl user service, reporting which way it
+# went. Inlined rather than scripted: it is one systemctl branch.
+"Super+Control+c" = { Spawn = 'if systemctl --user is-active -q gestureControl; then systemctl --user stop gestureControl; notify-send -a gestureControl gestureControl stopped; else systemctl --user start gestureControl; notify-send -a gestureControl gestureControl started; fi' }
+"Super+Control+Alt+c" = { Spawn = 'notify-send -a Tartarus "C hold" "(unassigned)"' }
+"Super+Control+Shift+C" = { Spawn = 'notify-send -a Tartarus "C mod tap" "(unassigned)"' }
+"Super+Control+Alt+Shift+C" = { Spawn = 'notify-send -a Tartarus "C mod hold" "(unassigned)"' }
+
+# T20 space -- task capture. Shift does not change the space keysym, so the mod
+# rows keep the plain "space" token.
+"Super+Control+space" = { Spawn = 'bash /home/max/Scripts/captureTask.sh' }
+"Super+Control+Alt+space" = { Spawn = 'bash /home/max/Scripts/fileTasks.sh' }
+"Super+Control+Shift+space" = { Spawn = 'notify-send -a Tartarus "Space mod tap" "(unassigned)"' }
+"Super+Control+Alt+Shift+space" = { Spawn = 'notify-send -a Tartarus "Space mod hold" "(unassigned)"' }
