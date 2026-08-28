@@ -1,10 +1,4 @@
-//@theme "/usr/share/rofi/themes/arthur.rasi"
-
-//@theme "/home/max/.local/share/rofi/themes/rounded-nord-dark.rasi"
-
-//@theme "/usr/share/rofi/themes/material.rasi"
-
-//@theme "/home/max/.local/share/rofi/themes/rounded-nord-dark.rasi"
-
-@theme "/home/max/.local/share/rofi/themes/rounded-nord-dark.rasi"
-
+// Colours in the theme's palette block are regenerated from the current
+// wallpaper by ~/Scripts/rubixTheme.py; rofi reads the file at launch, so a
+// new wallpaper shows up on the next Super+space with nothing to reload.
+@theme "/home/max/dotfiles/.config/rofi/themes/rubixRounded.rasi"
