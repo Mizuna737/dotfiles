@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "qwenCode": {
+    "qwenCode_DISABLED_pendingRepair": {
       "type": "stdio",
       "command": "python3",
       "args": [
@@ -11,7 +11,9 @@
     "gitCommit": {
       "type": "stdio",
       "command": "python3",
-      "args": ["/home/max/Scripts/gitCommitMcp.py"],
+      "args": [
+        "/home/max/Scripts/gitCommitMcp.py"
+      ],
       "env": {}
     }
   }

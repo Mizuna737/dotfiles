@@ -1,14 +1,5 @@
 {
-  "model": "sonnet",
-  "enabledPlugins": {
-    "frontend-design@claude-plugins-official": true,
-    "clangd-lsp@claude-plugins-official": true
-  },
-  "effortLevel": "medium",
-  "advisorModel": "opus",
-  "tui": "default",
   "permissions": {
-    "defaultMode": "auto",
     "allow": [
       "Bash(/home/max/Scripts/indexQuery.py *)",
       "Bash(python3 /home/max/Scripts/indexQuery.py *)",
@@ -41,6 +32,16 @@
       "mcp__qwenCode__qwen_wait",
       "Bash(cd *)",
       "Bash(git diff *)"
-    ]
-  }
+    ],
+    "defaultMode": "auto"
+  },
+  "model": "opus",
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "clangd-lsp@claude-plugins-official": true
+  },
+  "effortLevel": "medium",
+  "tui": "default",
+  "agentPushNotifEnabled": true,
+  "inputNeededNotifEnabled": true
 }
