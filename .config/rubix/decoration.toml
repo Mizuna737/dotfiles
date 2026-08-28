@@ -16,7 +16,7 @@
 # `interval_seconds` each. The next image is decoded on a worker thread ahead
 # of the swap, so the change itself costs nothing.
 path = "~/wallpapers-hdr"
-interval_seconds = 1
+interval_seconds = 180
 mode = "Stretch"
 
 # Overall wallpaper brightness on DP-3.

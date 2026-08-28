@@ -14,6 +14,12 @@
 # like the bar or rofi, which keep their own keyboard focus.
 focus_follows_mouse = true
 
+# The counterpart to focus_follows_mouse: a keyboard or IPC focus change warps
+# the pointer to the centre of the newly focused window, instead of leaving it
+# wherever it was. Also flippable at runtime via Super+Alt+m
+# (ToggleMouseFollowsFocus), for A/B against Super+Alt+f above.
+mouse_follows_focus = true
+
 # Keybinds map a chord to a NavAction variant. The value is the *exact* Rust
 # variant name -- serde deserializes it straight into the enum, so there is no
 # translation table in code. Chord syntax: modifier tokens (Super/Alt/Ctrl/Shift,
@@ -72,6 +78,9 @@ focus_follows_mouse = true
 # Flip focus-follows-mouse live, for A/B without editing the config. See the
 # [input] section above -- a config save re-seeds it from the file.
 "Super+Alt+f" = "ToggleFocusFollowsMouse"
+# Flip mouse-follows-focus live, same reasoning as Super+Alt+f above -- the two
+# can be A/B'd against each other.
+"Super+Alt+m" = "ToggleMouseFollowsFocus"
 # Screenshots (wlr-screencopy -> grim), on the Scimitar's S1 button via keyd.
 # keyd (mouse.conf) emits these chords at the evdev level regardless of WM:
 #   S1 tap        -> Super+Ctrl+F1        (was `flameshot gui`)

@@ -5,3 +5,11 @@ action = { cmd = ["playerctl", "play-pause"], type = "exec" }
 [[bindings]]
 signal = "toggleGestureControl"
 action = { cmd = ["systemctl", "--user", "stop", "gestureControl"], type = "exec" }
+
+[[bindings]]
+signal = "browser_back"
+action = { cmd = ["xdotool", "key", "--clearmodifiers", "XF86Back"], type = "exec" }
+
+[[bindings]]
+signal = "browser_forward"
+action = { cmd = ["xdotool", "key", "--clearmodifiers", "XF86Forward"], type = "exec" }
