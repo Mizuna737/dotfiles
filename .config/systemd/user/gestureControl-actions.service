@@ -1,11 +1,13 @@
 [Unit]
 Description=Gesture control action daemon — D-Bus signals to commands
-After=default.target gestureControl.service
+PartOf=rubix-session.target
+After=rubix-session.target gestureControl.service
 
 [Service]
 Type=simple
 Environment=PYTHONUNBUFFERED=1
-Environment=DISPLAY=:0
+# DISPLAY comes from the session env (XWayland), so xdotool-based bindings keep
+# reaching X11 clients without pinning the engine to an X11 session.
 ExecStart=%h/.local/share/gesturecontrol/venv/bin/python3 %h/gesturecontrol/gestureControl-actions.py
 Restart=on-failure
 RestartSec=5
@@ -13,4 +15,4 @@ StandardOutput=append:%h/.cache/gesturecontrol-actions.log
 StandardError=append:%h/.cache/gesturecontrol-actions.log
 
 [Install]
-WantedBy=default.target
+WantedBy=rubix-session.target

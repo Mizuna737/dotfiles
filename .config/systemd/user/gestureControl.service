@@ -1,14 +1,18 @@
 [Unit]
 Description=Gesture control engine — webcam to D-Bus signals
-After=default.target
+PartOf=rubix-session.target
+After=rubix-session.target
 Wants=gestureControl-actions.service
 
 [Service]
 Type=simple
 Environment=PYTHONUNBUFFERED=1
-Environment=DISPLAY=:0
-Environment=XAUTHORITY=%h/.Xauthority
 Environment=LD_LIBRARY_PATH=/home/max/.local/share/gesturecontrol/cuda_shims
+# No DISPLAY/XAUTHORITY here: the session target imports DISPLAY *and*
+# WAYLAND_DISPLAY, and the presence screen-power code picks X11 (xset) whenever
+# DISPLAY is set without WAYLAND_DISPLAY. Hardcoding DISPLAY made blank-on-absence
+# and wake-on-presence silently no-op under Rubix; inheriting the session env
+# selects the wlroots backend (wlopm) instead.
 ExecStart=%h/.local/share/gesturecontrol/venv/bin/python3 %h/gesturecontrol/gestureControl.py
 Restart=on-failure
 RestartSec=5
@@ -16,4 +20,4 @@ StandardOutput=append:%h/.cache/gesturecontrol.log
 StandardError=append:%h/.cache/gesturecontrol.log
 
 [Install]
-WantedBy=default.target
+WantedBy=rubix-session.target

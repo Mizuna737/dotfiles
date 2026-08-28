@@ -1,5 +1,5 @@
 [Unit]
-Description=Watch Zen Browser boosts and sync pywal colors
+Description=Install the Zen page font named by pywalBoost.json
 After=default.target
 
 [Service]
