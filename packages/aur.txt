@@ -11,6 +11,7 @@ hytale-launcher-bin
 libdeep_filter_ladspa-bin
 minecraft-launcher
 minigalaxy
+mpvpaper
 nct6687d-dkms-git
 neofetch
 nitrogen
@@ -43,6 +44,7 @@ vieb
 vscodium-bin
 vtop
 windscribe-v2-bin
+wlrctl
 woeusb-ng
 yay
 zen-browser-bin

@@ -95,6 +95,7 @@ nmap
 noto-fonts-emoji
 nss-mdns
 nsxiv
+ntfsprogs
 nvidia-container-toolkit
 nvidia-open
 nvidia-settings
@@ -127,6 +128,7 @@ python-pipx
 python-pynvim
 python-pywal
 python-tldextract
+python-tomlkit
 qalculate-gtk
 qbittorrent
 qemu-full
@@ -177,11 +179,14 @@ virt-manager
 vivaldi
 vlc
 vtk
+vulkan-tools
 waybar
+weston
 wget
 wireless_tools
 wireplumber
 wl-clipboard
+wlopm
 woff2
 wol
 wpa_supplicant
