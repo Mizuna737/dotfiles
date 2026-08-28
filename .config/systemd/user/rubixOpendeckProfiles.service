@@ -1,0 +1,15 @@
+[Unit]
+Description=Follow Rubix window focus with OpenDeck profiles
+# OpenDeck's built-in application watcher is X11-only, so it never fires under
+# Rubix. This drives the same profile switches from Rubix's IPC socket instead.
+PartOf=rubix-session.target
+After=rubix-session.target opendeck.service
+Wants=opendeck.service
+
+[Service]
+ExecStart=%h/Scripts/rubixOpendeckProfiles.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=rubix-session.target

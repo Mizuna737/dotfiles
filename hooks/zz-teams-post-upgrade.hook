@@ -1,0 +1,32 @@
+# Reapply what a teams-for-linux upgrade throws away.
+#
+# An upgrade reinstalls /opt/teams-for-linux/resources/app.asar from the
+# package, silently undoing two things the desktop theme needs:
+#
+#   1. The CSS hot-reload patch (Scripts/patchTeamsHotReload.sh). Without it
+#      Teams reads customCSSLocation once at startup and never again, so the
+#      theme quietly stops following the wallpaper. This is exactly how it
+#      broke after the 2026-08-23 upgrade, with no error to notice.
+#   2. Ownership. rubixTheme.py rewrites seven bytes in the asar -- the
+#      Electron window's own background colour, which Teams hardcodes to a
+#      purple that flashes during resize -- and it does that unprivileged from
+#      a compositor hook, where a sudo prompt would simply hang.
+#
+# Sorts after teams-for-linux-notif.hook, which forks its own copy of /opt/
+# teams-for-linux; that fork is a notification listener with no custom CSS and
+# is deliberately left alone.
+#
+# `pacman -Qkk teams-for-linux-bin` will report the ownership and size changes.
+# That is expected, and is the point of this hook.
+
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = teams-for-linux
+Target = teams-for-linux-bin
+
+[Action]
+Description = Reapplying Teams CSS hot-reload patch and theming ownership...
+When = PostTransaction
+Exec = /home/max/Scripts/teamsPostUpgrade.sh
