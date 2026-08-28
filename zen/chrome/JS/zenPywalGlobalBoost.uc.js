@@ -1,13 +1,16 @@
 // ==UserScript==
 // @name           zenPywalGlobalBoost
-// @description    Applies pywal colors as a global Zen boost to all pages without a domain-specific boost. Live-reloads on pywal update.
+// @description    Applies rubix's wallpaper-derived theme as a global Zen boost to all pages without a domain-specific boost. Live-reloads when rubix re-solves the theme.
 // @include        main
 // ==/UserScript==
 
 (function () {
   const POLL_MS = 1000;
   const HOME = Services.dirsvc.get("Home", Ci.nsIFile).path;
-  const WAL_COLORS_PATH  = HOME + "/.cache/wal/colors.json";
+  // Rubix solves this from the wallpaper it is displaying and rewrites it on
+  // every change, including each slideshow step -- so polling it is what makes
+  // page tinting follow the desktop.
+  const RUBIX_THEME_PATH = HOME + "/.cache/rubix/theme.json";
   const WAL_CONFIG_PATH  = HOME + "/dotfiles/zen/pywalBoost.json";
   const FONT_META_PATH        = HOME + "/.cache/zenPywal/fontMeta.json";
   const DOMAIN_CACHE_PATH     = HOME + "/.cache/zenPywal/domainThemeCache.json";
@@ -82,18 +85,29 @@
 
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
-  function computeColorsFromWal(walJson) {
-    const colors = walJson.colors;
-    const [r6, g6, b6] = hexToRgb(colors.color6);
-    const [r3, g3, b3] = hexToRgb(colors.color3);
-    const [hue6, sat6, light6] = rgbToHsl(r6, g6, b6);
-    const [hue3] = rgbToHsl(r3, g3, b3);
+  // Which role drives which axis matters more than it looks.
+  //
+  // The pywal original read its hue from color6. Rubix's equivalent slot is the
+  // cyan ANSI colour, which is solved to hit a contrast target on a fixed hue --
+  // it lands within a few degrees of #00e8e8 whatever the wallpaper is, so
+  // driving from it would tint every page the same cyan forever. `accent` is
+  // the role that actually carries the wallpaper: a vivid colour sampled out of
+  // the image, deliberately skipping whatever covers most of it.
+  //
+  // Brightness comes from `background` rather than from the accent, so pages
+  // land at the same darkness as the desktop instead of at the accent's own
+  // lightness -- an accent is usually a bright colour, and inheriting its
+  // lightness would wash every page out.
+  function computeColorsFromTheme(theme) {
+    const [hueAccent, satAccent] = rgbToHsl(...hexToRgb(theme.accent.hex));
+    const [, , lightBg]          = rgbToHsl(...hexToRgb(theme.background.hex));
+    const [hueGlow]              = rgbToHsl(...hexToRgb(theme.glow.hex));
 
-    // cfg.saturation overrides pywal-derived value when set; lower = more vivid
-    const boostSat    = cfg.saturation !== null ? cfg.saturation : 1 - sat6;
-    const boostBright = clamp((light6 - 0.1) / 0.9, 0, 1);
-    const delta       = (hue3 - hue6 + 360) % 360;
-    const nsColor     = buildNsColor(hue6, boostSat, boostBright, cfg.contrast);
+    // cfg.saturation overrides the derived value when set; lower = more vivid
+    const boostSat    = cfg.saturation !== null ? cfg.saturation : 1 - satAccent;
+    const boostBright = clamp((lightBg - 0.1) / 0.9, 0, 1);
+    const delta       = (hueGlow - hueAccent + 360) % 360;
+    const nsColor     = buildNsColor(hueAccent, boostSat, boostBright, cfg.contrast);
     return { nsColor, delta };
   }
 
@@ -218,12 +232,12 @@
 
   async function loadWalColors() {
     try {
-      const raw = await IOUtils.readUTF8(WAL_COLORS_PATH);
-      const { nsColor, delta } = computeColorsFromWal(JSON.parse(raw));
+      const raw = await IOUtils.readUTF8(RUBIX_THEME_PATH);
+      const { nsColor, delta } = computeColorsFromTheme(JSON.parse(raw));
       pywalNsColor = nsColor;
       pywalDelta   = delta;
     } catch (e) {
-      console.warn("[zenPywalGlobalBoost] could not load colors.json:", e.message);
+      console.warn("[zenPywalGlobalBoost] could not load theme.json:", e.message);
       // Keep last known values; don't zero out on transient read error
     }
   }
@@ -234,7 +248,7 @@
     try {
       let changed = false;
 
-      const { lastModified: colorsMtime } = await IOUtils.stat(WAL_COLORS_PATH);
+      const { lastModified: colorsMtime } = await IOUtils.stat(RUBIX_THEME_PATH);
       if (colorsMtime !== lastMtime) { lastMtime = colorsMtime; changed = true; }
 
       try {

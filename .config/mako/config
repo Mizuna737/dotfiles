@@ -1,9 +1,9 @@
 # mako notification daemon config (Rubix session)
-# Static dark theme for now; pywal/theming-engine integration is a later issue.
+#
+# Colours come from rubix, derived from the current wallpaper; rubixTheme.py
+# regenerates the included file on every change and runs `makoctl reload`.
+# Everything here is layout and behaviour only.
 font=sans 11
-background-color=#1e1e2eee
-text-color=#cdd6f4
-border-color=#89b4fa
 border-size=2
 border-radius=8
 padding=12
@@ -12,6 +12,7 @@ default-timeout=6000
 anchor=top-right
 max-visible=5
 
+include=~/.cache/rubix/mako-theme.conf
+
 [urgency=critical]
-border-color=#f38ba8
 default-timeout=0
