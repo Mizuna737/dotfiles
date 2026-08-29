@@ -59,6 +59,7 @@ gst-plugin-pipewire
 gst-plugins-ugly
 gvfs
 hdf5
+imv
 inotify-tools
 iotop
 iwd

@@ -1,14 +1,55 @@
 [mgr]
 show_hidden = true
 
+# Openers. Each key is a name that [open] rules point at. The first entry of a
+# rule's `use` list runs on Enter/o; the rest are offered by `O`.
 [opener]
-edit = [{ run = 'nvim "$@"', block = true }]
-image = [
-  { run = 'feh --auto-zoom --scale-down --draw-filename "$@"', orphan = true },
+edit = [
+  { run = 'nvim "$@"', block = true, desc = "Edit in nvim" },
 ]
-[open]
-rules = [
-  { mime = "image/*", use = ["image"] },
+open = [
+  { run = 'xdg-open "$@"', orphan = true, desc = "Open in default app" },
+]
+image = [
+  { run = 'hdr-image-viewer "$@"', orphan = true, desc = "View (HDR)" },
+  { run = 'imv "$@"', orphan = true, desc = "View (imv)" },
+]
+play = [
+  { run = 'mpv --force-window "$@"', orphan = true, desc = "Play in mpv" },
+]
+extract = [
+  { run = 'ya pub extract --list "$@"', desc = "Extract here" },
+]
+reveal = [
+  { run = 'xdg-open "$(dirname "$1")"', orphan = true, desc = "Reveal containing folder" },
+]
 
-  # (keep your other rules below)
+# NOTE: `prepend_rules` merges ahead of yazi's built-in rules instead of
+# replacing them, so anything not matched here still falls back to a sane
+# default. Using a bare `rules =` here would silently delete every built-in
+# rule — that is what made Enter do nothing on non-image files.
+[open]
+prepend_rules = [
+  # Text and code -> nvim
+  { mime = "text/*", use = ["edit", "open", "reveal"] },
+  { mime = "inode/empty", use = ["edit", "open", "reveal"] },
+  { mime = "application/json", use = ["edit", "open", "reveal"] },
+  { mime = "application/{javascript,x-ndjson,toml,x-yaml,xml}", use = ["edit", "open", "reveal"] },
+  { mime = "application/x-{shellscript,perl,python-code,ruby}", use = ["edit", "open", "reveal"] },
+
+  # Media
+  { mime = "image/*", use = ["image", "open", "reveal"] },
+  { mime = "{audio,video}/*", use = ["play", "open", "reveal"] },
+
+  # Archives -> yazi's built-in extractor
+  { mime = "application/{zip,gzip,x-tar,x-bzip,x-bzip2,x-7z-compressed,x-rar,xz,zstd,x-xz,x-zstd}", use = ["extract", "open", "reveal"] },
+
+  # Documents, spreadsheets, presentations, PDFs -> xdg default (LibreOffice)
+  { mime = "application/{pdf,rtf,epub+zip}", use = ["open", "reveal"] },
+  { mime = "application/vnd.openxmlformats-officedocument.*", use = ["open", "reveal"] },
+  { mime = "application/vnd.oasis.opendocument.*", use = ["open", "reveal"] },
+  { mime = "application/{msword,vnd.ms-excel,vnd.ms-powerpoint}", use = ["open", "reveal"] },
+
+  # Catch-all: never leave Enter doing nothing again.
+  { url = "*", use = ["open", "edit", "reveal"] },
 ]
