@@ -102,25 +102,36 @@
 # switching tags walked the whole screen contents. Deliberately distinct from
 # a/d, which move focus without disturbing that order.
 "Super+Control+q" = "RotateColumnsLeft"
-"Super+Control+Alt+q" = { Spawn = 'notify-send -a Tartarus "Q hold" "was: cycle layout left — Rubix has no layout ring, only FlipSplitDirection (Super+r)"' }
+"Super+Control+Alt+q" = "MoveToNewColumnLeft"
 "Super+Control+Shift+Q" = { Spawn = '/home/max/Scripts/tartarusTmux.sh "previous-window"' }
 "Super+Control+Alt+Shift+Q" = { Spawn = 'notify-send -a Tartarus "Q mod hold" "was: previous tag, empty ones included — the column ring has no populated/empty distinction to skip"' }
 
-# T8 w -- the WASD block. Mod tap moves focus, mod hold moves the window.
-# The two focus axes are different mechanisms: a/d walk the active-column
-# pointer sideways (MoveActiveColumn, which leaves the ring order alone), w/s
-# scroll rows within the active column. Neither descends into a group's split
-# tree, so focus cannot cross two windows sharing one group -- that needs a
-# FocusDirection action Rubix does not have yet, at which point all four of
-# these mod-tap slots should re-point to it.
-"Super+Control+w" = "ScrollColumnUp"
+# T8 w -- the WASD block, four layers deep on one physical key:
+#
+#   tap       FocusWindow*        window-level. Walks the whole cube: past split
+#                                 boundaries inside a group, across group and
+#                                 column divides, wrapping at the far edge.
+#                                 Scrolls or spins the cube to bring the
+#                                 destination into view.
+#   hold      MoveFocusedWindow*  carry the focused window to the next group.
+#   mod tap   Scroll/MoveActiveColumn
+#                                 group-level, and deliberately dumb: a/d walk
+#                                 the active-column pointer, w/s scroll rows.
+#                                 No structure awareness, no wrapping -- this is
+#                                 the explicit version of what tap does for you.
+#   mod hold  SwapGroup*          trade the active group with its neighbour, the
+#                                 cursor following the group that moved.
+#
+# The mod-tap row previously held tmux `select-pane` and the Eisenhower/quickNotes
+# launchers; they were displaced by the group-level binds and still need a home.
+"Super+Control+w" = "FocusWindowUp"
 "Super+Control+Alt+w" = "MoveFocusedWindowUp"
-"Super+Control+Shift+W" = { Spawn = '/home/max/Scripts/tartarusTmux.sh "select-pane -U"' }
-"Super+Control+Alt+Shift+W" = { Spawn = 'notify-send -a Tartarus "W hold" "(unassigned)"' }
+"Super+Control+Shift+W" = "ScrollColumnUp"
+"Super+Control+Alt+Shift+W" = "SwapGroupUp"
 
 # T9 e
 "Super+Control+e" = "RotateColumnsRight"
-"Super+Control+Alt+e" = { Spawn = 'notify-send -a Tartarus "E mod hold" "was: next tag, empty ones included — the column ring has no populated/empty distinction to skip"' }
+"Super+Control+Alt+e" = "MoveToNewColumnRight"
 "Super+Control+Shift+E" = { Spawn = '/home/max/Scripts/tartarusTmux.sh "next-window"' }
 "Super+Control+Alt+Shift+E" = { Spawn = 'notify-send -a Tartarus "E hold" "was: cycle layout right — Rubix has no layout ring, only FlipSplitDirection (Super+r)"' }
 
@@ -142,25 +153,25 @@
 # key rather than binding Caps_Lock here.
 
 # T12 a
-"Super+Control+a" = "MoveActiveColumnLeft"
+"Super+Control+a" = "FocusWindowLeft"
 "Super+Control+Alt+a" = "MoveFocusedWindowLeft"
-"Super+Control+Shift+A" = { Spawn = '/home/max/Scripts/tartarusTmux.sh "select-pane -L"' }
-"Super+Control+Alt+Shift+A" = {Spawn = "notify-send -a Tartarus \"A hold\" \"(unassigned)\""}
+"Super+Control+Shift+A" = "MoveActiveColumnLeft"
+"Super+Control+Alt+Shift+A" = "SwapGroupLeft"
 
-# T13 s -- tap and hold open the Obsidian-side tools. In Awesome these were
-# toggleDropdownApp calls (show/hide a floating scratchpad); Rubix has no
-# dropdown concept, so they launch instead of toggling. Pressing twice gives a
-# second window rather than hiding the first.
-"Super+Control+s" = "ScrollColumnDown"
+# T13 s -- see the T8 w block for what the four layers mean.
+# DISPLACED, still needing a home: the Obsidian-side tools that lived on the two
+# mod rows -- eisenhower.sh (was mod tap, as tartarusTmux.sh's spawn fallback)
+# and quickNotes.sh (was mod hold).
+"Super+Control+s" = "FocusWindowDown"
 "Super+Control+Alt+s" = "MoveFocusedWindowDown"
-"Super+Control+Shift+S" = { Spawn = '/home/max/Scripts/tartarusTmux.sh "select-pane -D" "spawn:bash /home/max/Scripts/eisenhower.sh"' }
-"Super+Control+Alt+Shift+S" = { Spawn = 'kitty --class "Quick Notes" --override font_size=18.0 --override confirm_os_window_close=0 -e bash /home/max/Scripts/quickNotes.sh' }
+"Super+Control+Shift+S" = "ScrollColumnDown"
+"Super+Control+Alt+Shift+S" = "SwapGroupDown"
 
 # T14 d
-"Super+Control+d" = "MoveActiveColumnRight"
+"Super+Control+d" = "FocusWindowRight"
 "Super+Control+Alt+d" = "MoveFocusedWindowRight"
-"Super+Control+Shift+D" = { Spawn = '/home/max/Scripts/tartarusTmux.sh "select-pane -R"' }
-"Super+Control+Alt+Shift+D" = { Spawn = 'notify-send -a Tartarus "D hold" "(unassigned)"' }
+"Super+Control+Shift+D" = "MoveActiveColumnRight"
+"Super+Control+Alt+Shift+D" = "SwapGroupRight"
 
 # T15 f -- audio. Tap and hold hit the dashboard server's toggle endpoints
 # (localhost:9876), the same ones the old myFuncs.cycleSink/toggleVPN used, so
