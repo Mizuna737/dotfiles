@@ -75,7 +75,7 @@ inactive_color = "#45475a"
 # Well above sdr_white_nits, so focus is indicated by something SDR chrome
 # physically cannot do. Ignored on HDMI-A-1 and in screenshots, which get
 # active_color.
-active_luminance_nits = 400.0
+active_luminance_nits = 250.0
 
 # Focus glow. 12px of spill sits comfortably inside the 10px inner / 20px outer
 # gaps without neighbours bleeding into each other. Only the focused window
@@ -149,31 +149,32 @@ refract_dispersion = 0.6
 #   Breathing     same swell weighted to dwell low -- breathes, not blinks
 #   GradientFlow  travelling wave around the perimeter
 #   Comet         bright head chasing a fading tail around the perimeter
-active_effect = "Breathing"
+active_effect = "Comet"
 inactive_effect = "None"
 
 # Cycles per second, and how many times a second the effect is sampled.
 # effect_fps is a cost knob: the ring's inputs quantise to it, so at 30 the
 # border rebuilds and damages 30x/sec on a 165 Hz panel instead of 165.
 effect_speed = 0.2
-effect_fps = 24
+effect_fps = 60
 
 # THE HDR BIT. The effect swings the border between active_luminance_nits
-# (800, above) and this, at CONSTANT HUE -- a pure brightness animation,
+# (250, above) and this, at CONSTANT HUE -- a pure brightness animation,
 # which is the thing SDR chrome physically cannot do.
-active_effect_luminance_nits = 1000.0
+active_effect_luminance_nits = 600.0
 
 # How far the effect also dips ALPHA at its trough, 0.0-1.0.
 # 0.0 = pure luminance animation, nothing but brightness moves.
 # Zero: nothing but brightness moves.
 #
-# These numbers are WHITE-REFERRED -- they say what full white would emit, not
-# what this colour emits. #ffb4fa is saturated, so it lands well below its
-# setting: 500 -> 304 nits actual, 950 -> 578 nits actual. The panel's
-# measured peak is 604 (EDID HDR Static Metadata, LG ULTRAGEAR+), so 950 sits
-# just under the ceiling and 990 would be the point where this colour clips.
-# A whiter border would clip far sooner -- pure white clips at 604 flat.
-effect_depth = 0.0
+# Both nit values above are what the border actually EMITS -- 600 is 600
+# cd/m^2 whatever the colour. (Before 2026-08-30 they were white-referred and
+# a saturated colour landed ~40% under its setting; 400/1000 then is 250/600
+# now, which is why these numbers moved without the border changing.)
+#
+# The panel's measured peak is 604 (EDID HDR Static Metadata, LG ULTRAGEAR+),
+# so 600 rides right at the ceiling and anything above it just clips there.
+effect_depth = 0.5
 # ---------------------------------------------------------------------------
 
 [[decoration.rule]]
