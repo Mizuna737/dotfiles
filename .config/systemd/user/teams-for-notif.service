@@ -2,6 +2,10 @@
 Description=Teams for Linux — notification-capture instance (Rubix session)
 PartOf=rubix-session.target
 After=rubix-session.target
+# Give up instead of grinding: a wrong DISPLAY (Xwayland respawning onto a new
+# display number) used to restart this 1300+ times overnight, unnoticed.
+StartLimitIntervalSec=300
+StartLimitBurst=5
 
 [Service]
 # Wrapper bakes in --ozone-platform=x11 --trayIconEnabled=false --mute-audio
