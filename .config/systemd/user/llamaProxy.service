@@ -1,6 +1,7 @@
 [Unit]
 Description=llama.cpp token-budgeting proxy
 After=llamaServer.service
+OnFailure=notifyFailure@%n.service
 
 [Service]
 Type=simple

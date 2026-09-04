@@ -1,6 +1,7 @@
 [Unit]
 Description=llamaServer resource guard (stops server on high RAM/VRAM or fullscreen)
 After=graphical-session.target
+OnFailure=notifyFailure@%n.service
 
 [Service]
 Type=simple

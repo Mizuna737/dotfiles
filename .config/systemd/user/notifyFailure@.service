@@ -1,0 +1,6 @@
+[Unit]
+Description=Announce failure of %i on the desktop and via ntfy
+
+[Service]
+Type=oneshot
+ExecStart=/home/max/Scripts/notifyFailure.sh %i

@@ -1,6 +1,7 @@
 [Unit]
 Description=Qwen3-35B TurboQuant llama.cpp inference server
 After=network.target
+OnFailure=notifyFailure@%n.service
 
 [Service]
 Type=simple
