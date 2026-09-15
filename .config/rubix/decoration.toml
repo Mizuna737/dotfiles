@@ -89,7 +89,7 @@ glow_falloff = 2.0
 #
 # On DP-3 this blends in the linear working space rather than in gamma-encoded
 # values, so translucency composites in light.
-active_opacity = 0.90
+active_opacity = 0.97
 inactive_opacity = 0.75
 
 # Windows buried under a promoted window drop most of the way out, so what shows
@@ -181,3 +181,25 @@ effect_depth = 0.5
 title = "youtube"
 active_opacity = 1.0
 inactive_opacity = 1.0
+[[decoration.rule]]
+title = "dashboard"
+inactive_opacity = 0.95
+[[decoration.rule]]
+title = "amazon"
+active_opacity = 1.0
+[[decoration.rule]]
+title = "valheim"
+active_opacity = 1.0
+# Windows locked solid with Super+Alt+o get a red border, focused or not. Kept
+# last so no app rule above can repaint it.
+[[decoration.rule]]
+effects_locked = true
+active_effect = "Comet"
+inactive_effect = "Comet"
+# Unlocked inactive borders have no brightness of their own, so without these
+# the pulse only fades the red in and out at SDR level. Kept under the focused
+# ring's 250/600 so focus still reads as the brightest thing on screen.
+inactive_luminance_nits = 150.0
+inactive_effect_luminance_nits = 400.0
+active_color = "#ff0000"
+inactive_color = "#ff0000"
