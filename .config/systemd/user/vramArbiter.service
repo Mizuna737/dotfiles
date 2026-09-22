@@ -1,0 +1,13 @@
+[Unit]
+Description=vramArbiter GPU/VRAM admission broker
+After=graphical-session.target
+OnFailure=notifyFailure@%n.service
+
+[Service]
+Type=simple
+ExecStart=/home/max/Scripts/vramArbiter.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
