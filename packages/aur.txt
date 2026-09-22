@@ -7,7 +7,6 @@ droidcam
 ftb-app-bin
 gcc11
 hdr-image-viewer-git
-hdr-image-viewer-git-debug
 hhpc-git
 hytale-launcher-bin
 libdeep_filter_ladspa-bin
@@ -27,6 +26,7 @@ proton-ge-custom-bin
 protontricks-git
 python313
 python-haishoku
+python-holidays
 rar
 resticprofile
 rimpy-bin

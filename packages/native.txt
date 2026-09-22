@@ -11,6 +11,7 @@ awesome
 base
 base-devel
 bat
+bind
 bitwarden-cli
 blueman
 bluez
@@ -85,6 +86,7 @@ man-db
 mda.lv2
 mediainfo
 mesa-utils
+mosquitto
 mpv
 mscp
 mtools
@@ -122,9 +124,12 @@ prismlauncher
 prrte
 pugixml
 pv
+python-docx
 python-fonttools
 python-lz4
 python-opencv
+python-openpyxl
+python-pandas
 python-pipx
 python-pynvim
 python-pywal

@@ -10,4 +10,5 @@
 # the Rubix session target (mako, copyq, polkit, swaybg, teams-for-notif).
 startup = [
   "systemctl --user import-environment WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP && systemctl --user start rubix-session.target",
+  "bash ~/.config/dashboard/dashboardLaunch.sh",
 ]

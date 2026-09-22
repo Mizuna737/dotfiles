@@ -5,6 +5,7 @@
   }
 -%>
 ---
+pronouns:
 role: 
 team: 
 relationship: <% await tp.system.suggester(["direct report", "peer", "stakeholder", "external", "upline", "downline"], ["direct report", "peer", "stakeholder", "external", "upline", "downline"], false) ?? "" %>

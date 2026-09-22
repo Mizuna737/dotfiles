@@ -1,8 +1,16 @@
-# Replace YOUR_DOMAIN with your DuckDNS (or other) hostname.
+# Public entry point for the home box.
 # Install: sudo cp .config/caddy/Caddyfile /etc/caddy/Caddyfile && sudo systemctl enable --now caddy
 
 mizuna.tplinkdns.com {
-    reverse_proxy localhost:9876
+    # Calendar feed posted daily by the Power Automate flow.
+    handle /calendarSync* {
+        reverse_proxy localhost:9878
+    }
+
+    # Everything else is the dashboard / remoteChat server.
+    handle {
+        reverse_proxy localhost:9876
+    }
 
     header {
         Strict-Transport-Security "max-age=31536000; includeSubDomains"

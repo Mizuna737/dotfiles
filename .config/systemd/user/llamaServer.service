@@ -1,7 +1,19 @@
 [Unit]
 Description=Qwen3-35B TurboQuant llama.cpp inference server
-After=network.target
+After=network.target graphical-session.target
 OnFailure=notifyFailure@%n.service
+
+# Docker injects the GPU via CDI, which stats /dev/nvidia-modeset. That node only
+# exists once a display server has driven the card, so a start before Rubix is up
+# fails on CDI injection. A failed condition skips the unit silently instead of
+# failing it, which keeps OnFailure= from paging on every boot-time retry.
+ConditionPathExists=/dev/nvidia-modeset
+
+# A genuine crash loop should announce itself a few times and then stop, rather
+# than restarting every 10s forever. RestartSec is longer than the default rate
+# limit window, so the window has to be widened for the burst cap to ever apply.
+StartLimitIntervalSec=300
+StartLimitBurst=3
 
 [Service]
 Type=simple

@@ -15,6 +15,15 @@
         "/home/max/Scripts/gitCommitMcp.py"
       ],
       "env": {}
+    },
+    "taskMcp": {
+      "type": "stdio",
+      "command": "/home/max/Projects/taskMcp/.venv/bin/python",
+      "args": [
+        "-m",
+        "taskMcp"
+      ],
+      "env": {}
     }
   }
 }

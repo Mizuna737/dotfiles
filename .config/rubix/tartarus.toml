@@ -89,9 +89,9 @@
 # Mod tap is the exception: tempStack() was Awesome's alt-tab, and `rofi -show
 # window` over wlr-foreign-toplevel is the same gesture, so it is bound rather
 # than stubbed (also on Super+Tab in input.toml).
-"Super+Control+Tab" = { Spawn = 'notify-send -a Tartarus "Tab tap" "was: stack all windows on tag — Rubix has no window stacking"' }
+"Super+Control+Tab" = { Spawn = "rofi -show window" }
 "Super+Control+Alt+Tab" = { Spawn = 'notify-send -a Tartarus "Tab hold" "was: stack related windows — Rubix has no window stacking"' }
-"Super+Control+Shift+ISO_Left_Tab" = { Spawn = "rofi -show window" }
+"Super+Control+Shift+ISO_Left_Tab" = { Spawn = 'notify-send -a Tartarus "Tab tap" "was: stack all windows on tag — Rubix has no window stacking"' }
 "Super+Control+Alt+Shift+ISO_Left_Tab" = { Spawn = 'notify-send -a Tartarus "Tab mod hold" "was: stack all windows globally — Rubix has no window stacking"' }
 
 # T7 q -- tap was "cycle stack forward, else tmux previous-window". The stack

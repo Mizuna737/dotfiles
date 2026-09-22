@@ -1,0 +1,20 @@
+# Window placement rules.
+#
+# Every *.toml under this directory is loaded and merged, so the split
+# across files is organisational only -- move things wherever suits you.
+#
+# See config/default/rules.toml (in the rubix repo) for the full explanation
+# of matching and slot semantics.
+
+# Dashboard webkit view (dashboardLaunch.sh) lands on the portrait strip,
+# top-left slot, instead of splitting whatever's focused on the primary.
+#
+# app_id is inferred from webkitView.py's Gdk.set_program_class("Dashboard")
+# under native Wayland -- NOT yet confirmed against a live session. If this
+# rule doesn't fire, check the real app_id via the `GetState` IPC command
+# and correct this to match.
+[[rule]]
+app_id = "dashboard"
+output = "HDMI-A-1"
+column = 0
+row = 0
