@@ -27,6 +27,7 @@ protontricks-git
 python313
 python-haishoku
 python-holidays
+python-pywal
 rar
 resticprofile
 rimpy-bin

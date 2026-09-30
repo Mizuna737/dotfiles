@@ -132,7 +132,6 @@ python-openpyxl
 python-pandas
 python-pipx
 python-pynvim
-python-pywal
 python-tldextract
 python-tomlkit
 qalculate-gtk
