@@ -6,10 +6,19 @@ action = { cmd = ["playerctl", "play-pause"], type = "exec" }
 signal = "toggleGestureControl"
 action = { cmd = ["systemctl", "--user", "stop", "gestureControl"], type = "exec" }
 
+# A two-finger swipe rotates the cube's columns. These were the browser
+# back/forward binds, which synthesised XF86Back/XF86Forward through xdotool --
+# that only ever reached X11 clients, so under Rubix they landed nowhere once the
+# browser went native Wayland. Repurposed rather than deleted to keep the swipe
+# tuning.
+#
+# Sent straight down the compositor's socket because a swipe is one discrete
+# event: there is nothing to remember between frames, so it needs no part of
+# rubixGestureBridge, which exists only for the gestures that do.
 [[bindings]]
-signal = "browser_back"
-action = { cmd = ["xdotool", "key", "--clearmodifiers", "XF86Back"], type = "exec" }
+signal = "rotateColumnsLeft"
+action = { cmd = ["sh", "-c", '''printf '{"type":"action","action":"RotateColumnsLeft"}\n' | socat - UNIX-CONNECT:$XDG_RUNTIME_DIR/rubix.sock'''], type = "exec" }
 
 [[bindings]]
-signal = "browser_forward"
-action = { cmd = ["xdotool", "key", "--clearmodifiers", "XF86Forward"], type = "exec" }
+signal = "rotateColumnsRight"
+action = { cmd = ["sh", "-c", '''printf '{"type":"action","action":"RotateColumnsRight"}\n' | socat - UNIX-CONNECT:$XDG_RUNTIME_DIR/rubix.sock'''], type = "exec" }

@@ -8,15 +8,15 @@ spreadThreshold = 0.4
 spread_threshold = 0.15
 
 [presence]
-checkHz = 2
 enabled = true
+useMotionDetection = false
 idleSeconds = 60
 motionThreshold = 5
-pauseHandsWhenAbsent = true
+checkHz = 2
 poseCheckMode = "fallback"
+pauseHandsWhenAbsent = true
 poseDetection = true
 poseMinConfidence = 0.5
-useMotionDetection = true
 
 [[poses]]
 name = "FIST"
@@ -129,52 +129,35 @@ ring = false
 pinky = true
 
 [[bindings]]
-name = "tag_cycle"
-require = [{ hand = "left", pose = "THREE" }]
-trigger = { hand = "left", hysteresis = 0.1, metric = "pinchDistance", range = [
-  0.05,
-  0.3,
-], type = "continuous" }
+name = "visibleColumns"
+require = [{hand = "left", pose = "THREE"}]
+trigger = { type = "continuous", metric = "pinchDistance", range = [0.1, 0.3], hysteresis = 0.1, hand = "left" }
 
 [[bindings]]
 name = "set_volume"
-require = [{ hand = "either", pose = "OK" }]
-trigger = { hand = "either", metric = "angle", range = [
-  0,
-  1,
-], type = "continuous" }
+require = [{hand = "either", pose = "OK"}]
+trigger = { hand = "either", metric = "angle", range = [0, 1], type = "continuous" }
 
 [[bindings]]
-name = "window_cycle"
-require = [{ hand = "either", pose = "SIGN" }]
-trigger = { hand = "left", hysteresis = 0.1, metric = "pinchDistance", range = [
-  0.1,
-  0.2,
-], type = "continuous" }
+name = "focusWindow"
+require = [{hand = "either", pose = "SIGN"}]
+trigger = { hand = "left", hysteresis = 0.1, metric = "pinchDistance", range = [0.1, 0.2], type = "continuous" }
 
 [[bindings]]
 name = "play_pause"
-trigger = { hand = "left", stepDwellMs = 500, steps = [
-  "FIST",
-  "FIVE",
-], type = "sequence", windowMs = 3000 }
+trigger = { hand = "left", stepDwellMs = 500, steps = ["FIST", "FIVE"], type = "sequence", windowMs = 3000 }
 
 [[bindings]]
-name = "browser_back"
-require = [{ hand = "either", pose = "TWO" }]
-trigger = { type = "swipe", direction = "left", minDisplacement = 0.3, hand = "either" }
+name = "rotateColumnsLeft"
+require = [{hand = "either", pose = "TWO"}]
+trigger = { direction = "left", hand = "either", minDisplacement = 0.3, type = "swipe" }
 
 [[bindings]]
-name = "browser_forward"
-require = [{ hand = "either", pose = "TWO" }]
-trigger = { type = "swipe", direction = "right", minDisplacement = 0.1, hand = "either" }
+name = "rotateColumnsRight"
+require = [{hand = "either", pose = "TWO"}]
+trigger = { direction = "right", hand = "either", minDisplacement = 0.1, type = "swipe" }
 
 [[bindings]]
 name = "toggleGestureControl"
-require = [{ hand = "right", pose = "OPEN_PALM" }]
-trigger = { hand = "left", stepDwellMs = 80, steps = [
-  "FOUR",
-  "LLAP",
-  "FOUR",
-  "FIST",
-], type = "sequence", windowMs = 2500 }
+require = [{hand = "right", pose = "OPEN_PALM"}]
+trigger = { hand = "left", stepDwellMs = 80, steps = ["FOUR", "LLAP", "FOUR", "FIST"], type = "sequence", windowMs = 2500 }
