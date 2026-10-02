@@ -1,0 +1,21 @@
+[Unit]
+Description=gestureControl tray icon — engine status and controls
+# The XDG autostart entry that used to launch this only runs under a desktop
+# that processes ~/.config/autostart, which Rubix does not. The two are
+# mutually exclusive rather than duplicated: this unit is wanted by
+# rubix-session.target, so an X11/AwesomeWM session still gets the autostart
+# copy and no session gets both.
+PartOf=rubix-session.target
+After=rubix-session.target
+
+[Service]
+Type=simple
+Environment=PYTHONUNBUFFERED=1
+ExecStart=%h/.local/share/gesturecontrol/venv/bin/python3 %h/gesturecontrol/gestureControl-tray.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=append:%h/.cache/gesturecontrol-tray.log
+StandardError=append:%h/.cache/gesturecontrol-tray.log
+
+[Install]
+WantedBy=rubix-session.target

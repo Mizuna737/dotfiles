@@ -1,0 +1,20 @@
+[Unit]
+Description=Rubix gesture bridge — continuous gesture signals to compositor IPC
+# Needs the engine for its D-Bus signals and Rubix for its socket, but hard
+# ordering is all either dependency warrants: the bridge reconnects to the Rubix
+# socket per request and D-Bus signal delivery does not care which process
+# appeared first, so neither one coming up late leaves it in a bad state.
+PartOf=rubix-session.target
+After=rubix-session.target gestureControl.service
+
+[Service]
+Type=simple
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 %h/Scripts/rubixGestureBridge.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=append:%h/.cache/rubixGestureBridge.log
+StandardError=append:%h/.cache/rubixGestureBridge.log
+
+[Install]
+WantedBy=rubix-session.target
