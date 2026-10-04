@@ -1,11 +1,10 @@
 [settings]
-camera = 2
+camera = 0
 dwellMs = 50
-format = "GREY"
+format = "YUYV"
 fps = 30
 gracePeriodMs = 200
 spreadThreshold = 0.4
-spread_threshold = 0.15
 
 [presence]
 enabled = true

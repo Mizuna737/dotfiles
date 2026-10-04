@@ -1,0 +1,18 @@
+[Unit]
+Description=gestureControl audio tick feedback — D-Bus gesture signals to short sounds
+# Pure D-Bus consumer: signals are heard whenever the engine appears, and the
+# audio player is respawned if PipeWire restarts, so ordering is all it needs.
+PartOf=rubix-session.target
+After=rubix-session.target gestureControl.service
+
+[Service]
+Type=simple
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 %h/Scripts/gestureFeedback.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=append:%h/.cache/gestureFeedback.log
+StandardError=append:%h/.cache/gestureFeedback.log
+
+[Install]
+WantedBy=rubix-session.target
