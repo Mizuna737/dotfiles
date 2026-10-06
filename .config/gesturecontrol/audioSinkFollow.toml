@@ -1,0 +1,8 @@
+# audioSinkFollow.py settings. Read on every WearableChanged signal.
+enabled = true            # false: stop switching the default sink
+wearable = "headphones"   # only this wearable's changes drive the sink
+
+[sinks]
+# Names from `pactl list short sinks`.
+headphones = "alsa_output.usb-Burr-Brown_from_TI_USB_Audio_CODEC-00.analog-stereo-output"  # while worn
+speakers = "alsa_output.pci-0000_2d_00.4.analog-stereo"                                    # while off head

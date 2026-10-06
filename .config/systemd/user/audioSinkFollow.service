@@ -1,0 +1,18 @@
+[Unit]
+Description=audioSinkFollow — switch the default sink when webcam headphone detection changes
+# Pure D-Bus consumer: the signal match is installed on the bus, so it is heard
+# whenever the engine appears or restarts; ordering is all it needs.
+PartOf=rubix-session.target
+After=rubix-session.target gestureControl.service
+
+[Service]
+Type=simple
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 %h/Scripts/audioSinkFollow.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=append:%h/.cache/audioSinkFollow.log
+StandardError=append:%h/.cache/audioSinkFollow.log
+
+[Install]
+WantedBy=rubix-session.target

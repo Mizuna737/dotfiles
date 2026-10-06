@@ -17,6 +17,16 @@ pauseHandsWhenAbsent = true
 poseDetection = true
 poseMinConfidence = 0.5
 
+[wearable]
+# Emits WearableChanged when headphones go on or off the head. Needs presence.poseDetection.
+enabled = true
+# Consecutive agreeing samples (checkHz per second) before the state flips
+hysteresis = 3
+# First argument of the WearableChanged signal
+name = "headphones"
+# Samples whose top class probability is below this are ignored; 0 uses every sample
+minConfidence = 0.0
+
 [[poses]]
 name = "FIST"
 thumb = false
