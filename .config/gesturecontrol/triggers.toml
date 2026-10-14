@@ -7,25 +7,15 @@ gracePeriodMs = 200
 spreadThreshold = 0.4
 
 [presence]
+checkHz = 2
 enabled = true
-useMotionDetection = false
 idleSeconds = 60
 motionThreshold = 5
-checkHz = 2
-poseCheckMode = "fallback"
 pauseHandsWhenAbsent = true
+poseCheckMode = "fallback"
 poseDetection = true
 poseMinConfidence = 0.5
-
-[wearable]
-# Emits WearableChanged when headphones go on or off the head. Needs presence.poseDetection.
-enabled = true
-# Consecutive agreeing samples (checkHz per second) before the state flips
-hysteresis = 3
-# First argument of the WearableChanged signal
-name = "headphones"
-# Samples whose top class probability is below this are ignored; 0 uses every sample
-minConfidence = 0.0
+useMotionDetection = false
 
 [[poses]]
 name = "FIST"
@@ -137,10 +127,19 @@ middle = false
 ring = false
 pinky = true
 
+[[poses]]
+name = "Double L"
+thumb = true
+index = true
+middle = true
+ring = false
+pinky = false
+spreadIndexMiddle = "close"
+
 [[bindings]]
 name = "visibleColumns"
 require = [{hand = "left", pose = "THREE"}]
-trigger = { type = "continuous", metric = "pinchDistance", range = [0.1, 0.3], hysteresis = 0.1, hand = "left" }
+trigger = { hand = "left", hysteresis = 0.1, metric = "pinchDistance", range = [0.1, 0.3], type = "continuous" }
 
 [[bindings]]
 name = "set_volume"
@@ -149,8 +148,8 @@ trigger = { hand = "either", metric = "angle", range = [0, 1], type = "continuou
 
 [[bindings]]
 name = "focusWindow"
-require = [{hand = "either", pose = "SIGN"}]
-trigger = { hand = "left", hysteresis = 0.1, metric = "pinchDistance", range = [0.1, 0.2], type = "continuous" }
+require = [{hand = "either", pose = "Double L"}]
+trigger = { type = "continuous", metric = "pinchDistance", range = [0.1, 0.2], hysteresis = 0.1, hand = "left" }
 
 [[bindings]]
 name = "play_pause"
@@ -170,3 +169,17 @@ trigger = { direction = "right", hand = "either", minDisplacement = 0.1, type = 
 name = "toggleGestureControl"
 require = [{hand = "right", pose = "OPEN_PALM"}]
 trigger = { hand = "left", stepDwellMs = 80, steps = ["FOUR", "LLAP", "FOUR", "FIST"], type = "sequence", windowMs = 2500 }
+
+[wearable]
+# Emits WearableChanged when headphones go on or off the head. Needs presence.poseDetection.
+enabled = true
+# Consecutive agreeing samples (checkHz per second) before the state flips on
+hysteresis = 3
+# Samples needed to flip back to off-head. Held to a stricter bar than putting
+# them on: a false "took them off" dumps audio to the speakers, while a false
+# "put them on" is inaudible. Must exceed the longest observed error run (3).
+hysteresisOff = 4
+# First argument of the WearableChanged signal
+name = "headphones"
+# Samples whose top class probability is below this are ignored; 0 uses every sample
+minConfidence = 0.0
