@@ -38,3 +38,8 @@ plugins/
 
 # keybind editor safety backups (dashboard keybindStore.py)
 *.toml.bak
+
+# Sunshine: track config only; pairing keys, client state and logs stay local
+.config/sunshine/credentials/
+.config/sunshine/sunshine_state.json
+.config/sunshine/sunshine.log*
