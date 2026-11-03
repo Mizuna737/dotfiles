@@ -37,9 +37,16 @@ hdr = true
 
 [[output]]
 name = "HDMI-A-1" # physically-portrait panel, rotated to a landscape strip
+visible_columns = 1 # one column: each window fills the screen width
 mode = "400x1280" # native (portrait) mode; transform makes it 1280x400
 transform = "right" # = xrandr "rotate right"; if it comes out mirrored, use "left"
 position = [
   1036,
   1440,
 ] # directly below the primary (y=1440), matching DefaultLayout.sh
+
+[[output]]
+name = "DP-1" # fake 4K head (debugfs EDID override) that Sunshine streams to the Apple TV
+position = [3440, 0] # right of the primary, clear of the strip
+mode = "3840x2160"
+visible_columns = 1 # one column: each window fills the screen width
