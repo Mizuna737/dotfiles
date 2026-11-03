@@ -10,6 +10,7 @@ hdr-image-viewer-git
 hhpc-git
 hytale-launcher-bin
 libdeep_filter_ladspa-bin
+microsoft-edge-stable-bin
 minecraft-launcher
 minigalaxy
 mpvpaper
@@ -36,6 +37,7 @@ satty-git
 simplescreenrecorder
 smem
 steamcmd
+sunshine-bin
 teams-for-linux-bin
 teamviewer
 todoist-appimage

@@ -13,6 +13,20 @@ Environment=LD_LIBRARY_PATH=/home/max/.local/share/gesturecontrol/cuda_shims
 # DISPLAY is set without WAYLAND_DISPLAY. Hardcoding DISPLAY made blank-on-absence
 # and wake-on-presence silently no-op under Rubix; inheriting the session env
 # selects the wlroots backend (wlopm) instead.
+# Re-pin the Brio before opening it. These are UVC device controls, not driver
+# config: they reset on every replug and reboot, and unpinned the camera drifts
+# ~50 luma brighter than the clip corpus the wearable classifier was trained on,
+# which misclassifies. Leading '-' so a missing or busy camera cannot stop the
+# engine from starting.
+#
+# EXPOSURE_TIME=0 deliberately leaves auto-exposure ON and pins only the
+# controls that have one correct value (white balance, focus, backlight
+# compensation, exposure_dynamic_framerate). There is no single right exposure:
+# the script measures 40 for a bright backlit day and 400 for evening, and
+# either one is badly wrong in the other condition. Run the script by hand with
+# the matching preset when brightness needs to match the corpus.
+Environment=EXPOSURE_TIME=0
+ExecStartPre=-%h/Scripts/brioCameraPin.sh
 ExecStart=%h/.local/share/gesturecontrol/venv/bin/python3 %h/gesturecontrol/gestureControl.py
 Restart=on-failure
 RestartSec=5

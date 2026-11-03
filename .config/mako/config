@@ -16,9 +16,3 @@ include=~/.cache/rubix/mako-theme.conf
 
 [urgency=critical]
 default-timeout=0
-
-# teams-for-notif runs headless: workAssistant's notifWatcher reads its
-# notifications straight off D-Bus, so nothing needs to appear on screen.
-# The notification is still delivered — it just never draws.
-[app-name=teams-for-notif]
-invisible=1

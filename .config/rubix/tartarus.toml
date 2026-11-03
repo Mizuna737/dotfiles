@@ -189,10 +189,18 @@
 # Row 4 -- leftshift, z, x, c, space.
 # ===========================================================================
 
-# T16 leftshift is deliberately unbound, for the same reason as T11 above: keyd
-# emits Super+Ctrl+Shift_L, tartarus.lua bound "7", and the key never did
-# anything. Note this is NOT the T21 thumb modifier -- that is leftalt, remapped
-# to Shift in Razer.conf.
+# T16 flag a wearable misfire -- tap saves the last ~5s of camera frames as a
+# labelled counter-example for the headphone detector and notifies the result.
+# keyd emits KEY_F13 for this key (a bare Shift_L cannot end a chord). The chord
+# below says XF86Tools, not F13, and that is not a typo: xkb's `pc` symbols only
+# define F1-F12, so keycode 191 (KEY_F13) picks up its keysym from `inet`, which
+# maps <FK13> to XF86Tools. `xkbcli compile-keymap --layout us` shows it directly:
+#   key <FK13> { [ XF86Tools ] };
+# Binding "F13" here silently never matches. The upside is that no physical key
+# on any attached keyboard emits XF86Tools, so this chord cannot collide.
+# This is NOT the T21 thumb modifier -- that is leftalt, remapped to Shift in
+# Razer.conf. Hold and the Shift variants are left unbound.
+"Super+Control+XF86Tools" = { Spawn = '/home/max/.local/share/gesturecontrol/venv/bin/python3 /home/max/gesturecontrol/tests/flagWearable.py' }
 
 # T17 z
 "Super+Control+z" = { Spawn = '/home/max/Scripts/findOrLaunch.sh vesktop vesktop' }

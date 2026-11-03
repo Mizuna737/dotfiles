@@ -183,3 +183,11 @@ hysteresisOff = 4
 name = "headphones"
 # Samples whose top class probability is below this are ignored; 0 uses every sample
 minConfidence = 0.0
+
+[capture]
+# Keeps the last few seconds of camera frames so a misfire can be saved on demand
+enabled = true
+# Seconds of history kept
+bufferSeconds = 5
+# Frames kept per second of history
+bufferFps = 15

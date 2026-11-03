@@ -11,6 +11,7 @@ awesome
 base
 base-devel
 bat
+binaryen
 bind
 bitwarden-cli
 blueman
@@ -149,6 +150,7 @@ rofi
 rofi-calc
 rsync
 ruby-yard
+rust-wasm
 samba
 seatd
 signal-desktop
@@ -175,6 +177,7 @@ ttf-fira-code
 ttf-firacode-nerd
 ttf-liberation
 ttf-nerd-fonts-symbols-common
+typst
 ueberzug
 ufw
 unclutter
@@ -185,6 +188,8 @@ vivaldi
 vlc
 vtk
 vulkan-tools
+wasm-bindgen
+wasm-pack
 waybar
 weston
 wget
