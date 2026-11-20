@@ -94,16 +94,15 @@
 "Super+Control+Shift+ISO_Left_Tab" = { Spawn = 'notify-send -a Tartarus "Tab tap" "was: stack all windows on tag — Rubix has no window stacking"' }
 "Super+Control+Alt+Shift+ISO_Left_Tab" = { Spawn = 'notify-send -a Tartarus "Tab mod hold" "was: stack all windows globally — Rubix has no window stacking"' }
 
-# T7 q -- tap was "cycle stack forward, else tmux previous-window". The stack
-# half is gone, so only the tmux half remains; tartarusTmux.sh no-ops outside a
-# terminal rather than doing something unrelated.
+# T7 q -- mod tap (T21 held) rotates only each column's active row; on both
+# 7 and 9 it replaced tmux previous/next-window, which has no Tartarus key now.
 # Mod tap held the prev/next-tag pair, and rotating the cube ring is the nearest
 # Rubix gesture: it walks the whole column order past the focus point, the way
 # switching tags walked the whole screen contents. Deliberately distinct from
 # a/d, which move focus without disturbing that order.
 "Super+Control+q" = "RotateColumnsLeft"
 "Super+Control+Alt+q" = "MoveToNewColumnLeft"
-"Super+Control+Shift+Q" = { Spawn = '/home/max/Scripts/tartarusTmux.sh "previous-window"' }
+"Super+Control+Shift+Q" = "RotateActiveGroupsLeft" # rotate only each column's active row
 "Super+Control+Alt+Shift+Q" = { Spawn = 'notify-send -a Tartarus "Q mod hold" "was: previous tag, empty ones included — the column ring has no populated/empty distinction to skip"' }
 
 # T8 w -- the WASD block, four layers deep on one physical key:
@@ -132,7 +131,7 @@
 # T9 e
 "Super+Control+e" = "RotateColumnsRight"
 "Super+Control+Alt+e" = "MoveToNewColumnRight"
-"Super+Control+Shift+E" = { Spawn = '/home/max/Scripts/tartarusTmux.sh "next-window"' }
+"Super+Control+Shift+E" = "RotateActiveGroupsRight" # rotate only each column's active row
 "Super+Control+Alt+Shift+E" = { Spawn = 'notify-send -a Tartarus "E hold" "was: cycle layout right — Rubix has no layout ring, only FlipSplitDirection (Super+r)"' }
 
 # T10 r
@@ -199,8 +198,9 @@
 # Binding "F13" here silently never matches. The upside is that no physical key
 # on any attached keyboard emits XF86Tools, so this chord cannot collide.
 # This is NOT the T21 thumb modifier -- that is leftalt, remapped to Shift in
-# Razer.conf. Hold and the Shift variants are left unbound.
+# Razer.conf. Shift+XF86Tools (T21 held) captures with --label aroundNeck; hold is unbound.
 "Super+Control+XF86Tools" = { Spawn = '/home/max/.local/share/gesturecontrol/venv/bin/python3 /home/max/gesturecontrol/tests/flagWearable.py' }
+"Super+Control+Shift+XF86Tools" = { Spawn = '/home/max/.local/share/gesturecontrol/venv/bin/python3 /home/max/gesturecontrol/tests/flagWearable.py --label aroundNeck' }
 
 # T17 z
 "Super+Control+z" = { Spawn = '/home/max/Scripts/findOrLaunch.sh vesktop vesktop' }
