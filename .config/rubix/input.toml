@@ -49,6 +49,7 @@ mouse_follows_focus = true
 "Super+Shift+K" = "IncrementVisibleColumns"
 "Super+Shift+J" = "DecrementVisibleColumns"
 "Super+n" = "NewGroup"
+"Super+Shift+N" = "MoveToNewGroupDown"
 # Multi-head: step the cursor to the next monitor, or carry the focused window
 # over to it. Both wrap, and both no-op on a single head. Order is the
 # compositor's monitor list (output discovery order), not spatial left-to-right,

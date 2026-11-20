@@ -118,8 +118,8 @@
 #                                 the active-column pointer, w/s scroll rows.
 #                                 No structure awareness, no wrapping -- this is
 #                                 the explicit version of what tap does for you.
-#   mod hold  SwapGroup*          trade the active group with its neighbour, the
-#                                 cursor following the group that moved.
+#   mod hold  SwapGroup*          trade the active group with its neighbour; the
+#                                 cursor stays put, so the neighbour becomes active.
 #
 # The mod-tap row previously held tmux `select-pane` and the Eisenhower/quickNotes
 # launchers; they were displaced by the group-level binds and still need a home.
@@ -210,9 +210,9 @@
 
 # T18 x
 "Super+Control+x" = { Spawn = '/home/max/Scripts/tartarusTmux.sh "kill-pane"' }
-"Super+Control+Alt+x" = { Spawn = 'notify-send -a Tartarus "X hold" "(unassigned)"' }
+"Super+Control+Alt+x" = "MoveToNewGroupDown"
 "Super+Control+Shift+X" = { Spawn = 'notify-send -a Tartarus "X mod tap" "(unassigned)"' }
-"Super+Control+Alt+Shift+X" = { Spawn = 'notify-send -a Tartarus "X mod hold" "(unassigned)"' }
+"Super+Control+Alt+Shift+X" = "MoveToNewGroupUp"
 
 # T19 c -- start/stop the gestureControl user service, reporting which way it
 # went. Inlined rather than scripted: it is one systemctl branch.
