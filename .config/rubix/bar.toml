@@ -1,0 +1,16 @@
+# The built-in bar: a cap drawn along the screen edges. Full edges hold
+# modules and push tiled windows inward; Corner edges are short lips that
+# round off the inner curve without taking space.
+[bar]
+enabled = true
+top = "Full"
+bottom = "None"
+left = "Corner"
+right = "Corner"
+top_thickness = 32
+
+# How much of the frosted wallpaper shows through the cap.
+opacity = 0.85
+backdrop_tonemap = true
+backdrop_blur = true
+refract = false
