@@ -16,7 +16,7 @@ backdrop_blur = true
 refract = false
 
 # Which modules sit on each Full edge, in start/center/end slots.
-modules = { top = { start = [], center = [], end = ["cpu", "memory", "clock"] } }
+modules = { top = { start = [], center = ["minimap"], end = ["custom.claude_5h", "custom.claude_7d", "cpu", "memory", "clock"] } }
 font = "JetBrainsMono Nerd Font"
 font_size = 14
 
@@ -27,3 +27,18 @@ level_bar_nits = 600
 
 [bar.memory]
 level_bar_nits = 600
+
+# Claude plan usage. Turns the emphasis color past 80% and brightens with use.
+[bar.custom.claude_5h]
+exec = "~/Scripts/claudeUsageBar.py --window five_hour"
+level_bar = true
+level_bar_nits = 600
+emphasis_above = 80
+classes = { stale = "#6c7086" }
+
+[bar.custom.claude_7d]
+exec = "~/Scripts/claudeUsageBar.py --window seven_day"
+level_bar = true
+level_bar_nits = 600
+emphasis_above = 80
+classes = { stale = "#6c7086" }
