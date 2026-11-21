@@ -14,3 +14,16 @@ opacity = 0.85
 backdrop_tonemap = true
 backdrop_blur = true
 refract = false
+
+# Which modules sit on each Full edge, in start/center/end slots.
+modules = { top = { start = [], center = [], end = ["cpu", "memory", "clock"] } }
+font = "JetBrainsMono Nerd Font"
+font_size = 14
+
+# Level bars under cpu/memory glow past SDR white on HDR outputs, brightening
+# with load up to this peak.
+[bar.cpu]
+level_bar_nits = 600
+
+[bar.memory]
+level_bar_nits = 600
