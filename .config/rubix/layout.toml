@@ -50,3 +50,11 @@ name = "DP-1" # fake 4K head (debugfs EDID override) that Sunshine streams to th
 position = [3440, 0] # right of the primary, clear of the strip
 mode = "3840x2160"
 visible_columns = 1 # one column: each window fills the screen width
+
+# Thin lines in the outer gap that say content exists offscreen: above or below
+# a column when it has other groups there, and at the left or right screen edge
+# when columns don't fit on that side.
+[indicators]
+enabled = true
+width = 2         # logical pixels
+color = "#ffffff" # "#rgb", "#rrggbb" or "#rrggbbaa"
