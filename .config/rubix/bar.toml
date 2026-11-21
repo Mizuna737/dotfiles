@@ -16,7 +16,7 @@ backdrop_blur = true
 refract = false
 
 # Which modules sit on each Full edge, in start/center/end slots.
-modules = { top = { start = [], center = ["minimap"], end = ["custom.claude_5h", "custom.claude_7d", "cpu", "memory", "clock"] } }
+modules = { top = { start = ["custom.wa_status", "custom.vram_arbiter", "custom.wear_retrain"], center = ["minimap"], end = ["custom.volume", "custom.claude_5h", "custom.claude_7d", "cpu", "memory", "clock"] } }
 font = "JetBrainsMono Nerd Font"
 font_size = 14
 
@@ -42,3 +42,24 @@ level_bar = true
 level_bar_nits = 600
 emphasis_above = 80
 classes = { stale = "#6c7086" }
+
+# Former waybar scripts, carried over unchanged.
+[bar.custom.wa_status]
+exec = "python3 ~/Projects/rubix/contrib/waybar/waStatus.py"
+
+[bar.custom.vram_arbiter]
+exec = "python3 ~/Projects/dotfiles-tools/Scripts/vramArbiterBar.py"
+
+[bar.custom.wear_retrain]
+exec = "python3 ~/Projects/dotfiles-tools/Scripts/wearRetrainBar.py"
+
+[bar.custom.volume]
+exec = "python3 ~/Projects/rubix/contrib/waybar/volume.py"
+level_bar = true
+
+# No cap on the strip; it holds the dashboard and the stopgap waybar tray.
+[bar.output."HDMI-A-1"]
+top = "None"
+bottom = "None"
+left = "None"
+right = "None"

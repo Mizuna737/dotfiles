@@ -1,0 +1,17 @@
+// Stopgap until the Rubix bar grows its own tray: just the system tray, as a
+// narrow vertical bar on the right edge of the strip. Fixed width keeps it from
+// resizing with content, which is what made the full bar stall on this output.
+{
+  "output": "HDMI-A-1",
+  "layer": "top",
+  "position": "right",
+  "width": 30,
+  "spacing": 6,
+  "modules-left": [],
+  "modules-center": ["tray"],
+  "modules-right": [],
+  "tray": {
+    "icon-size": 18,
+    "spacing": 8
+  }
+}
