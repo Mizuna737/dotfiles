@@ -5,10 +5,10 @@
 enabled = true
 top = "Full"
 top_thickness = 32
-bottom = "Full"
+bottom = "Corner"
 bottom_thickness = 6
 left = "Full"
-left_thickness = 16
+left_thickness = 20
 right = "None"
 
 # How much of the frosted wallpaper shows through the cap.
@@ -27,6 +27,7 @@ font_size = 14
 start = ["custom.wa_status", "custom.vram_arbiter", "custom.wear_retrain"]
 center = ["minimap"]
 end = [
+  "network",
   "volume",
   "custom.claude_5h",
   "custom.claude_7d",
@@ -42,7 +43,7 @@ end = []
 
 [bar.modules.left]
 start = []
-center = []
+center = ["volume"]
 end = []
 
 [bar.modules.right]
@@ -84,6 +85,16 @@ exec = "python3 ~/Projects/dotfiles-tools/Scripts/vramArbiterBar.py"
 exec = "python3 ~/Projects/dotfiles-tools/Scripts/wearRetrainBar.py"
 on_click = "setsid -f ~/.local/share/gesturecontrol/venv/bin/python3 ~/gesturecontrol/tests/retrainWearable.py train"
 on_click_right = "setsid -f ~/.local/share/gesturecontrol/venv/bin/python3 ~/gesturecontrol/tests/retrainWearable.py promote"
+
+[bar.network]
+level_bar_nits = 600
+show_rates = true
+
+[[bar.network.vpn]]
+name = "Windscribe"
+status = "windscribe-cli status | grep -q 'Connect state: Connected'"
+connect = "windscribe-cli connect"
+disconnect = "windscribe-cli disconnect"
 
 [bar.volume]
 level_bar_nits = 600
