@@ -17,23 +17,38 @@ backdrop_tonemap = true
 backdrop_blur = true
 refract = true
 
-# Which modules sit on each Full edge, in start/center/end slots.
-modules = { top = { start = [
-  "custom.wa_status",
-  "custom.vram_arbiter",
-  "custom.wear_retrain",
-], center = [
-  "minimap",
-], end = [
-  "custom.volume",
+font = "JetBrainsMono Nerd Font"
+font_size = 14
+
+# Which modules sit on each edge. Only Full edges draw modules. Horizontal
+# edges run start/center/end left to right; vertical edges run them top to
+# bottom.
+[bar.modules.top]
+start = ["custom.wa_status", "custom.vram_arbiter", "custom.wear_retrain"]
+center = ["minimap"]
+end = [
+  "volume",
   "custom.claude_5h",
   "custom.claude_7d",
   "cpu",
   "memory",
   "clock",
-] } }
-font = "JetBrainsMono Nerd Font"
-font_size = 14
+]
+
+[bar.modules.bottom]
+start = []
+center = []
+end = []
+
+[bar.modules.left]
+start = []
+center = []
+end = []
+
+[bar.modules.right]
+start = []
+center = []
+end = []
 
 # Level bars under cpu/memory glow past SDR white on HDR outputs, brightening
 # with load up to this peak.
@@ -70,12 +85,8 @@ exec = "python3 ~/Projects/dotfiles-tools/Scripts/wearRetrainBar.py"
 on_click = "setsid -f ~/.local/share/gesturecontrol/venv/bin/python3 ~/gesturecontrol/tests/retrainWearable.py train"
 on_click_right = "setsid -f ~/.local/share/gesturecontrol/venv/bin/python3 ~/gesturecontrol/tests/retrainWearable.py promote"
 
-[bar.custom.volume]
-exec = "python3 ~/Projects/rubix/contrib/waybar/volume.py"
-level_bar = true
-on_click = "pactl set-sink-mute @DEFAULT_SINK@ toggle"
-on_scroll_up = "pactl set-sink-volume @DEFAULT_SINK@ +5%"
-on_scroll_down = "pactl set-sink-volume @DEFAULT_SINK@ -5%"
+[bar.volume]
+level_bar_nits = 600
 
 # No cap on the strip; it holds the dashboard and the stopgap waybar tray.
 [bar.output."HDMI-A-1"]
@@ -83,3 +94,11 @@ top = "None"
 bottom = "None"
 left = "None"
 right = "None"
+
+# Bigger cells, one group above and below the active row. A deeper stack
+# fades at its tip.
+[bar.minimap]
+cell_width = 12
+cell_height = 7
+cell_gap = 3
+max_depth = 1
