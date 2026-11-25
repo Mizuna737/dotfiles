@@ -70,6 +70,8 @@ mouse_follows_focus = true
 # fullscreen clients are hidden rather than un-fullscreened, so keyboard
 # navigation alone never lands on them. Selecting an entry sends `activate`.
 "Super+Tab" = { Spawn = "rofi -show window" }
+# The map: the minimap expanded into a full view of the grid and its windows.
+"Super+m" = "ToggleMap"
 # Clipboard history picker. CopyQ keeps its own global-shortcut settings, but
 # they are dead on Wayland -- an XWayland client cannot grab keys for the whole
 # session -- so the hotkey has to come from the compositor instead. `menu` pops

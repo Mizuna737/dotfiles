@@ -114,3 +114,7 @@ cell_width = 12
 cell_height = 7
 cell_gap = 3
 max_depth = 1
+
+# The map opened from the minimap (right-click or Super+m).
+[bar.map]
+keys = "Vim"
