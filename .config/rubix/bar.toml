@@ -33,6 +33,7 @@ end = [
   "custom.claude_7d",
   "cpu",
   "memory",
+  "tray",
   "clock",
 ]
 
