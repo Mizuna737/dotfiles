@@ -67,6 +67,7 @@ iotop
 iwd
 jq
 jre21-openjdk-headless
+kdeconnect
 kitty
 kvantum
 kvantum-qt5
@@ -87,6 +88,7 @@ man-db
 mda.lv2
 mediainfo
 mesa-utils
+mold
 mosquitto
 mpv
 mscp
@@ -190,7 +192,6 @@ vtk
 vulkan-tools
 wasm-bindgen
 wasm-pack
-waybar
 weston
 wget
 wireless_tools

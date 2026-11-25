@@ -86,9 +86,8 @@ mouse_follows_focus = true
 "Super+v" = { Spawn = "copyq menu" }
 # Audio. Bare XF86 media keysyms (resolved case-sensitively by xkb) reach the
 # compositor via libinput on the TTY; each Spawns a pactl command against the
-# default sink/source. The waybar volume module reacts on its own via `pactl
-# subscribe`, so no compositor-side sink handler is needed. pactl matches the
-# bar's tooling (@DEFAULT_SINK@).
+# default sink/source. The bar's volume module follows the change through its
+# own PulseAudio subscription, so no compositor-side sink handler is needed.
 "XF86AudioRaiseVolume" = { Spawn = "pactl set-sink-volume @DEFAULT_SINK@ +1%" }
 "XF86AudioLowerVolume" = { Spawn = "pactl set-sink-volume @DEFAULT_SINK@ -1%" }
 "XF86AudioMute" = { Spawn = "pactl set-sink-mute @DEFAULT_SINK@ toggle" }

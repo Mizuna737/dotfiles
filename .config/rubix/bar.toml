@@ -77,7 +77,7 @@ classes = { stale = "#6c7086" }
 
 # Former waybar scripts, carried over unchanged.
 [bar.custom.wa_status]
-exec = "python3 ~/Projects/rubix/contrib/waybar/waStatus.py"
+exec = "python3 ~/Scripts/waStatus.py"
 
 [bar.custom.vram_arbiter]
 exec = "python3 ~/Projects/dotfiles-tools/Scripts/vramArbiterBar.py"

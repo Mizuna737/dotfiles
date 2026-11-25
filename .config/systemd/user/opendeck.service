@@ -1,10 +1,10 @@
 [Unit]
 Description=OpenDeck Stream Deck daemon
 PartOf=rubix-session.target
-After=rubix-session.target waybar.service
+After=rubix-session.target
 
 [Service]
-# --hide starts straight to the tray; waybar hosts the status-notifier item.
+# --hide starts straight to the tray; the Rubix bar hosts the status-notifier item.
 ExecStart=/usr/bin/opendeck --hide
 Restart=on-failure
 RestartSec=5
