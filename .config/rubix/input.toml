@@ -66,13 +66,16 @@ mouse_follows_focus = true
 # Previous launcher, kept for falling back:
 # "Super+space" = { Spawn = 'rofi -show combi -modes combi -combi-modes "window,drun,run" -terminal kitty' }
 "Super+space" = "ToggleMap"
-# Window switcher. rofi's window mode binds wlr-foreign-toplevel-management,
-# which Rubix serves from src/foreign_toplevel.rs -- without that global rofi
-# refuses the mode outright. This is the way back to a window the grid cannot
-# reach on its own: fullscreen windows sit outside the tiling grid, and X11
+# Window switcher. This is also the way back to a window the grid cannot reach
+# on its own: fullscreen windows sit outside the tiling grid, and X11
 # fullscreen clients are hidden rather than un-fullscreened, so keyboard
-# navigation alone never lands on them. Selecting an entry sends `activate`.
-"Super+Tab" = { Spawn = "rofi -show window" }
+# navigation alone never lands on them. The map lists them in its fullscreen
+# strip.
+# Previous switcher: "Super+Tab" = { Spawn = "rofi -show window" }
+# Recent windows in the map, fullscreen ones included: hold Super, tap Tab
+# (Shift+Tab goes back), release Super to switch.
+"Super+Tab" = "MapCycle"
+"Super+Shift+Tab" = "MapCycleBack"
 # Clipboard history picker. CopyQ keeps its own global-shortcut settings, but
 # they are dead on Wayland -- an XWayland client cannot grab keys for the whole
 # session -- so the hotkey has to come from the compositor instead. `menu` pops
