@@ -62,7 +62,10 @@ mouse_follows_focus = true
 # Launcher. rofi picks its wayland (layer-shell) backend automatically under
 # Rubix; the compositor grants it keyboard focus via layer-shell keyboard
 # interactivity (see focus_interactive_layer).
-"Super+space" = { Spawn = 'rofi -show combi -modes combi -combi-modes "window,drun,run" -terminal kitty' }
+# The map: the grid and its windows, with search (/ in Vim mode) for windows, apps and commands.
+# Previous launcher, kept for falling back:
+# "Super+space" = { Spawn = 'rofi -show combi -modes combi -combi-modes "window,drun,run" -terminal kitty' }
+"Super+space" = "ToggleMap"
 # Window switcher. rofi's window mode binds wlr-foreign-toplevel-management,
 # which Rubix serves from src/foreign_toplevel.rs -- without that global rofi
 # refuses the mode outright. This is the way back to a window the grid cannot
