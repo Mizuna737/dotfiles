@@ -122,7 +122,6 @@ picom
 pipewire
 pipewire-alsa
 pipewire-pulse
-pipewire-zeroconf
 playerctl
 prismlauncher
 prrte

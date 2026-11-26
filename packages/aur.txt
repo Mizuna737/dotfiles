@@ -22,6 +22,8 @@ nvm-git
 opencode-bin
 opendeck-git
 outlook-for-linux-bin
+owntone-server
+owntone-server-debug
 paru
 proton-ge-custom-bin
 protontricks-git

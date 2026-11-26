@@ -5,6 +5,7 @@ Wants=pipewire.service
 
 [Service]
 Type=simple
+ExecStartPre=/bin/mkdir -p %t/houseAudio
 ExecStart=/usr/bin/snapserver -c /home/max/.config/snapserver/snapserver.conf
 Restart=on-failure
 RestartSec=5

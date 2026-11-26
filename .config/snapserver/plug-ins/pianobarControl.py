@@ -1,0 +1,1 @@
+/home/max/Projects/houseAudio/snapcast/pianobarControl.py
