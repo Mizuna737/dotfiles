@@ -1,0 +1,9 @@
+[Unit]
+Description=Snapcast client (play the house stream on this PC)
+After=snapserver.service pipewire-pulse.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/snapclient --player pipewire --hostID alduin tcp://127.0.0.1:1704
+Restart=on-failure
+RestartSec=3

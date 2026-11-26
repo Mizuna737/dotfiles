@@ -43,3 +43,4 @@ plugins/
 .config/sunshine/credentials/
 .config/sunshine/sunshine_state.json
 .config/sunshine/sunshine.log*
+.config/snapserver/server.json

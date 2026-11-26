@@ -1,0 +1,14 @@
+[Unit]
+Description=Snapcast server (multi-room audio from the BookShare sink)
+After=pipewire.service pipewire-pulse.service
+Wants=pipewire.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/snapserver -c /home/max/.config/snapserver/snapserver.conf
+Restart=on-failure
+RestartSec=5
+ExecStartPost=/bin/sh -c "sleep 2; pw-link bookShare:monitor_FL snapcast:playback_FL; pw-link bookShare:monitor_FR snapcast:playback_FR; true"
+
+[Install]
+WantedBy=default.target

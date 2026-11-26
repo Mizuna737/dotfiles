@@ -36,6 +36,7 @@ rofi-autorandr
 satty-git
 simplescreenrecorder
 smem
+snapcast
 steamcmd
 sunshine-bin
 teams-for-linux-bin

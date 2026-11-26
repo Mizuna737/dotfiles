@@ -1,0 +1,1 @@
+/home/max/Scripts/snapcastMprisControl.py
